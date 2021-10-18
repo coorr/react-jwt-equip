@@ -1,0 +1,31 @@
+/* 공통 */
+.treeTopBarArea{width: 100%; height: 6%;   } 
+
+/* 오른쪽 화면 */
+.treeParant{width: 48%; height: 93%; background-color: #fff; border: 1px solid #fff; margin-top: 0.3%; margin-left: 0.3%; }
+.TopBarBox{width: 100%;height: 70%;  display: flex; margin-top: 1%;  }
+.TobBarText{font-size: 1.3rem; margin-left: 5%; font-weight: bold; width: 30%; }
+.searchArea{width: 90%; height: 5.5%; margin: 0 auto;  }
+input:focus {outline:none;}
+.searchBox{ background-color: #F3F3F5; width: 50%; height: 75%; border: 1px solid #999999; display: flex; }
+.searchBox input {margin-left: 5%; width: 88%; background-color: #F3F3F5; border: 1px solid #F3F3F5; }
+.searchIcon{width: 10%; background-color: white;}
+.searchImg{width: 60%; margin-top: 15%; margin-left: 15%;}
+.TobBarRight{ display: flex;  width: 100%; }
+.inputSelectEquipments{margin-top: 1.5%; margin-left: 2.5%; margin-left: 45%; }
+.inputSelectEquipment{margin-top: 1.5%; margin-left: 2.5%;  }
+.labelSelectEquipment{margin-top: 0.9%; margin-left: 1%;}
+.buttonSelectEquipment{margin-left: 1.5%; background-color: #6693d7;border-color: #6693d7; color: #fff; width: 60px;}
+.buttonSelectEquipment:hover{background-color: #3f7bd4; border: 1px solid #5c8fdb}
+
+/* 왼쪽 화면 */
+.treeLeft{margin-left: 15px;}
+.treeParantLift{width: 48%; height: 93%; background-color: #fff; border: 1px solid #fff; margin-top: 0.3%; margin-left: 0.3%; }
+.TopBarBoxLeft{width: 100%;height: 70%;  display: flex; margin-top: 1%;  }
+.TobBarTextLeft{font-size: 1.3rem; margin-left: 5%; font-weight: bold; width: 30%;     }
+.buttonSelectEquipmentSize{ display: flex; margin-left: 43%;}
+.buttonSelectEquipmentLeft{   width: 60px; border: 1px solid #6693D7; background-color: #fff;  color: #6693D7; font-size: 0.9em; border-radius: 0;  margin-left: 2%;}
+.buttonSelectEquipmentLeft:hover{background-color: #6693D7; border: 1px solid #6693D7}
+.buttonSelectEquipmentLeftTwo{   width: 60px; border: 1px solid #29363d; background-color: #fff;  color: #29363d; font-size: 0.9em; border-radius: 0;  margin-left: 2%;}
+.buttonSelectEquipmentLeftTwo:hover{background-color: #29363d; border: 1px solid #29363d; color: #fff;}
+

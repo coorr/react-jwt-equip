@@ -1,0 +1,110 @@
+body{overflow: hidden;}
+label{margin-top: 0;}
+
+.Container{width: 100%; height:54.9rem;  background-color: #ddd; display:flex;}
+.ContainerAdmin{width: 100%; height:55.1rem;  background-color: #ddd; display: flex; }
+
+.sideBarArea{width: 3%; height: 100%;  background-color: #fff;}
+
+/* ADMIN 페이지 */
+.FilterContainer{width: 97%; height: 100%; }
+/* high 공간 */
+.topFilterArea{width: 99.5%; height: 24%; background-color: #fff; border: 1px solid #c2cfd6;margin: 0 auto; }
+.topFilterBox{width: 99.5%; height: 80%; border: 1px solid #c2cfd6;margin:0.2% 0 0 0.2%;   }
+.selectFilterSpace{width: 100%; height: 25%; border-bottom: 1px solid #c2cfd6; display: flex;}
+.selectBox{width: 7%; height: 100%; border-right: 1px solid #c2cfd6; background-color: #F5F3F4;}
+.selectFont{font-weight: bold; font-size: 0.9em; width: 90%;margin-left: 5%; padding-top: 6%;  }
+.selectCheckBox{width: 93%; height: 100%; }
+.filterInput{margin-top: 0.4%; margin-left: 0.5%;}
+.filterSpan{margin-left: 0.3%; margin-right: 1.2%; font-size: 0.9em;}
+.topFilterBottomArea{width: 100%; height: 20%;}
+.topFilterBottomBtn{margin-left: 45%; border:1px solid #29363d; background-color: #29363d; color: white;}
+.topFilterBottomBtn:hover {border:1px solid black; background-color: black; color: white;}
+.topFilterBottomBtn:focus{border:1px solid black; background-color: black; color: white;}
+
+
+/* middle 공간 */
+.middleFilterArea{width: 99.5%; height: 5%; background-color: #ddd; border: 1px solid #ddd; margin: 0 auto;}
+
+/* bottom 공간 */
+.bottomFilterArea{width: 99.5%; height: 65%; background-color: #fff; margin: 0 auto; }
+.bottomHighArea{width: 100%; height: 10%; display: flex;    }
+.leftTextBox{width: 50%; height: 100%; }
+.textFont{font-size: 0.8rem; margin-top: 2%; margin-left: 2%; font-weight: bold;}
+
+.rightSaveBox{width: 50%;height: 100%;   }
+.rightSnmpArea{display: flex; margin-left: 4.5%;}
+.rightSnmpLabel{font-size: 0.8em;  margin-right: 5px; margin-top: 1.5%; margin-left: 10px; }
+.rightSnmpBtn{ border: 1px solid #6693D7; background-color: #fff;  color: #6693D7; font-size: 0.9em; margin-top: 0.8%;   }
+.rightSnmpBtn:hover{background-color: #6693D7; border: 1px solid #6693D7}
+.rightSnmpBtn:focus{border: 1px solid #6693D7; background-color: #fff; color: #6693D7; }
+.rightSaveSpace{text-align: end; margin-right: 5%; margin-top: 1%; }
+.SaveBtn{ border: 1px solid #6693D7; background-color: #fff;  color: #6693D7; font-size: 0.9em; margin-top: 0.8%; margin-left: 3%; border-radius: 0; }
+.SaveBtn:hover{background-color: #6693D7; border: 1px solid #6693D7}
+.SaveBtn:focus{border: 1px solid #6693D7; background-color: #fff; color: #6693D7; }
+.SaveBtnRemove { border: 1px solid black; background-color: #fff;  color: black; font-size: 0.9em; margin-top: 0.8%; margin-left: 1%;border-radius: 0; }
+.SaveBtnRemove:hover{background-color: #29363d; border: 1px solid #29363d}
+.SaveBtnRemove:focus{border: 1px solid #29363d; background-color: #fff; color: #29363d; }
+
+.agGridArea{width: 100%; height: 80%; }
+.agGridBox{width: 98%; height: 95%; margin: 0 auto;}
+
+.underArea{width: 98%; height: 10%;   display: flex; margin-left: 1%;}
+.underLeftArea{ width: 50%; height: 100%; }
+.underRightArea{width: 50%;  height: 100%;}
+.underBtn{ border: 1px solid #6693D7; background-color: #6693D7;  color: #fff; font-size: 1em; margin-right: 1%;}
+.underBtn:hover{background-color: #3f7bd4; border: 1px solid #5c8fdb}
+.underBtn.whiteBtn{background-color: #fff; border: 1px solid black; color: black;} 
+.underBtn.whiteBtn:hover{background-color: #29363d; border: 1px solid black; color: #fff;} 
+
+.underRightBox{width: 100%; height: 100%; margin-left: 50%;}
+.underBtn.grayBtn{background-color: #ddd; border: 1px solid #ddd; color: black;} 
+.underBtn.grayBtn:hover{background-color: rgb(233, 222, 222); border: 1px solid #ddd; color: black;} 
+
+/* tooltip 1 공간 */
+.tooltipArea{ width: 200px; height: 310px; }
+.tooltipHigh{width: 200px; height: 22px; }
+.headerArea{width: 210px; height: 75px;  display: flex; border-bottom: 1px solid white;  }
+.headerLeft{width: 80px; height: 75px; }
+.headerLeftFont{color: #6593d7;  padding-bottom: 2px; height: 20px; margin-top: 5px;} 
+.headerLeftFontTwo{ margin-top: 15px;}
+.headerRightFont{font-weight: bold; border: 1px solid #222; background-color: #222; color: white; font-size: 1.1em;}
+.headerRight{width: 130px; height: 75px;  }
+.headerRightSelect{ width: 170px; height:40px; color: black; font-weight: bold;}
+select {  width: 60px; height: 30px; }
+.headerRightBtn{ border: 1px solid #6593d7; background-color: #fff;   width: 70px; height: 38px; font-size: 0.9em; color: #6693D7; margin-left: 3%; border-radius: 5px; }
+.headerRightBtn:hover{background-color: #6693D7; border: 1px solid #6693D7; color:#fff}
+.headerRightBtn:focus{border: 1px solid #6693D7; background-color: #fff; color: #6693D7; }
+.headerRightAddBtn{display: flex;  margin-top: 3%; }
+.middleArea{width: 220px;   display: flex;   margin-top: 15px; margin-bottom: 5px; }
+.middleRightFont{color: #6593d7;  } 
+.middleRightAddFont{margin-left: 107px; }
+.bottomArea{width: 210px; height: 35px;  display: flex;  }
+.middleRightSelectTwo{  background-color: #fff;   width: 170px; height: 38px; font-size: 0.9em; color: black; margin-left: 3%; border-radius: 5px;font-weight: bold; }
+.bottomAreaDisk{width: 210px; height: 35px;  display: flex; margin-top: 10px; }
+.ag-cell-focus, .ag-cell { border: none !important; }
+.extraClass { pointer-events: auto !important;}
+.hwTooltipBtn{line-height:normal; border: 1px solid #6693D7; background-color: #fff;  color: #6693D7; height: 22px;width: 40px; }
+.hwTooltipBtn:hover{background-color: #6693D7; border: 1px solid #6693D7; color:#fff;}
+.hwTooltipBtn:focus{border: 1px solid #6693D7; background-color: #fff; color: #6693D7; }
+.hideHwTooltip{ border-radius: 50%; border:1px solid #267dff; background-color: #222; color:white; margin-left: 190px;margin-bottom: 5px; width: 22px; height: 22px; }
+
+/* tooltip 2 공간 */
+.tooltipAreaTwo{ width: 225px; height: 335px; }
+.headerAreaTwo{width: 240px; height: 97px;  display: flex; border-bottom: 1px solid white;  }
+.headerLeftTwo{width: 105px; height: 90px; margin-bottom: 3px;}
+.headerLeftFontTwoReal{color: #6593d7;  padding-bottom: 2px; height: 20px;  } 
+.headerRightFontTwo{font-weight: bold; border: 1px solid #222; background-color: #222; color: white; font-size: 1.1em; width: 105px;  }
+.headerRightFontTwo span{ margin-right: 4px;}
+.headerRightTwo{width: 130px; height: 90px;  }
+.headerRightFontTwoReal{font-weight: bold; border: 1px solid #222; background-color: #222; color: white; font-size: 1.1em; width: 105px; margin-left: 30px; }
+.headerRightFontTwoReal span{text-align: right;}
+.middleAreaTwo{width: 240px;   display: flex;   margin-top: 15px; margin-bottom: 5px;  }
+.bottomAreaTwo{width: 235px; height: 35px;  display: flex;  }
+.bottomAreaDiskTwo{width: 235px; height: 35px;  display: flex; margin-top: 10px; }
+.hideHwTooltipTwo{ border-radius: 50%; border:1px solid #267dff; background-color: #222; color:white; margin-left: 220px;margin-bottom: 5px; width: 22px; height: 22px; }
+
+/* button 간격 조절 */
+.ag-theme-alpine .ag-cell {line-height:30px }
+
+
