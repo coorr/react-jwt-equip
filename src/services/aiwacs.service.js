@@ -22,7 +22,7 @@ class AiwacsService {
     offActiveEquipment(equipId) { 
       return axios.post(API_URL + "equipment/offActive/"+equipId ); 
     }
-    typeFilterEquipment(equipType,equipCatagory) { 
+    searchFilterEquipment(equipType,equipCatagory) { 
       return axios.get(API_URL + "equipment/filterType/"+equipType+'/'+equipCatagory ); 
     }
     allTooltipHwUpdateEquipment(hwCpu,hwDisk,hwNic,hwSensor,hwid) {

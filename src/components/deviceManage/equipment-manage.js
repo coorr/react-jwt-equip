@@ -57,9 +57,7 @@ export default class BoardAdmin extends Component {
         resizable:true,
       },
       columnDefs: [
-        { headerName: '장비명', field: 'equipment'
-        ,checkboxSelection:true 
-         ,onCellClicked: this.onUpdateClick},   // rowGroup:true, width:200
+        { headerName: '장비명', field: 'equipment',checkboxSelection:true , headerCheckboxSelection:true, onCellClicked: this.onUpdateClick},   // rowGroup:true, width:200
         { headerName: 'Public Ip', field: 'settingIp',onCellClicked: this.onUpdateClick ,checkboxSelection:false , },
         { headerName: 'OS', field: 'settingOs', onCellClicked: this.onUpdateClick },
         { headerName: '제조사', field: 'settingPerson', onCellClicked: this.onUpdateClick } ,
@@ -86,6 +84,7 @@ export default class BoardAdmin extends Component {
       hwnull: ' ' ,
       hwDefault: {label: '60' , value:'60' },
       testCheck: true,
+      selectTypeList: '그룹',
     };       
   }
    /* 모달 창 여부 */
@@ -307,13 +306,14 @@ CatagoryFilterAll = (e) => {
 }
 /* 조회하기 버튼 */
 filterSelect = () => {
-    const {typeData,catagoryData} = this.state;
+    const {typeData,catagoryData, selectTypeList} = this.state;
     const equipType=typeData.join(',');
     const equipCatagory=catagoryData.join(',');
     console.log(equipType,equipCatagory);
+    console.log(selectTypeList);
 
-    if(equipType !== '' && equipCatagory !== '') {
-      AiwacsService.typeFilterEquipment(equipType,equipCatagory)
+    if(selectTypeList === '전체' && equipType !== '' && equipCatagory !== '') {
+      AiwacsService.searchFilterEquipment(equipType,equipCatagory)
     .then((res) => {
       this.setState({filterData:res.data,equipCheck:false})
     })
@@ -510,17 +510,15 @@ downloadExcel = () => {
 manageEquipmentListURL = () =>  { this.props.history.push("/manageEquipmentList") }
 
 
+
   render() {
     const { columnDefs ,defaultColDef,equipment,formData,typeArray,typecheckList,typeData
-    ,catagoryArray,CatagoryCheckList,catagoryData,filterData,equipCheck,gridComponents,hwCpu,hwDisk,hwSensor,hwNic,hwid,hwNumber,isAuthorized} = this.state;
+    ,catagoryArray,CatagoryCheckList,catagoryData,filterData,equipCheck,gridComponents,hwCpu,hwDisk,hwSensor,hwNic,hwid,hwNumber, selectTypeList} = this.state;
 
     return (
       <div className="ContainerAdmin">
-        {/* { !isAuthorized ? <Redirect to="/" /> : <Redirect to="admin" />} */}
         <div className="sideBarArea">
         </div>
-
-       
 
       <div className="FilterContainer">
        <div className="topFilterArea"> 
@@ -531,8 +529,8 @@ manageEquipmentListURL = () =>  { this.props.history.push("/manageEquipmentList"
                 </div>
                 <div className="selectCheckBox">
                   <div className="filterInput">
-                     {/* <input type="radio"/><span className="filterSpan">그룹 </span>
-                     <input type="radio"/><span className="filterSpan">전체</span> */}
+                     <input type="radio" value="그룹" checked={selectTypeList==='그룹'} onChange={(e)=> this.setState({selectTypeList : e.target.value})} /><span className="filterSpan">그룹 </span>
+                     <input type="radio" value="전체" checked={selectTypeList==='전체'} onChange={(e)=> this.setState({selectTypeList : e.target.value})} /><span className="filterSpan">전체</span>
                   </div>
                 </div>
             </div>
@@ -641,20 +639,8 @@ manageEquipmentListURL = () =>  { this.props.history.push("/manageEquipmentList"
                   groupSelectsChildren={true} // 자식노드까지 체크
                   enableRangeSelection={true}  // 다중 선택 가능
                   defaultColDef={defaultColDef}
-                  // suppressChangeDetection={false}
-                  // suppressModelUpdateAfterUpdateTransaction={true}
                   deltaRowDataMode={false}
-                  //// onCellClicked={this.onUpdateClick}
-                  // gridOptions={this.gridOptions.setRowData(equipment)}
                   frameworkComponents={gridComponents}
-                  // tooltipShowDelay={0}
-                  // autoGroupColumnDef={{
-                  //   headerName: '그룹 장비',
-                  //   minWidth: 300,
-                  //   cellRendererParams: { suppressCount: true },
-                  // }}
-                  // getDataPath={data => { return data.orgHierarchy}}
-                  // suppressCellSelection={true}
                   // autoGroupColumnDef={autoGroupColumnDef}  // 자동 열 그룹 지정 - 첫번째열
                   
                 />

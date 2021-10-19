@@ -50,11 +50,13 @@ class manageEquipmentList extends React.Component {
       checkedKey: [],
       groupId:'',
       search:"",
+      searchRight:"",
       selectedKeys:[], //
       groups:[],
       treeData: [],
       equipment:[],
       EquipArray:[],
+      groupArray:[],
 
       onCheckBtn:[],
       parentTree:[],
@@ -115,9 +117,75 @@ class manageEquipmentList extends React.Component {
   }
 
   componentDidUpdate(prevProps,prevState) {
+    const { EquipArray,searchRight, search,groupArray} =this.state;
+
+    if(search !== prevState.search) {
+      const resData = [];
+      groupArray.filter((v) => {
+        const children = [];
+        v.children.map((c)=> {
+          children.push(c.title);
+        })
+        for(var i=0; i< children.length; i++) {
+          if(search === "") {
+            return v;
+          } else if (v.title?.toLowerCase().includes(search.toLowerCase()) ||
+                    children[i]?.toLowerCase().includes(search.toLowerCase())) {
+            return v;
+          }
+        }
+          
+      })
+      .map((v) => {
+        const innerArray = [];
+        const innerData = { 
+          key: v.key, 
+          title: v.title, 
+          isLeaf: false,
+          children:  [],
+        };
+        if(v.children.length > 0) {
+          for (let i = 0; i < v.children.length; i++) {
+            const obj = {};
+            obj.key = v.children[i].key;
+            obj.title = v.children[i].title;
+            obj.icon = <CustomIcon />
+            innerArray.push(obj);
+          }
+          innerData.children = innerArray;                   
+        }
+        resData.push(innerData);
+      })
+      this.setState({groups: resData})
+    }
+
+    if(searchRight !== prevState.searchRight) {
+      const searchEquipment =[];
+      EquipArray.map((eq) => {
+        const device = eq.devices;
+        device.filter((se) => {
+          if(searchRight === "") {
+            return se; 
+          } else if (se.equipment?.toLowerCase().includes(searchRight.toLowerCase()) || 
+                    se.nickname?.toLowerCase().includes(searchRight.toLowerCase())|| 
+                    se.settingIp?.toLowerCase().includes(searchRight.toLowerCase())|| 
+                    se.settingType?.toLowerCase().includes(searchRight.toLowerCase())) {
+            return se;
+          } 
+        }).map((se) => {
+          const objs ={};
+             objs.key = se.id;
+             objs.title =[se.equipment,'/',se.nickname,'/',se.settingIp,'/',se.settingType,'/',eq.groups];
+             objs.icon= <CustomIcon />
+             searchEquipment.push(objs);
+        })
+      })
+      this.setState({equipment:searchEquipment })
+    }
   }
 
   componentDidMount() {
+    const { search } = this.state;
     GroupEquipmentService.getGroupEquipment()
           .then((res) => {
           console.log(res.data);
@@ -137,26 +205,26 @@ class manageEquipmentList extends React.Component {
                 }
              })
             });
-            this.setState({groups: resDatas})
+            this.setState({groups: resDatas , groupArray:resDatas})
           })
 
      GroupEquipmentService.unGroupEquipment()
       .then((res) => {
         // console.log(res.data);
+        const { searchRight } = this.state;
+        const data = res.data;
         const EquipDatas = [res.data];
         const EquipArray=[];
 
-        EquipDatas.forEach((e,index) => { 
-            if(e.devices.length > 0) {
-              for(let i=0; i < e.devices.length; i++) {
-                const obj ={};
-                obj.key = e.devices[i].id;
-                obj.title = [e.devices[i].equipment,'/',e.devices[i].nickname,'/',e.devices[i].settingIp,'/',e.devices[i].settingType,'/',e.groups];
-                obj.icon= <CustomIcon />
-                
-                EquipArray.push(obj);
-              }
-            }
+        EquipDatas.map(eq => {
+          const devices = eq.devices;
+          devices.map(se => {
+            const objs ={};
+             objs.key = se.id;
+             objs.title =[se.equipment,'/',se.nickname,'/',se.settingIp,'/',se.settingType,'/',eq.groups];
+            //  objs.icon= <img style={{width:15,padding:1}} src={Equipment} alt="Custom Icon" />
+             EquipArray.push(objs);
+          })
         })
         this.setState({equipment:EquipArray, EquipArray:EquipDatas})
       })   
@@ -167,29 +235,17 @@ class manageEquipmentList extends React.Component {
   pathEquipmentGroupManage = () => { this.props.history.push("/admin") }
 
   onExpand = (expandkey,info) => {
-    console.log(expandkey);
-    console.log(info);
 
-    const expandChildrenkeys = [];
-    const expandChildren = info.node.props.children;
-    expandChildren.map(e => {
-      expandChildrenkeys.push(e.key);
-     });
-    this.setState({expandChildrenkeys: expandChildrenkeys})
-    this.setState({expandkeys : expandkey})
-    
   }
 
   onCheck = (checkKey, info) => {
     console.log(checkKey,info);
 
-    const { expandkeys } = this.state;
     const groupId = [];
     const equipId = [];
     const groupName=  [];
     const groupIdData = info.checkedNodes;
 
-    expandkeys.map(e => { console.log(e)})
     
     groupIdData.map(c => {
       if(c.props.isLeaf === false) {
@@ -224,9 +280,14 @@ class manageEquipmentList extends React.Component {
 
   TreeRemove = (checkKey) => {
     const { parentTree, childrenTree} = this.state;
+    const parentKey =[];
+    for(var i=0; i<parentTree.length; i++) {
+      parentKey.push(parentTree[i].replace("-",""));
+    }
+    console.log(parentKey);
 
     if(parentTree.length > 0) {
-      GroupEquipmentService.deleteGroupEquipmentMapping('parent',parentTree)
+      GroupEquipmentService.deleteGroupEquipmentMapping('parent',parentKey)
         .then(() => {
           console.log("부모 삭제");
           alert("삭제 되었습니다.");
@@ -274,12 +335,12 @@ class manageEquipmentList extends React.Component {
     const { deviceTree, dragDeviceTree, childrenTree, dragChildrenTree  } = this.state; 
     
     var deviceCount = 0;
-    // var groupCount = 0;
+
     console.log("deviceTree : ", deviceTree);
     console.log(deviceTree.length);
     for(var i=0; i< deviceTree.length; i++) {
       const insertMappingDevice = {
-        group_id: event.node.props.eventKey,
+        group_id: event.node.props.eventKey.replace("-",""),
         equipment_id: deviceTree[i]
       }
       GroupEquipmentService.insertGroupEquipmentMapping(insertMappingDevice) 
@@ -292,47 +353,48 @@ class manageEquipmentList extends React.Component {
       })
     }
    
-      console.log("deviceTree : " + deviceTree);
-      console.log("dragDeviceTree: " + dragDeviceTree);
-      if(dragDeviceTree.length > 0 && deviceTree.length === 0 ) {
-        const insertMappingDrag = {
-          group_id: event.node.props.eventKey,
-          equipment_id: dragDeviceTree,
-        }
-        GroupEquipmentService.insertGroupEquipmentMapping(insertMappingDrag) 
-        .then(res=> {
-          console.log("insert Drag ")
-          this.eventChange();
-        })
+    console.log("deviceTree : " + deviceTree);
+    console.log("dragDeviceTree: " + dragDeviceTree);
+    if(dragDeviceTree.length > 0 && deviceTree.length === 0 ) {
+      const insertMappingDrag = {
+        group_id: event.node.props.eventKey.replace("-",""),
+        equipment_id: dragDeviceTree,
       }
+      console.log(insertMappingDrag);
+      GroupEquipmentService.insertGroupEquipmentMapping(insertMappingDrag) 
+      .then(res=> {
+        console.log("insert Drag ")
+        this.eventChange();
+      })
+    }
 
-      console.log("childrenTree : " + childrenTree);
-      for(var c=0; c < childrenTree.length; c++ ) {
-        const insertMappingChildren = {
-          group_id: event.node.props.eventKey,
-          equipment_id: childrenTree[c]
-        }
-        GroupEquipmentService.insertGroupEquipmentMapping(insertMappingChildren) 
-        .then(res=> {
-          console.log("insert Children ")
-          // this.eventChange();
-          window.location.reload();
-        })
+    console.log("childrenTree : " + childrenTree);
+    for(var c=0; c < childrenTree.length; c++ ) {
+      const insertMappingChildren = {
+        group_id: event.node.props.eventKey.replace("-",""),
+        equipment_id: childrenTree[c]
       }
+      GroupEquipmentService.insertGroupEquipmentMapping(insertMappingChildren) 
+      .then(res=> {
+        console.log("insert Children ")
+        // this.eventChange();
+        window.location.reload();
+      })
+    }
 
-      console.log("dragChildrenTree : " + dragChildrenTree);
-      if(dragChildrenTree.length > 0 && childrenTree.length === 0) {
-        const insertChildrenDrag = {
-          group_id: event.node.props.eventKey,
-          equipment_id: dragChildrenTree
-        }
-        GroupEquipmentService.insertGroupEquipmentMapping(insertChildrenDrag) 
-        .then(res=> {
-          console.log("insert Drag Children ")
-          this.eventChange();
-          // window.location.reload();
-        })
+    console.log("dragChildrenTree : " + dragChildrenTree);
+    if(dragChildrenTree.length > 0 && childrenTree.length === 0) {
+      const insertChildrenDrag = {
+        group_id: event.node.props.eventKey.replace("-",""),
+        equipment_id: dragChildrenTree
       }
+      GroupEquipmentService.insertGroupEquipmentMapping(insertChildrenDrag) 
+      .then(res=> {
+        console.log("insert Drag Children ")
+        this.eventChange();
+        // window.location.reload();
+      })
+    }
   }
 
   onDragStart = (event,node) => {
@@ -350,8 +412,13 @@ class manageEquipmentList extends React.Component {
   addTreeNameBtn = () => {
     const { parentTree, addTreeName  } = this.state;
     const name = { treeName: this.state.addTreeName }
-    
-    if(parentTree.length === 0 ) {
+    const parentKey =[];
+    for(var i=0; i<parentTree.length; i++) {
+      parentKey.push(parentTree[i].replace("-",""));
+    }
+    console.log("parentKey 대체 키 : ", parentKey);
+
+    if(parentKey.length === 0 ) {
       GroupEquipmentService.insertGroupFirst(name)
       .then((res)=> {
         console.log("장비 추가")
@@ -359,10 +426,10 @@ class manageEquipmentList extends React.Component {
         this.setState({addBtn:false})
         this.eventChange();
       })
-    } else if(parentTree.length > 0 && parentTree.length < 2) {
-      console.log(" parentTree ,addTreeName   : ", parentTree,addTreeName);
+    } else if(parentKey.length > 0 && parentKey.length < 2) {
+      console.log(" parentKey ,addTreeName   : ", parentKey,addTreeName);
       const groupChildren = {
-        parent : parentTree[0], 
+        parent : parentKey[0], 
         treeName : addTreeName,
         depth: 1,
       }
@@ -387,9 +454,15 @@ class manageEquipmentList extends React.Component {
 
   /* 그룹 수정 */
   updateTreeNameBtn = () => {
+    const { parentTree } = this.state;
     const treeName = { treeName : this.state.updateTreeName }
+    const parentKey =[];
+    for(var i=0; i<parentTree.length; i++) {
+      parentKey.push(parentTree[i].replace("-",""));
+    }
+    console.log(parentKey);
 
-    GroupEquipmentService.updateGroupName(this.state.parentTree,treeName)
+    GroupEquipmentService.updateGroupName(parentKey,treeName)
       .then(res => {
         console.log("수정 진행");
         alert("수정되었습니다.")
@@ -408,31 +481,56 @@ class manageEquipmentList extends React.Component {
    selectEquipmentAll = (e) => {
      const { EquipArray }  = this.state;
      const type = e.target.value;
-
+     const allEquipment = [];
+     const snmpEquipment = [];
+     const icmpEquipment = [];
      this.setState({inputEquipmentData : e.target.value})
 
-     
-     console.log(EquipArray);
+     EquipArray.map(eq => {
+       const settingtype = eq.devices;
+       settingtype.map(se => {
+         const ifType = se.settingType;
+         const objs ={};
+          objs.key = se.id;
+          objs.title =[se.equipment,'/',se.nickname,'/',se.settingIp,'/',se.settingType,'/',eq.groups];
+          objs.icon= <CustomIcon />
+          allEquipment.push(objs);
 
+         if(ifType === 'SNMP') {
+          const obj ={};
+          obj.key = se.id;
+          obj.title =[se.equipment,'/',se.nickname,'/',se.settingIp,'/',se.settingType,'/',eq.groups];
+          obj.icon= <CustomIcon />
+          snmpEquipment.push(obj);
+         } else if(ifType === 'ICMP') {
+          const obj ={};
+          obj.key = se.id;
+          obj.title =[se.equipment,'/',se.nickname,'/',se.settingIp,'/',se.settingType,'/',eq.groups];
+          obj.icon= <CustomIcon />
+          icmpEquipment.push(obj);
+         }
+       })
+     })
+             
       if(type === 'all') {
-        this.setState({equipment : EquipArray})
-        }
-      if(type === 'snmp') {
-
-      } 
+        this.setState({equipment : allEquipment})
+      } else if(type === 'agent') {
+        this.setState({equipment : allEquipment})
+      } else if(type === 'snmp') {
+        this.setState({equipment : snmpEquipment})
+      } else if(type === 'icmp') {
+        this.setState({equipment : icmpEquipment})
+      }
    }
    
   
 
   render() {
-    const {equipment,search,groups,treeData,groupId,  parentTree,childrenTree,deviceTree,dragDeviceTree, addTreeName, updateTreeName, inputEquipmentData} = this.state;
+    const {equipment,search,groups,treeData,groupId,  parentTree,childrenTree,deviceTree,dragDeviceTree, addTreeName, updateTreeName, inputEquipmentData, searchRight } = this.state;
     console.log("parentTree : " + parentTree);
     console.log("childrenTree : " + childrenTree);
     console.log("deviceTree : " + deviceTree);
     console.log("dragDeviceTree : " + dragDeviceTree);
-    console.log("expandkeys : " + this.state.expandkeys);
-    console.log("expandChildrenkeys : "+ this.state.expandChildrenkeys);
-    
 
     return (
       <>
@@ -455,8 +553,8 @@ class manageEquipmentList extends React.Component {
           </div>
           <div className="searchArea">
             <div className="searchBox">
-                <input className="searchInput" type="search" placeholder="검색" onChange={(e) => this.setState({search:e.target.value})} />
-                <div className="searchIcon"><img src={Search} className="searchImg" /></div>
+                <input className="searchInput" type="text" placeholder="검색" onChange={(e) => this.setState({search:e.target.value})} />
+                <button className="searchIcon" ><img src={Search} className="searchImg" /></button>
             </div>
           </div>
           
@@ -544,9 +642,7 @@ class manageEquipmentList extends React.Component {
                 selectable={false}
                 checkStrictly={true}
                 onDrop={this.onDrop}
-                onNodeExpand={this.state.testNode}
-                // expandedKeys={this.state.testNode}
-                // checkedKeys={this.state.defaultCheckedKeys}
+               
                 
                 
                />
@@ -582,8 +678,8 @@ class manageEquipmentList extends React.Component {
 
           <div className="searchArea">
             <div className="searchBox">
-                <input className="searchInput" type="search" placeholder="검색" onChange={(e) => this.setState({search:e.target.value})} />
-                <div className="searchIcon"><img src={Search} className="searchImg" /></div>
+                <input className="searchInput" type="text" placeholder="검색" onChange={(e) => this.setState({searchRight:e.target.value})} />
+                <button className="searchIcon" ><img src={Search} className="searchImg" /></button>
             </div>
           </div>
 
@@ -605,7 +701,7 @@ class manageEquipmentList extends React.Component {
           defaultCheckedKeys={this.state.defaultCheckedKeys}
           defaultExpandedKeys={this.state.defaultExpandedKeys}
           
-          // checkStrictly={true}
+          
           
 
         /> 

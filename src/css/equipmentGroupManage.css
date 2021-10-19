@@ -9,8 +9,9 @@
 input:focus {outline:none;}
 .searchBox{ background-color: #F3F3F5; width: 50%; height: 75%; border: 1px solid #999999; display: flex; }
 .searchBox input {margin-left: 5%; width: 88%; background-color: #F3F3F5; border: 1px solid #F3F3F5; }
-.searchIcon{width: 10%; background-color: white;}
-.searchImg{width: 60%; margin-top: 15%; margin-left: 15%;}
+.searchIcon{width: 10%; background-color: white; border: white;}
+.searchIcon:active{width: 10%; background-color: white; border:1px solid #ddd;}
+.searchImg{width: 20px; padding: 1px;}
 .TobBarRight{ display: flex;  width: 100%; }
 .inputSelectEquipments{margin-top: 1.5%; margin-left: 2.5%; margin-left: 45%; }
 .inputSelectEquipment{margin-top: 1.5%; margin-left: 2.5%;  }
