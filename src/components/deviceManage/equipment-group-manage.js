@@ -185,7 +185,6 @@ class manageEquipmentList extends React.Component {
   }
 
   componentDidMount() {
-    const { search } = this.state;
     GroupEquipmentService.getGroupEquipment()
           .then((res) => {
           console.log(res.data);

@@ -30,3 +30,4 @@ input:focus {outline:none;}
 .buttonSelectEquipmentLeftTwo{   width: 60px; border: 1px solid #29363d; background-color: #fff;  color: #29363d; font-size: 0.9em; border-radius: 0;  margin-left: 2%;}
 .buttonSelectEquipmentLeftTwo:hover{background-color: #29363d; border: 1px solid #29363d; color: #fff;}
 
+.ag-theme-alpine .ag-cell-wrapper > *:not(.ag-cell-value):not(.ag-group-value) { height:  28px; margin-left: 1px;}

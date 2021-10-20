@@ -21,6 +21,8 @@ import { RowNode } from 'ag-grid-community';
 import * as ExcelJs from 'exceljs';
 import { saveAs } from 'file-saver';
 import { Redirect } from 'react-router';
+import GroupEquipmentService from '../../services/groupEquipment.service';
+import Equipment from '../../images/equipment.png'
 
 
 const initialValue = {
@@ -29,6 +31,12 @@ const initialValue = {
 const HardwareNumber = 
 [{label:'5', value:'5'},{label:'10', value:'10'},{label:'15', value:'15'},{label:'20', value:'20'},{label:'30', value:'30'},{label:'60', value:'60'}
 ,{label:'120', value:'120'},{label:'150', value:'150'},{label:'180', value:'180'},{label:'240', value:'240'},{label:'300', value:'300'},{label:'600', value:'600'} ];
+
+const groupOpen = true;
+
+const CustomIcon = () => {
+  return <img style={{width:15,padding:1}} src={Equipment} alt="Custom Icon" />
+}
 
 export default class BoardAdmin extends Component {
   constructor(props) {
@@ -52,20 +60,39 @@ export default class BoardAdmin extends Component {
       filterData: [],
       /* ag-grid */
       autoGroupColumnDef: {
-        headerName: '그룹 명/별칭',
-        field: 'title',
-        resizable:true,
+        field: '그룹 명/별칭',
+        minWidth: 120,
+        sortable: true,
+        valueGetter: (params) => {
+          return params.data.title;
       },
+        cellRendererParams: {
+          suppressCount: true,
+          innerRenderer: this.groupCountRenderer,
+      },
+      
+
+      // excludeChildrenWhenTreeDataFiltering: false,
+        
+      },
+      // groupOpen: true,
+      // headerCheckboxSelection:true,
+      groups:[],
       columnDefs: [
-        { headerName: '장비명', field: 'equipment',checkboxSelection:true , headerCheckboxSelection:true, onCellClicked: this.onUpdateClick},   // rowGroup:true, width:200
-        { headerName: 'Public Ip', field: 'settingIp',onCellClicked: this.onUpdateClick ,checkboxSelection:false , },
-        { headerName: 'OS', field: 'settingOs', onCellClicked: this.onUpdateClick },
-        { headerName: '제조사', field: 'settingPerson', onCellClicked: this.onUpdateClick } ,
-        { headerName: '템플릿 그룹', field: 'settingTemplate', onCellClicked: this.onUpdateClick },
-        { headerName: 'HW 자원 수집주기' ,   maxWidth: 130, cellRendererFramework: this.cellTooltipBtn, },
-        { headerName: '상태',  field:'settingActive', valueFormatter: this.activeFormatter ,onCellClicked: this.onUpdateClick, cellStyle: this.ActiveColor, },
-        { headerName: '프록시', field: 'settingProxy',onCellClicked: this.onUpdateClick },
-        { headerName: '사용자', field: '',onCellClicked: this.onUpdateClick },
+        // groupOpen ? { headerName: '그룹 명/별칭',   field:'title' ,} : null,
+        //    {  field: 'children', onCellClicked: this.onUpdateClick },
+          //  {  field: 'employmentType', onCellClicked: this.onUpdateClick },
+
+        // { headerName: '그룹 명/별칭', rowGroup:true, hide:true, field:'title' ,checkboxSelection:true , },
+        // { headerName: '장비명', field: '', onCellClicked: this.onUpdateClick},   // rowGroup:true, width:200
+        // { headerName: 'Public Ip', field: 'settingIp',onCellClicked: this.onUpdateClick ,checkboxSelection:false , },
+        // { headerName: 'OS', field: 'settingOs', onCellClicked: this.onUpdateClick },
+        // { headerName: '제조사', field: 'settingPerson', onCellClicked: this.onUpdateClick } ,
+        // { headerName: '템플릿 그룹', field: 'settingTemplate', onCellClicked: this.onUpdateClick },
+        // { headerName: 'HW 자원 수집주기' ,   maxWidth: 130, cellRendererFramework: this.cellTooltipBtn, },
+        // { headerName: '상태',  field:'settingActive', valueFormatter: this.activeFormatter ,onCellClicked: this.onUpdateClick, cellStyle: this.ActiveColor, },
+        // { headerName: '프록시', field: 'settingProxy',onCellClicked: this.onUpdateClick },
+        // { headerName: '사용자', field: '',onCellClicked: this.onUpdateClick },
       ],
       defaultColDef:   {   // 열 정의
           sortable:true,  // 열 마우스 선택 정렬
@@ -85,7 +112,19 @@ export default class BoardAdmin extends Component {
       hwDefault: {label: '60' , value:'60' },
       testCheck: true,
       selectTypeList: '그룹',
+     
     };       
+  }
+
+  groupCountRenderer = (params) => {
+    console.log(params);
+    if (params.data.isLeaf === false ) {
+      var label = params.value ? params.value : '-';
+      return label + ' (' + params.node.childrenAfterFilter.length  + ')';
+  } else {
+    var label = params.data.title;
+    return label;
+  }
   }
    /* 모달 창 여부 */
   cellTooltipBtn = (params) => {
@@ -143,9 +182,7 @@ export default class BoardAdmin extends Component {
       CatagoryCheckList:new Array(catagoryDatas.length).fill(true),
       isAuthorized: isAuthorized
     })
-    
 
-    
     /* 관리자 권환 */
     UserService.getAdminBoard()
     .then(response => {
@@ -164,14 +201,47 @@ export default class BoardAdmin extends Component {
       },
     );
     /* 장비 조회 */
-    AiwacsService.getEquipment().then((res) => {
-      this.setState({equipment:res.data})
-    });
+    // AiwacsService.getEquipment().then((res) => {
+    //   this.setState({equipment:res.data})
+    // });
+
+    GroupEquipmentService.getGroupEquipment()
+          .then((res) => {
+          console.log(res.data);
+          const resDatas=res.data;
+
+          resDatas.forEach((v,i) =>   {
+              v.children.forEach((e) => {
+                if(e.isLeaf === undefined) {
+                  e.icon = <CustomIcon />
+                }
+                if(e.children !== undefined) {
+                  e.children.forEach((c) => {
+                    if(c.isLeaf === undefined) {
+                      c.icon = <CustomIcon />
+                    } 
+                  })
+                }
+             })
+            });
+            this.setState({groups: resDatas })
+          })
+        //   fetch('https://www.ag-grid.com/example-assets/small-tree-data.json')
+        //   .then((resp) => resp.json())
+        //   .then((data) => updateData(data));
+        
+        //  const updateData = (data)  => {
+        //   var fakeServer = this.createFakeServer(data);
+        //   var datasource = this.createServerSideDatasource(fakeServer);
+        //   params.api.setServerSideDatasource(datasource);
+            
+        //   }
+          
   }
 
  
 /* 활성/비활성 문자열  */
-  activeFormatter = (params) => { return params.value ? '활성':'비활성'; } 
+  // activeFormatter = (params) => { return params.value ? '활성':'비활성' } 
 /* params  */
   onGridReady = (params) => {this.setState({GridApi:params})}
 /* 수정  */
@@ -509,11 +579,81 @@ downloadExcel = () => {
 
 manageEquipmentListURL = () =>  { this.props.history.push("/manageEquipmentList") }
 
+flatten = (data, parent, childHierachy) => {
+  var newData =[];
+  // console.log(parent);
+  // console.log(childHierachy);
+  if(data) {
+    data.forEach((d,i) => {
+      
+    var parentHierachy = [];     
+    d.hierarchy =parentHierachy;
+    
 
+    if(parent) {
+      d.parent= parent;
+      parentHierachy = [...childHierachy];
+      d.hierarchy = parentHierachy;
+      
+    }
+    parentHierachy.push(i);
+    newData.push(d);
+
+    if(d.children) {
+    newData = [
+      ...newData,
+      ...this.flatten(
+        d.children,
+        d,
+        parentHierachy
+      )
+    ]
+  }
+  
+    })
+  }
+  return newData;
+  
+  // console.log(data);   // children 자식들 출력
+  // console.log(parent);   // 부모 한개만 출력
+  // console.log(childHierachy);  // 자식의 갯수를 이어가는 1/2/3/4/5
+
+  // if(data) {
+  //   data.forEach((initialRow, parentIndex) => {  // parentIndex 부모의 index
+
+  //     var parentHierachy = [];
+  //     initialRow.hierarchy = parentHierachy;
+
+  //       if(parent) {
+  //         initialRow.parent = parent;
+  //         parentHierachy = [...childHierachy]; 
+  //         initialRow.hierarchy = parentHierachy;
+          
+          
+  //       }
+  //       parentHierachy.push(parentIndex);
+
+  //       newData.push(initialRow);
+
+  //       if(initialRow.resource) {
+  //         newData = [
+  //           ...newData,
+  //           ...this.flatten(
+  //             initialRow.resource,
+  //             initialRow,
+  //             parentHierachy
+  //           )
+  //         ]
+  //       }
+  //   })
+  // }
+  // return newData;
+}
 
   render() {
-    const { columnDefs ,defaultColDef,equipment,formData,typeArray,typecheckList,typeData
+    const { columnDefs ,defaultColDef,equipment,formData,typeArray,typecheckList,typeData,groups,testDb
     ,catagoryArray,CatagoryCheckList,catagoryData,filterData,equipCheck,gridComponents,hwCpu,hwDisk,hwSensor,hwNic,hwid,hwNumber, selectTypeList} = this.state;
+    
 
     return (
       <div className="ContainerAdmin">
@@ -632,16 +772,25 @@ manageEquipmentListURL = () =>  { this.props.history.push("/manageEquipmentList"
                   headerHeight='30'
                   floatingFiltersHeight='27'
                   rowHeight='30'
-                  rowData={equipCheck ? equipment : filterData}  // groups / equipment / 
+                  rowData={equipCheck ? this.flatten(groups) : filterData }
+                  // {equipCheck ? groups : filterData}  // groups / equipment / 
                   rowSelection="multiple"
                   columnDefs={columnDefs}   // columnDefs  / columns
-                  onGridReady={params => (this.gridApi = params.api)} // {params => (this.gridApi = params.api)}
+                  onGridReady={params => {this.gridApi = params.api;}} // {params => (this.gridApi = params.api)}
                   groupSelectsChildren={true} // 자식노드까지 체크
                   enableRangeSelection={true}  // 다중 선택 가능
                   defaultColDef={defaultColDef}
                   deltaRowDataMode={false}
                   frameworkComponents={gridComponents}
-                  // autoGroupColumnDef={autoGroupColumnDef}  // 자동 열 그룹 지정 - 첫번째열
+                  autoGroupColumnDef={this.state.autoGroupColumnDef}  // 자동 열 그룹 지정 - 첫번째열
+                  treeData={true}
+                  // groupDefaultExpanded= {-1}
+                  getDataPath= {data => {
+                    return data.hierarchy;
+                  }}
+                  suppressCount
+                  
+                 
                   
                 />
                 {
@@ -785,3 +934,4 @@ manageEquipmentListURL = () =>  { this.props.history.push("/manageEquipmentList"
     );
   }
 }
+
