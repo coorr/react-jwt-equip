@@ -32,7 +32,7 @@ const HardwareNumber =
 [{label:'5', value:'5'},{label:'10', value:'10'},{label:'15', value:'15'},{label:'20', value:'20'},{label:'30', value:'30'},{label:'60', value:'60'}
 ,{label:'120', value:'120'},{label:'150', value:'150'},{label:'180', value:'180'},{label:'240', value:'240'},{label:'300', value:'300'},{label:'600', value:'600'} ];
 
-const groupOpen = true;
+// var equipChecks = false;
 
 const CustomIcon = () => {
   return <img style={{width:15,padding:1}} src={Equipment} alt="Custom Icon" />
@@ -59,40 +59,73 @@ export default class BoardAdmin extends Component {
       CatagoryCheckList:[],
       filterData: [],
       /* ag-grid */
-      autoGroupColumnDef: {
-        field: '그룹 명/별칭',
-        minWidth: 120,
+      autoGroupColumnDef:  {
+        headerName: '그룹 명/별칭',
+        minWidth: 130,
         sortable: true,
+       
         valueGetter: (params) => {
-          return params.data.title;
-      },
+          if(params.data.equipment!== null  && params.data.isLeaf === undefined && params.data.settingCatagory !== undefined) {
+            return params.data.nickname;
+          }
+           else return params.data.title;
+       },
         cellRendererParams: {
           suppressCount: true,
           innerRenderer: this.groupCountRenderer,
+          checkbox:true,
+       },
       },
-      
-
-      // excludeChildrenWhenTreeDataFiltering: false,
-        
+      autoGroupColumnDefSecond: {
+        headerName: '그룹 명/별칭',
+        maxWidth: 100,
+        sortable: true,
+        cellRendererParams: {
+          checkbox:true,
+       },
+        valueGetter: (params) => {
+          console.log(params);
+          console.log("2")
+          if(params.data.equipment!== null ) {
+            console.log("2")
+            return params.data.nickname;
+          }
+           else return params.data.title;
+       },
       },
-      // groupOpen: true,
-      // headerCheckboxSelection:true,
       groups:[],
       columnDefs: [
-        // groupOpen ? { headerName: '그룹 명/별칭',   field:'title' ,} : null,
-        //    {  field: 'children', onCellClicked: this.onUpdateClick },
-          //  {  field: 'employmentType', onCellClicked: this.onUpdateClick },
-
-        // { headerName: '그룹 명/별칭', rowGroup:true, hide:true, field:'title' ,checkboxSelection:true , },
-        // { headerName: '장비명', field: '', onCellClicked: this.onUpdateClick},   // rowGroup:true, width:200
-        // { headerName: 'Public Ip', field: 'settingIp',onCellClicked: this.onUpdateClick ,checkboxSelection:false , },
-        // { headerName: 'OS', field: 'settingOs', onCellClicked: this.onUpdateClick },
-        // { headerName: '제조사', field: 'settingPerson', onCellClicked: this.onUpdateClick } ,
-        // { headerName: '템플릿 그룹', field: 'settingTemplate', onCellClicked: this.onUpdateClick },
-        // { headerName: 'HW 자원 수집주기' ,   maxWidth: 130, cellRendererFramework: this.cellTooltipBtn, },
-        // { headerName: '상태',  field:'settingActive', valueFormatter: this.activeFormatter ,onCellClicked: this.onUpdateClick, cellStyle: this.ActiveColor, },
-        // { headerName: '프록시', field: 'settingProxy',onCellClicked: this.onUpdateClick },
-        // { headerName: '사용자', field: '',onCellClicked: this.onUpdateClick },
+        // { headerName: '2232323', cellRendererFramework: this.equipmentTitle, onCellClicked: this.onUpdateClick,}, 
+        { headerName: '장비명', cellRendererFramework: this.equipmentTitle, onCellClicked: this.onUpdateClick,},   // rowGroup:true, width:200
+        { headerName: 'Public Ip', field: 'settingIp',onCellClicked: this.onUpdateClick  },
+        { headerName: 'OS', field: 'settingOs', onCellClicked: this.onUpdateClick },
+        { headerName: '제조사', field: 'settingPerson', onCellClicked: this.onUpdateClick } ,
+        { headerName: '템플릿 그룹', field: 'settingTemplate', onCellClicked: this.onUpdateClick },
+        { headerName: 'HW 자원 수집주기' ,   maxWidth: 130, cellRendererFramework: this.cellTooltipBtn, },
+        { headerName: '상태',  field:'settingActive', valueFormatter: this.activeFormatter ,onCellClicked: this.onUpdateClick, cellStyle: this.ActiveColor, },
+        { headerName: '프록시', field: 'settingProxy',onCellClicked: this.onUpdateClick },
+        { headerName: '사용자', field: '',onCellClicked: this.onUpdateClick },
+      ],
+      columnDefsSecond: [
+        { headerName: '장비명',  field: 'equipment', onCellClicked: this.onUpdateClick, headerCheckboxSelection: true, checkboxSelection:true 
+      //   cellRendererFramework: params => {
+      //     console.log(params);
+      //     return (
+      //       <>
+      //       <input type="checkbox" onClick={} />{params.value}
+            
+      //       </>
+      //     )
+      // }
+      },   // rowGroup:true, width:200
+        { headerName: 'Public Ip', field: 'settingIp',onCellClicked: this.onUpdateClick },
+        { headerName: 'OS', field: 'settingOs', onCellClicked: this.onUpdateClick },
+        { headerName: '제조사', field: 'settingPerson', onCellClicked: this.onUpdateClick} ,
+        { headerName: '템플릿 그룹', field: 'settingTemplate', onCellClicked: this.onUpdateClick },
+        { headerName: 'HW 자원 수집주기' ,   maxWidth: 130, cellRendererFramework: this.cellTooltipBtn, },
+        { headerName: '상태',  field:'settingActive', valueFormatter: this.activeFormatter ,onCellClicked: this.onUpdateClick, cellStyle: this.ActiveColor, },
+        { headerName: '프록시', field: 'settingProxy',onCellClicked: this.onUpdateClick },
+        { headerName: '사용자', field: '',onCellClicked: this.onUpdateClick }
       ],
       defaultColDef:   {   // 열 정의
           sortable:true,  // 열 마우스 선택 정렬
@@ -100,6 +133,7 @@ export default class BoardAdmin extends Component {
           resizable:true,  // 사이즈 조절 (width, max, min)
           floatingFilter: true,
           flex:1,
+          maxWidth:210,
         },
       /* Tooltip Hw */
       hwid: '',
@@ -115,23 +149,47 @@ export default class BoardAdmin extends Component {
      
     };       
   }
+  
+  equipmentTitle = (params) => {
+    if(params.data.equipment!== null  && params.data.isLeaf === undefined && params.data.settingCatagory !== undefined) {
+      return params.data.equipment;
+    } else if(params.data.isLeaf === undefined) {
+      return params.data.title;
+    } 
+      else return ""
+      
+    
+  }
 
   groupCountRenderer = (params) => {
-    console.log(params);
     if (params.data.isLeaf === false ) {
       var label = params.value ? params.value : '-';
-      return label + ' (' + params.node.childrenAfterFilter.length  + ')';
-  } else {
-    var label = params.data.title;
-    return label;
-  }
+      var length = params.data.children;
+      const ipLeagth = [];
+      length.map((e) => {
+        if(e.settingIp !== undefined) {
+          ipLeagth.push(e.settingIp)
+        } else {
+          e.children.map((c) => {
+            if(c.settingIp !== undefined) {
+              ipLeagth.push(e.settingIp)
+            }
+            })
+        }
+      })
+      return  label + ' (' + ipLeagth.length  + ')'
+  } else if(params.data.equipment!== null  && params.data.isLeaf === undefined && params.data.settingCatagory !== undefined) {
+    return params.data.nickname;
+  } else if(params.data.isLeaf === undefined) {
+    return params.data.nickname;
+  } else return ""
   }
    /* 모달 창 여부 */
   cellTooltipBtn = (params) => {
-      if(params.data.settingType === 'ICMP') return 'N/A' 
-      else {
-        return  <button className="hwTooltipBtn" onMouseOver={()=> ReactTooltip.rebuild()} onClick={()=>this.hwDataAll(params)}  data-tip data-for='hw' >변경</button>
-      }
+      if(params.data.settingType === 'ICMP') { return 'N/A' } 
+      else if(params.data.isLeaf === undefined) {
+        return ( <button className="hwTooltipBtn" onMouseOver={()=> ReactTooltip.rebuild()} onClick={()=>this.hwDataAll(params)}  data-tip data-for='hw' >변경</button> )
+      } else return " "
   }
    /* 활성/비활성 스타일 */
   ActiveColor = (params) => {
@@ -226,17 +284,8 @@ export default class BoardAdmin extends Component {
             });
             this.setState({groups: resDatas })
           })
-        //   fetch('https://www.ag-grid.com/example-assets/small-tree-data.json')
-        //   .then((resp) => resp.json())
-        //   .then((data) => updateData(data));
-        
-        //  const updateData = (data)  => {
-        //   var fakeServer = this.createFakeServer(data);
-        //   var datasource = this.createServerSideDatasource(fakeServer);
-        //   params.api.setServerSideDatasource(datasource);
-            
-        //   }
-          
+       
+       
   }
 
  
@@ -246,11 +295,14 @@ export default class BoardAdmin extends Component {
   onGridReady = (params) => {this.setState({GridApi:params})}
 /* 수정  */
   onUpdateClick = (params) => {
-    console.log( params.data);
-    console.log("formData : " + JSON.stringify(this.state.formData))
-    this.setState({formData:params.data})
-    console.log("formData After: "+ JSON.stringify(this.state.formData));
-    this.setState({modifyOpen: true})
+    if(params.data.isLeaf === undefined) {
+      console.log( params.data);
+      // console.log("formData : " + JSON.stringify(this.state.formData))
+      this.setState({formData:params.data})
+      // console.log("formData After: "+ JSON.stringify(this.state.formData));
+      this.setState({modifyOpen: true})
+    }
+    
   };
 /* 삭제  */
   onRemoveClick = () => {
@@ -383,11 +435,32 @@ filterSelect = () => {
     console.log(selectTypeList);
 
     if(selectTypeList === '전체' && equipType !== '' && equipCatagory !== '') {
+      // this.gridApi.setRowData(false);
       AiwacsService.searchFilterEquipment(equipType,equipCatagory)
     .then((res) => {
-      this.setState({filterData:res.data,equipCheck:false})
+      const data = res.data;
+      console.log(data);
+      
+      // this.gridApi.setDatasource();
+      console.log(res.data);
+      
+      this.setState({filterData:res.data,equipCheck:false, })
+      
+    
+        this.gridApi.setRowData(data)
+        this.gridApi.refreshCells(data)
+      
+      
+      
+      // this.gridApi.refreshCells(this.state.filterData)
+      // this.gridApi.refreshCells(this.flatten(this.state.groups))
+     
+      
     })
-    } 
+    } else if(selectTypeList === '그룹' && equipType !== '' && equipCatagory !== '' ) {
+      this.setState({equipCheck:true,})
+      
+    }
     else if(equipType === '') { 
       alert("장비 타입을 1개 이상 선택해 주세요.")
     } else {
@@ -613,47 +686,40 @@ flatten = (data, parent, childHierachy) => {
     })
   }
   return newData;
-  
-  // console.log(data);   // children 자식들 출력
-  // console.log(parent);   // 부모 한개만 출력
-  // console.log(childHierachy);  // 자식의 갯수를 이어가는 1/2/3/4/5
 
-  // if(data) {
-  //   data.forEach((initialRow, parentIndex) => {  // parentIndex 부모의 index
+}
+flattens = (data, parent, childHierachy) => {
+  var newData =[];
+  // console.log(parent);
+  // console.log(childHierachy);
+  if(data) {
+    console.log(data);
+    data.forEach((d,i) => {
+      
+    var parentHierachy = [];     
+    d.hierarchy =parentHierachy;
+    
 
-  //     var parentHierachy = [];
-  //     initialRow.hierarchy = parentHierachy;
+    
+    parentHierachy.push(d.id);
+    newData.push(d);
 
-  //       if(parent) {
-  //         initialRow.parent = parent;
-  //         parentHierachy = [...childHierachy]; 
-  //         initialRow.hierarchy = parentHierachy;
-          
-          
-  //       }
-  //       parentHierachy.push(parentIndex);
+    
+    console.log(newData);
+    })
+  }
+  return newData;
 
-  //       newData.push(initialRow);
-
-  //       if(initialRow.resource) {
-  //         newData = [
-  //           ...newData,
-  //           ...this.flatten(
-  //             initialRow.resource,
-  //             initialRow,
-  //             parentHierachy
-  //           )
-  //         ]
-  //       }
-  //   })
-  // }
-  // return newData;
 }
 
+
+
   render() {
-    const { columnDefs ,defaultColDef,equipment,formData,typeArray,typecheckList,typeData,groups,testDb
+    const { columnDefs ,defaultColDef,equipment,formData,typeArray,typecheckList,typeData,groups,testDb,columnDefsSecond
     ,catagoryArray,CatagoryCheckList,catagoryData,filterData,equipCheck,gridComponents,hwCpu,hwDisk,hwSensor,hwNic,hwid,hwNumber, selectTypeList} = this.state;
     
+    console.log(equipCheck);
+    console.log(filterData);
 
     return (
       <div className="ContainerAdmin">
@@ -768,31 +834,81 @@ flatten = (data, parent, childHierachy) => {
             <div className="agGridBox">
             {/* <ReactTooltip /> */}
             <div className="ag-theme-alpine" style={{ width:'95vw', height:'48vh'}}>
-                <AgGridReact
+             
+            <AgGridReact
                   headerHeight='30'
-                  floatingFiltersHeight='27'
-                  rowHeight='30'
-                  rowData={equipCheck ? this.flatten(groups) : filterData }
+                  floatingFiltersHeight='23'
+                  rowHeight='25'
+                  rowData={equipCheck ?  this.flatten(groups) : filterData}
                   // {equipCheck ? groups : filterData}  // groups / equipment / 
                   rowSelection="multiple"
-                  columnDefs={columnDefs}   // columnDefs  / columns
                   onGridReady={params => {this.gridApi = params.api;}} // {params => (this.gridApi = params.api)}
                   groupSelectsChildren={true} // 자식노드까지 체크
                   enableRangeSelection={true}  // 다중 선택 가능
                   defaultColDef={defaultColDef}
-                  deltaRowDataMode={false}
-                  frameworkComponents={gridComponents}
-                  autoGroupColumnDef={this.state.autoGroupColumnDef}  // 자동 열 그룹 지정 - 첫번째열
+                  // deltaRowDataMode={true}
+                  columnDefs={equipCheck ? columnDefs : columnDefsSecond}   // columnDefs  / columns
+                  autoGroupColumnDef={equipCheck ?  this.state.autoGroupColumnDef : null}  // 자동 열 그룹 지정 - 첫번째열
+                  treeData={equipCheck? true: false}
+                  // getDataPath= {equipCheck? data => {
+                  //   return data.hierarchy;
+                  // } : null}
+                  getDataPath= { data =>  { return data.hierarchy}}
+                  treeDataDisplayType= {equipCheck ? "auto" : "custom"}
+         
+                  
+                  
+                />
+
+
+
+                {/* {
+                  equipCheck ? 
+                  <AgGridReact
+                  headerHeight='30'
+                  floatingFiltersHeight='23'
+                  rowHeight='25'
+                  rowData={this.flatten(groups)}
+                  // {equipCheck ? groups : filterData}  // groups / equipment / 
+                  rowSelection="multiple"
+                  // onGridReady={params => {this.gridApi = params.api;}} // {params => (this.gridApi = params.api)}
+                  groupSelectsChildren={true} // 자식노드까지 체크
+                  enableRangeSelection={true}  // 다중 선택 가능
+                  defaultColDef={defaultColDef}
+                  // deltaRowDataMode={true}
+                  columnDefs={columnDefs}   // columnDefs  / columns
+                  autoGroupColumnDef={this.state.autoGroupColumnDef }  // 자동 열 그룹 지정 - 첫번째열
                   treeData={true}
-                  // groupDefaultExpanded= {-1}
                   getDataPath= {data => {
                     return data.hierarchy;
                   }}
-                  suppressCount
-                  
-                 
-                  
+                  treeDataDisplayType={"auto"}
+                  // suppressRowClickSelection= {true}
+         
                 />
+                 :
+                <AgGridReact
+                  headerHeight='30'
+                  floatingFiltersHeight='23'
+                  rowHeight='25'
+                  // rowData={filterData}
+                  rowSelection="multiple"
+                  onGridReady={params => {this.gridApi = params.api;}} // {params => (this.gridApi = params.api)}
+                  groupSelectsChildren={true} // 자식노드까지 체크
+                  enableRangeSelection={true}  // 다중 선택 가능
+                  defaultColDef={defaultColDef}
+                  // deltaRowDataMode={true}
+                  columnDefs={columnDefsSecond}   // columnDefs  / columns
+                  // autoGroupColumnDef={this.state.autoGroupColumnDefSecond }
+                  treeData={false}
+                  treeDataDisplayType={"custom"}
+                  
+                  
+                  
+         
+                /> 
+              } */}
+                
                 {
                  this.state.modifyOpen  ? <Modify show={this.state.modifyOpen}  onHide={this.modifyOpenButton} data={formData}  /> : null
                 }         
@@ -934,4 +1050,3 @@ flatten = (data, parent, childHierachy) => {
     );
   }
 }
-

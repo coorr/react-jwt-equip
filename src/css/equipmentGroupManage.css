@@ -31,3 +31,8 @@ input:focus {outline:none;}
 .buttonSelectEquipmentLeftTwo:hover{background-color: #29363d; border: 1px solid #29363d; color: #fff;}
 
 .ag-theme-alpine .ag-cell-wrapper > *:not(.ag-cell-value):not(.ag-group-value) { height:  28px; margin-left: 1px;}
+.ag-theme-alpine .ag-root-wrapper{border: 0px;}
+.ag-theme-alpine .ag-header-row{border-top: 1px solid #333 !important;}
+.ag-theme-alpine div.ag-row { font-size: 13px !important; }
+.ag-theme-alpine input[class^=ag-][type=text] { min-height: 0px;  padding: 0; }
+.ag-theme-alpine .ag-cell{line-height: 25px !important;}
