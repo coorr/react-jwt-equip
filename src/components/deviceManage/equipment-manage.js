@@ -60,10 +60,13 @@ export default class BoardAdmin extends Component {
       filterData: [],
       /* ag-grid */
       autoGroupColumnDef:  {
+        leafGroup:true,
         headerName: '그룹 명/별칭',
-        minWidth: 130,
+        minWidth: 150,
         sortable: true,
-       
+        pivotMode:true,
+        // hide: true,
+        // rowGroup: true,
         valueGetter: (params) => {
           if(params.data.equipment!== null  && params.data.isLeaf === undefined && params.data.settingCatagory !== undefined) {
             return params.data.nickname;
@@ -74,50 +77,24 @@ export default class BoardAdmin extends Component {
           suppressCount: true,
           innerRenderer: this.groupCountRenderer,
           checkbox:true,
-       },
-      },
-      autoGroupColumnDefSecond: {
-        headerName: '그룹 명/별칭',
-        maxWidth: 100,
-        sortable: true,
-        cellRendererParams: {
-          checkbox:true,
-       },
-        valueGetter: (params) => {
-          console.log(params);
-          console.log("2")
-          if(params.data.equipment!== null ) {
-            console.log("2")
-            return params.data.nickname;
-          }
-           else return params.data.title;
+          pivot: true,
        },
       },
       groups:[],
       columnDefs: [
-        // { headerName: '2232323', cellRendererFramework: this.equipmentTitle, onCellClicked: this.onUpdateClick,}, 
-        { headerName: '장비명', cellRendererFramework: this.equipmentTitle, onCellClicked: this.onUpdateClick,},   // rowGroup:true, width:200
+        
+        { headerName: '장비명', cellRendererFramework: this.equipmentTitle, onCellClicked: this.onUpdateClick, hide: true },   // rowGroup:true, width:200
         { headerName: 'Public Ip', field: 'settingIp',onCellClicked: this.onUpdateClick  },
         { headerName: 'OS', field: 'settingOs', onCellClicked: this.onUpdateClick },
         { headerName: '제조사', field: 'settingPerson', onCellClicked: this.onUpdateClick } ,
         { headerName: '템플릿 그룹', field: 'settingTemplate', onCellClicked: this.onUpdateClick },
         { headerName: 'HW 자원 수집주기' ,   maxWidth: 130, cellRendererFramework: this.cellTooltipBtn, },
-        { headerName: '상태',  field:'settingActive', valueFormatter: this.activeFormatter ,onCellClicked: this.onUpdateClick, cellStyle: this.ActiveColor, },
+        { headerName: '상태',  field:'settingActive', valueFormatter: this.activeFormatterGroup ,onCellClicked: this.onUpdateClick, cellStyle: this.ActiveColor, },
         { headerName: '프록시', field: 'settingProxy',onCellClicked: this.onUpdateClick },
         { headerName: '사용자', field: '',onCellClicked: this.onUpdateClick },
       ],
       columnDefsSecond: [
-        { headerName: '장비명',  field: 'equipment', onCellClicked: this.onUpdateClick, headerCheckboxSelection: true, checkboxSelection:true 
-      //   cellRendererFramework: params => {
-      //     console.log(params);
-      //     return (
-      //       <>
-      //       <input type="checkbox" onClick={} />{params.value}
-            
-      //       </>
-      //     )
-      // }
-      },   // rowGroup:true, width:200
+        { headerName: '장비명',  field: 'equipment', onCellClicked: this.onUpdateClick, headerCheckboxSelection: true, checkboxSelection:true },   
         { headerName: 'Public Ip', field: 'settingIp',onCellClicked: this.onUpdateClick },
         { headerName: 'OS', field: 'settingOs', onCellClicked: this.onUpdateClick },
         { headerName: '제조사', field: 'settingPerson', onCellClicked: this.onUpdateClick} ,
@@ -149,6 +126,30 @@ export default class BoardAdmin extends Component {
      
     };       
   }
+
+  innerCellRenderer = params => {
+    console.log(params);
+    return (
+      params.data.title
+    )
+  }
+
+  eventChange = () => {
+    GroupEquipmentService.getGroupEquipment()
+          .then((res) => {
+          console.log(res.data);
+          this.setState({groups: res.data })
+          })
+
+    AiwacsService.getEquipment().then((res) => {
+      this.setState({filterData:res.data})
+    });
+  }
+
+  componentDidUpdate(prevProps,prevState) {
+    ReactTooltip.rebuild();
+    
+  }
   
   equipmentTitle = (params) => {
     if(params.data.equipment!== null  && params.data.isLeaf === undefined && params.data.settingCatagory !== undefined) {
@@ -177,7 +178,8 @@ export default class BoardAdmin extends Component {
             })
         }
       })
-      return  label + ' (' + ipLeagth.length  + ')'
+      // '<span class="spanCheckbox"><input class="inputCheckbox" type="checkbox"/></span>'+ 
+      return label + ' (' + ipLeagth.length  + ')'
   } else if(params.data.equipment!== null  && params.data.isLeaf === undefined && params.data.settingCatagory !== undefined) {
     return params.data.nickname;
   } else if(params.data.isLeaf === undefined) {
@@ -199,12 +201,18 @@ export default class BoardAdmin extends Component {
   /* 하드웨어 수집 데이터 */
   hwDataAll = (params) => {
     const {hwCpu,testCheck,hwNic,hwDisk,hwSensor,equipment} = this.state;
-
-    const hwid=params.data.id;
+    console.log(params);
+    const hwid = [];
+    if(params.data.id === undefined) {
+      hwid.push(params.data.key);
+    } else {
+      hwid.push(params.data.id);
+    }
     console.log("equipId:"+hwid);
     AiwacsService.getTooltipByNo(hwid) 
       .then((res)=> {
         const hwData=res.data;
+        
         hwData.map(o=> this.setState({
           hwid: o.id,
           hwCpu:{label:o.hwCpu,value:o.hwCpu},
@@ -224,11 +232,14 @@ export default class BoardAdmin extends Component {
   uploadOpenButton = () => { this.setState({uploadModal: false})}
   uploadOpenButtonTrue = () => { this.setState({uploadModal: true})}
 
-  componentDidUpdate() {
-    ReactTooltip.rebuild();
-  }
+
  
   componentDidMount() {
+    const {typeData,catagoryData, selectTypeList} = this.state;
+    const equipType=typeData.join(',');
+    const equipCatagory=catagoryData.join(',');
+    console.log(equipType,equipCatagory);
+    console.log(selectTypeList);
     const typeDatas = [{id: 1,value:'SNMP'},{id: 2,value:'ICMP'}];
     const catagoryDatas = [{id: 1,value:'Server'},{id: 2,value:'Network'},{id: 3,value:'L2 Switch'},{id: 4,value:'L3 Switch'},{id: 5,value:'L4 Switch'}
                       ,{id: 6,value:'L7 Switch'},{id: 7,value:'Firewall'},{id: 8,value:'Security'},{id: 9,value:'Air Conditioner'},{id: 10,value:'UPS'}];
@@ -258,108 +269,177 @@ export default class BoardAdmin extends Component {
         }
       },
     );
-    /* 장비 조회 */
-    // AiwacsService.getEquipment().then((res) => {
-    //   this.setState({equipment:res.data})
-    // });
+   
 
-    GroupEquipmentService.getGroupEquipment()
+    GroupEquipmentService.searchFilterGroup(equipType,equipCatagory)
           .then((res) => {
           console.log(res.data);
           const resDatas=res.data;
-
-          resDatas.forEach((v,i) =>   {
-              v.children.forEach((e) => {
-                if(e.isLeaf === undefined) {
-                  e.icon = <CustomIcon />
-                }
-                if(e.children !== undefined) {
-                  e.children.forEach((c) => {
-                    if(c.isLeaf === undefined) {
-                      c.icon = <CustomIcon />
-                    } 
-                  })
-                }
-             })
-            });
-            this.setState({groups: resDatas })
+            
+          this.setState({groups: resDatas })
           })
        
-       
+          
   }
 
  
 /* 활성/비활성 문자열  */
-  // activeFormatter = (params) => { return params.value ? '활성':'비활성' } 
+  activeFormatterGroup = (params) => {
+    if(params.data.isLeaf === undefined) {
+      return params.data.settingActive ? '활성':'비활성'
+    }
+  }
+  activeFormatter = (params) => { return params.value ? '활성':'비활성' } 
 /* params  */
   onGridReady = (params) => {this.setState({GridApi:params})}
 /* 수정  */
   onUpdateClick = (params) => {
     if(params.data.isLeaf === undefined) {
       console.log( params.data);
-      // console.log("formData : " + JSON.stringify(this.state.formData))
       this.setState({formData:params.data})
-      // console.log("formData After: "+ JSON.stringify(this.state.formData));
       this.setState({modifyOpen: true})
     }
     
   };
 /* 삭제  */
   onRemoveClick = () => {
-    const checkNodes = this.gridApi.getSelectedNodes();
-    const checkData = checkNodes.map(c => c.data.id);
-    const equipId = checkData.join('|');
-
-    console.log(equipId);
+    const { equipCheck } = this.state;
+    const activeNodes = this.gridApi.getSelectedRows();
+    const parentIds = [];
+    const equipIds = [];
+      activeNodes.map(c => {
+      if(c.isLeaf === undefined && equipCheck === true) {
+        if(c.id === undefined) {
+          equipIds.push(c.key)
+        } else {
+          equipIds.push(c.id)
+        }
+      } else if (c.isLeaf === undefined && equipCheck === false ){
+        equipIds.push(c.id)
+      } else {
+        parentIds.push(c.key);
+      }
+    });
+    const equipId = equipIds.join('|');
+    console.log("Remove : " + equipId); 
     console.log(JSON.stringify(equipId));
-    console.log("equipId : "+Object.keys(checkData).length);
-
-    if(Object.keys(checkData).length > 0)  {
+    
+    if(Object.keys(equipId).length > 0 && equipCheck === false) {
+      GroupEquipmentService.deleteGroupEquipByNo(equipId)
       AiwacsService.deleteEquipment(equipId)
         .then((res) => {
-            console.log("삭제 이벤트")
+            console.log("장비 삭제 이벤트")
             alert("삭제 되었습니다.")
-            window.location.reload();
+            this.eventChange();
           })
-        } 
-        else { alert("삭제할 데이터가 없습니다.")}
+    }
+    else if(Object.keys(equipId).length > 0 && equipCheck === true ) {
+      GroupEquipmentService.deleteGroupEquipByNo(equipId)
+      AiwacsService.deleteEquipment(equipId)
+        .then((res) => {
+            console.log("그룹 삭제 이벤트")
+            alert("삭제 되었습니다.")
+            this.eventChange();
+          }) 
+    }
+    else if(parentIds !== null ) {
+      alert("장비를 선택해주세요.")
+    } else { alert("삭제할 데이터가 없습니다.")} 
   };
 /* 활성  */
   onActiveButton = () => {
-    const activeNodes = this.gridApi.getSelectedNodes();
-    const equipIds = activeNodes.map(c => c.data.id);
+    const { equipCheck } = this.state;
+    const activeNodes = this.gridApi.getSelectedRows();
+    console.log(activeNodes);
+    const parentIds = [];
+    const equipIds = [];
+      activeNodes.map(c => {
+        console.log(c.isLeaf);
+        console.log(equipCheck);
+        console.log(c.settingIp);
+      if(c.isLeaf === undefined && equipCheck === true) {
+        if(c.id === undefined) {
+          equipIds.push(c.key)
+        } else {
+          equipIds.push(c.id)
+        }
+      } else if (c.isLeaf === undefined && equipCheck === false ){
+        equipIds.push(c.id)
+      } else {
+        console.log("bb");
+        parentIds.push(c.key);
+      }
+    });
     const equipId = equipIds.join('|');
-    console.log("onActive : " + equipId);
-    console.log(equipIds);
-    console.log(equipId);
+    console.log("onActive : " + equipId); 
     console.log(JSON.stringify(equipId));
     
-    if(Object.keys(equipId).length > 0) {
+    if(Object.keys(equipId).length > 0 && equipCheck === false) {
       AiwacsService.onActiveEquipment(equipId)
         .then((res) => {
-          console.log("활성 이벤트");
+          console.log("장비 활성 이벤트");
           alert("활성되었습니다.")
-          window.location.reload();
+          this.eventChange();
       }) 
     }
-    else {alert("선택한 데이터가 없습니다.")}   
-      }
+    else if(Object.keys(equipId).length > 0 && equipCheck === true ) {
+      AiwacsService.onActiveEquipment(equipId)
+      .then((res) => {
+        console.log("그룹 활성 이벤트");
+        alert("활성되었습니다.")
+        this.eventChange();
+        // window.location.reload();
+    }) 
+    }
+    else if(parentIds !== null ) {
+      alert("장비를 선택해주세요.")
+    } else {alert("선택한 데이터가 없습니다.") }  
+    
+   }
 /* 비활성  */
   offActiveButton = () => {
-    const activeNodes = this.gridApi.getSelectedNodes();
-    const equipIds = activeNodes.map(c => c.data.id);
+    const { equipCheck } = this.state;
+    const activeNodes = this.gridApi.getSelectedRows();
+    const parentIds = [];
+    const equipIds = [];
+      activeNodes.map(c => {
+      if(c.isLeaf === undefined && equipCheck === true) {
+        if(c.id === undefined) {
+          equipIds.push(c.key)
+        } else {
+          equipIds.push(c.id)
+        }
+      } else if (c.isLeaf === undefined && equipCheck === false ){
+        equipIds.push(c.id)
+      } else {
+        parentIds.push(c.key);
+      }
+    });
     const equipId = equipIds.join('|');
-
-    if(Object.keys(equipId).length > 0) {
+    console.log("onActive : " + equipId); 
+    console.log(JSON.stringify(equipId));
+    
+    if(Object.keys(equipId).length > 0 && equipCheck === false) {
       AiwacsService.offActiveEquipment(equipId)
         .then((res) => {
-          console.log("비활성 이벤트");
+          console.log("장비 비활성 이벤트");
           alert("비활성되었습니다.")
-          window.location.reload();
+          this.eventChange();
       }) 
     }
-    else {alert("선택한 데이터가 없습니다.")}   
+    else if(Object.keys(equipId).length > 0 && equipCheck === true ) {
+      AiwacsService.offActiveEquipment(equipId)
+      .then((res) => {
+        console.log("그룹 비활성 이벤트");
+        alert("비활성되었습니다.")
+        this.eventChange();
+        // window.location.reload();
+    }) 
     }
+    else if(parentIds !== null ) {
+      alert("장비를 선택해주세요.")
+    } else {alert("선택한 데이터가 없습니다.") }  
+  }
 /* 타입 체크 */
   TypeFilter = (item) => {
    const {typecheckList,typeData} = this.state;
@@ -437,28 +517,16 @@ filterSelect = () => {
     if(selectTypeList === '전체' && equipType !== '' && equipCatagory !== '') {
       // this.gridApi.setRowData(false);
       AiwacsService.searchFilterEquipment(equipType,equipCatagory)
-    .then((res) => {
-      const data = res.data;
-      console.log(data);
-      
-      // this.gridApi.setDatasource();
-      console.log(res.data);
-      
-      this.setState({filterData:res.data,equipCheck:false, })
-      
-    
-        this.gridApi.setRowData(data)
-        this.gridApi.refreshCells(data)
-      
-      
-      
-      // this.gridApi.refreshCells(this.state.filterData)
-      // this.gridApi.refreshCells(this.flatten(this.state.groups))
-     
-      
-    })
+      .then((res) => {
+        this.setState({filterData:res.data,equipCheck:false, })
+      })
     } else if(selectTypeList === '그룹' && equipType !== '' && equipCatagory !== '' ) {
-      this.setState({equipCheck:true,})
+      GroupEquipmentService.searchFilterGroup(equipType,equipCatagory)
+      .then((res) => {
+        console.log(res.data)
+        this.setState({groups:res.data, equipCheck:true,})
+      })
+      
       
     }
     else if(equipType === '') { 
@@ -473,6 +541,15 @@ diskHwChange = (value) => {this.setState({hwDisk:value})}
 nicHwChange = (value) => {this.setState({hwNic:value})}
 sensorHwChange = (value) => {this.setState({hwSensor:value})}
 allHwChange = (value) => { this.setState({ hwNumber:value})}
+allCheckHwChange = (value) => {
+  this.setState({
+    hwNumber:value,
+    hwCpu:value,
+    hwDisk:value,
+    hwNic:value,
+    hwSensor:value
+  })
+}
 /* 툴팁 기본값*/
 defaultTooltipAggrid = () => {
   const {hwDefault} = this.state;
@@ -540,11 +617,23 @@ allHwOnClick = () => {
 }
 /* 툴팁 Check POST */
 allCheckHwOnClick = () => {
-  const checkNodes = this.gridApi.getSelectedNodes();
-  const checkData = checkNodes.map(c => c.data.id);
-  const equipId = checkData.join(',');
   const {hwCpu,hwDisk,hwNic,hwSensor,hwNumber} = this.state;
-  console.log(equipId);
+  console.log(hwCpu,hwDisk,hwNic,hwSensor,hwNumber);
+  const checkNodes = this.gridApi.getSelectedNodes();
+  const hwid = [];
+  checkNodes.map(c => {
+    console.log(c);
+    if(c.data.id === undefined && c.data.isLeaf === undefined) {
+      console.log("bb");
+      hwid.push(c.data.key);
+    } else if(c.data.id !== undefined && c.data.isLeaf === undefined) {
+      console.log("aa");
+      hwid.push(c.data.id);
+    }
+  });
+  const equipId = hwid.join(',');
+  console.log("equipId: "+ equipId);
+
   if(equipId !== '' && hwNumber.value !== '') {
     AiwacsService.allTooltipHwUpdateEquipment(hwCpu.value,hwDisk.value,hwNic.value,hwSensor.value,equipId)
     .then(()=> {
@@ -558,11 +647,19 @@ allCheckHwOnClick = () => {
   }
 }
 cpuCheckOnClick = () => {
-  const checkNodes = this.gridApi.getSelectedNodes();
-  const checkData = checkNodes.map(c => c.data.id);
-  const equipId = checkData.join(',');
   const {hwCpu,hwnull} = this.state;
+  const checkNodes = this.gridApi.getSelectedNodes();
+  const hwid = [];
+  checkNodes.map(c => {
+    if(c.data.id === undefined) {
+      hwid.push(c.data.key);
+    } else {
+      hwid.push(c.data.id);
+    }
+  });
+  const equipId = hwid.join(',');
   console.log("equipId: "+ equipId);
+
   if(equipId !== '' && hwCpu.value !== '') {
   AiwacsService.eachTooltipHwUpdateEquipment(hwCpu.value,hwnull,hwnull,hwnull,equipId)
   .then(()=> {
@@ -575,10 +672,18 @@ cpuCheckOnClick = () => {
   } 
 }
 diskCheckOnClick = () => {
-  const checkNodes = this.gridApi.getSelectedNodes();
-  const checkData = checkNodes.map(c => c.data.id);
-  const equipId = checkData.join(',');
   const {hwDisk,hwnull} = this.state;
+  const checkNodes = this.gridApi.getSelectedNodes();
+  const hwid = [];
+  checkNodes.map(c => {
+    if(c.data.id === undefined) {
+      hwid.push(c.data.key);
+    } else {
+      hwid.push(c.data.id);
+    }
+  });
+  const equipId = hwid.join(',');
+  
   if(equipId !== '' && hwDisk.value !== '') {
   AiwacsService.eachTooltipHwUpdateEquipment(hwnull,hwDisk.value,hwnull,hwnull,equipId)
   .then(()=> {
@@ -591,10 +696,18 @@ diskCheckOnClick = () => {
   } 
 }
 nicCheckOnClick = () => {
-  const checkNodes = this.gridApi.getSelectedNodes();
-  const checkData = checkNodes.map(c => c.data.id);
-  const equipId = checkData.join(',');
   const {hwNic,hwnull} = this.state;
+  const checkNodes = this.gridApi.getSelectedNodes();
+  const hwid = [];
+  checkNodes.map(c => {
+    if(c.data.id === undefined) {
+      hwid.push(c.data.key);
+    } else {
+      hwid.push(c.data.id);
+    }
+  });
+  const equipId = hwid.join(',');
+  
   if(equipId !== '' && hwNic.value !== '') {
   AiwacsService.eachTooltipHwUpdateEquipment(hwnull,hwnull,hwNic.value,hwnull,equipId)
   .then(()=> {
@@ -607,10 +720,18 @@ nicCheckOnClick = () => {
   } 
 }
 sensorCheckOnClick = () => {
-  const checkNodes = this.gridApi.getSelectedNodes();
-  const checkData = checkNodes.map(c => c.data.id);
-  const equipId = checkData.join(',');
   const {hwSensor,hwnull} = this.state;
+  const checkNodes = this.gridApi.getSelectedNodes();
+  const hwid = [];
+  checkNodes.map(c => {
+    if(c.data.id === undefined) {
+      hwid.push(c.data.key);
+    } else {
+      hwid.push(c.data.id);
+    }
+  });
+  const equipId = hwid.join(',');
+  
   if(equipId !== '' && hwSensor.value !== '') {
   AiwacsService.eachTooltipHwUpdateEquipment(hwnull,hwnull,hwnull,hwSensor.value,equipId)
   .then(()=> {
@@ -624,8 +745,17 @@ sensorCheckOnClick = () => {
 }
 tooltipValidation = () => {
   const checkNodes = this.gridApi.getSelectedNodes();
-  const checkData = checkNodes.map(c => c.data.id);
-  const equipId = checkData.join(',');
+  console.log(checkNodes);
+  const hwid = [];
+  checkNodes.map(c => {
+    if(c.data.id === undefined) {
+      hwid.push(c.data.key);
+    } else {
+      hwid.push(c.data.id);
+    }
+  });
+  const equipId = hwid.join(',');
+  console.log(equipId);
   if(equipId === '') { 
     alert("변경할 데이터가 없습니다.")
     ReactTooltip.hide();
@@ -650,67 +780,74 @@ downloadExcel = () => {
   })
 }
 
-manageEquipmentListURL = () =>  { this.props.history.push("/manageEquipmentList") }
 
-flatten = (data, parent, childHierachy) => {
+
+recursion = (data, parent, childHierachy) => {
   var newData =[];
-  // console.log(parent);
-  // console.log(childHierachy);
+
   if(data) {
     data.forEach((d,i) => {
       
     var parentHierachy = [];     
     d.hierarchy =parentHierachy;
     
-
     if(parent) {
       d.parent= parent;
       parentHierachy = [...childHierachy];
       d.hierarchy = parentHierachy;
-      
     }
     parentHierachy.push(i);
     newData.push(d);
 
-    if(d.children) {
+  // 재귀함수
+  if(d.children) {
     newData = [
       ...newData,
-      ...this.flatten(
+      ...this.recursion(
         d.children,
         d,
         parentHierachy
       )
     ]
   }
-  
-    })
-  }
+ })
+}
   return newData;
 
 }
-flattens = (data, parent, childHierachy) => {
-  var newData =[];
-  // console.log(parent);
-  // console.log(childHierachy);
-  if(data) {
-    console.log(data);
-    data.forEach((d,i) => {
+
+
+test = (data,parent) => {
+  var newData = [];
+  data.forEach((d,i) => {
+
+    if(parent) {
+        d.parent=parent;
+      }
+      newData.push(d);
       
-    var parentHierachy = [];     
-    d.hierarchy =parentHierachy;
-    
-
-    
-    parentHierachy.push(d.id);
-    newData.push(d);
-
-    
-    console.log(newData);
+      if(d.children) {
+        newData = [
+          ...newData,
+          ...this.test(
+            d.children,
+            d,
+          )
+        ]
+      }
     })
-  }
   return newData;
-
 }
+
+
+onSelectionChanged = (event) => {
+  console.log(event);
+  console.log(event.node);
+  console.log(event.rowIndex);
+}
+
+
+
 
 
 
@@ -718,8 +855,8 @@ flattens = (data, parent, childHierachy) => {
     const { columnDefs ,defaultColDef,equipment,formData,typeArray,typecheckList,typeData,groups,testDb,columnDefsSecond
     ,catagoryArray,CatagoryCheckList,catagoryData,filterData,equipCheck,gridComponents,hwCpu,hwDisk,hwSensor,hwNic,hwid,hwNumber, selectTypeList} = this.state;
     
-    console.log(equipCheck);
-    console.log(filterData);
+    // console.log(equipCheck);
+    // console.log(filterData);
 
     return (
       <div className="ContainerAdmin">
@@ -835,79 +972,47 @@ flattens = (data, parent, childHierachy) => {
             {/* <ReactTooltip /> */}
             <div className="ag-theme-alpine" style={{ width:'95vw', height:'48vh'}}>
              
-            <AgGridReact
-                  headerHeight='30'
-                  floatingFiltersHeight='23'
-                  rowHeight='25'
-                  rowData={equipCheck ?  this.flatten(groups) : filterData}
-                  // {equipCheck ? groups : filterData}  // groups / equipment / 
-                  rowSelection="multiple"
-                  onGridReady={params => {this.gridApi = params.api;}} // {params => (this.gridApi = params.api)}
-                  groupSelectsChildren={true} // 자식노드까지 체크
-                  enableRangeSelection={true}  // 다중 선택 가능
-                  defaultColDef={defaultColDef}
-                  // deltaRowDataMode={true}
-                  columnDefs={equipCheck ? columnDefs : columnDefsSecond}   // columnDefs  / columns
-                  autoGroupColumnDef={equipCheck ?  this.state.autoGroupColumnDef : null}  // 자동 열 그룹 지정 - 첫번째열
-                  treeData={equipCheck? true: false}
-                  // getDataPath= {equipCheck? data => {
-                  //   return data.hierarchy;
-                  // } : null}
-                  getDataPath= { data =>  { return data.hierarchy}}
-                  treeDataDisplayType= {equipCheck ? "auto" : "custom"}
-         
-                  
-                  
-                />
-
-
-
-                {/* {
-                  equipCheck ? 
+          
+                {/* tree data ? rowGroup  */}
+                {
+                  equipCheck ?  
                   <AgGridReact
                   headerHeight='30'
                   floatingFiltersHeight='23'
                   rowHeight='25'
-                  rowData={this.flatten(groups)}
-                  // {equipCheck ? groups : filterData}  // groups / equipment / 
-                  rowSelection="multiple"
-                  // onGridReady={params => {this.gridApi = params.api;}} // {params => (this.gridApi = params.api)}
-                  groupSelectsChildren={true} // 자식노드까지 체크
-                  enableRangeSelection={true}  // 다중 선택 가능
+                  // rowData={this.recursion(groups)}
+                  rowData={this.recursion(groups)}
+                  rowSelection='multiple'
+                  onGridReady={params => {this.gridApi = params.api;}} 
+                  groupSelectsChildren={true} // 자식노드까지 체크 ( 지원 안됨 )
+                  enableRangeSelection={true} 
                   defaultColDef={defaultColDef}
-                  // deltaRowDataMode={true}
-                  columnDefs={columnDefs}   // columnDefs  / columns
-                  autoGroupColumnDef={this.state.autoGroupColumnDef }  // 자동 열 그룹 지정 - 첫번째열
+                  columnDefs={columnDefs}  
+                  autoGroupColumnDef={this.state.autoGroupColumnDef }  
                   treeData={true}
                   getDataPath= {data => {
                     return data.hierarchy;
                   }}
-                  treeDataDisplayType={"auto"}
-                  // suppressRowClickSelection= {true}
-         
-                />
-                 :
+                  onSelectionChanged={this.onSelectionChanged}
+                  />
+                 : null  }
+
+                {
+                  equipCheck === false ? 
                 <AgGridReact
                   headerHeight='30'
                   floatingFiltersHeight='23'
                   rowHeight='25'
-                  // rowData={filterData}
+                  rowData={filterData}
                   rowSelection="multiple"
-                  onGridReady={params => {this.gridApi = params.api;}} // {params => (this.gridApi = params.api)}
-                  groupSelectsChildren={true} // 자식노드까지 체크
-                  enableRangeSelection={true}  // 다중 선택 가능
+                  onGridReady={params => {this.gridApi = params.api;}} 
+                  groupSelectsChildren={true}   // 자식 노드 체크 가능
+                  enableRangeSelection={true}  
                   defaultColDef={defaultColDef}
-                  // deltaRowDataMode={true}
-                  columnDefs={columnDefsSecond}   // columnDefs  / columns
-                  // autoGroupColumnDef={this.state.autoGroupColumnDefSecond }
-                  treeData={false}
-                  treeDataDisplayType={"custom"}
-                  
-                  
-                  
-         
+                  columnDefs={columnDefsSecond}   
                 /> 
-              } */}
+                : null }
+              
                 
                 {
                  this.state.modifyOpen  ? <Modify show={this.state.modifyOpen}  onHide={this.modifyOpenButton} data={formData}  /> : null
@@ -918,7 +1023,7 @@ flattens = (data, parent, childHierachy) => {
 
           <div className="underArea">
             <div className="underLeftArea">
-                    <Button className="underBtn" onClick onClick={this.manageEquipmentListURL}>장비 그룹 관리</Button>
+                    <Button className="underBtn" onClick={()=> {this.props.history.push("/manageEquipmentList")}}>장비 그룹 관리</Button>
                     <Button className="underBtn">프록시 관리</Button>
                     <Button className="underBtn">Agent 관리</Button>
                     <Button className="underBtn whiteBtn" onClick={this.uploadOpenButtonTrue} >장비 일괄 관리</Button>
@@ -1008,7 +1113,7 @@ flattens = (data, parent, childHierachy) => {
 
             
                 <div className="headerRightAddBtn">
-                  <Select className="headerRightSelect" options={HardwareNumber} value={hwNumber} onChange={value=> this.allHwChange(value)}  />
+                  <Select className="headerRightSelect" options={HardwareNumber} value={hwNumber} onChange={value=> this.allCheckHwChange(value)}  />
                   <button className="headerRightBtn" onClick={this.allCheckHwOnClick} >변경</button>
                 </div>
             </div>

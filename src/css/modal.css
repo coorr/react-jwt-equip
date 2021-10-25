@@ -18,7 +18,7 @@
 
 .TimeLabel{ margin-top: 17px; height: 40px; margin-right: 15px;  }
 .TimeBox{border:1px solid #c2cfd6; height: 80px; width: 98%; margin-left: 1px; margin-bottom: 2%; }
-.TimeFont{font-weight: bold;}
+.TimeFont{font-weight: bold; width: 40%;}
 
 .HardwareLabel{width: 35%; height: 15%; margin-top: 3%; } 
 .HardwareTitle{margin-top: 2%;}

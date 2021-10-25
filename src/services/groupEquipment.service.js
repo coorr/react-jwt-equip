@@ -27,6 +27,13 @@ class GroupEquipment {
   getGroupName(id) {
     return axios.get(API_URL + "group/getGroupName/"+id );
   } 
+  searchFilterGroup(equipType,equipCatagory) { 
+    return axios.get(API_URL + "group/filterType/"+equipType+'/'+equipCatagory ); 
+  }
+  deleteGroupEquipByNo(equipId) { 
+    return axios.post(API_URL + "group/deleteGroupEquipByNo/"+equipId); 
+  }
+
   
 
   

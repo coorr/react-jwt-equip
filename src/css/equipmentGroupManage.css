@@ -36,3 +36,14 @@ input:focus {outline:none;}
 .ag-theme-alpine div.ag-row { font-size: 13px !important; }
 .ag-theme-alpine input[class^=ag-][type=text] { min-height: 0px;  padding: 0; }
 .ag-theme-alpine .ag-cell{line-height: 25px !important;}
+.ag-header-cell-text{ font-size: 0.9em;}
+.ag-cell-value, .ag-group-value{font-size: 1em;}
+.spanCheckbox{font-size: 16px; font-family: "agGridAlpine"; border-radius: 3px; padding: 1px; }
+.inputCheckbox{ padding: 5px; 	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border: 2px solid red;
+	cursor: pointer;
+  margin-top: 1px;
+}
+/* .ag-group-checkboxs{} */

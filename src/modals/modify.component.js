@@ -177,8 +177,8 @@ componentDidMount() {
     const {id, equipment, nickname,settingType,settingTemplate,settingIp,settingCatagory,settingOs,settingPerson,
       settingProxy,settingActive,hwCpu,hwDisk,hwNic,hwSensor,hwTitle,hwNumber} = this.state;
     
-    // const {equipment,nickname,settingType,settingTemplate,settingIp,settingCatagory,settingOs,settingPerson,settingProxy,settingActive,
-    //   hwTitle,hwNumber,hwCpu,hwDisk,hwNic,hwSensor} = this.state;
+    console.log(this.state.settingType.value);
+
     return (
         <>
       <Modal
@@ -342,7 +342,10 @@ componentDidMount() {
         </Col>
       </Form.Group>
 
-      <Form.Group as={Row} className="mb-3" controlId="formHorizontalActive">
+      {
+        this.state.settingType.value !== 'ICMP' && (
+      <>
+      <Form.Group as={Row} className="mb-4" controlId="formHorizontalActive">
        <Form.Label column sm={3} className="TimeFont" > 
             타임 별 수집 초기(초)
        </Form.Label>
@@ -408,8 +411,13 @@ componentDidMount() {
             
           </Form.Group>
           </Form.Group>
+          
         )}
+         
         </Form.Group>
+        </>
+         )}
+        
        
         </Container>
         

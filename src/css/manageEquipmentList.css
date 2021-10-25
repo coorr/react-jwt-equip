@@ -7,7 +7,7 @@ label{margin-top: 0;}
 .sideBarArea{width: 3%; height: 100%;  background-color: #fff;}
 
 /* ADMIN 페이지 */
-.FilterContainer{width: 97%; height: 100%; }
+.FilterContainer{width: 97%; height: 100%;background-color: #E5E4EA;}
 /* high 공간 */
 .topFilterArea{width: 99.5%; height: 24%; background-color: #fff; border: 1px solid #c2cfd6;margin: 0 auto; }
 .topFilterBox{width: 99.5%; height: 80%; border: 1px solid #c2cfd6;margin:0.2% 0 0 0.2%;   }
@@ -24,7 +24,7 @@ label{margin-top: 0;}
 
 
 /* middle 공간 */
-.middleFilterArea{width: 99.5%; height: 5%; background-color: #ddd; border: 1px solid #ddd; margin: 0 auto;}
+.middleFilterArea{width: 99.5%; height: 5%; background-color: #E5E4EA; border: 1px solid #ddd; margin: 0 auto;}
 
 /* bottom 공간 */
 .bottomFilterArea{width: 99.5%; height: 65%; background-color: #fff; margin: 0 auto; }
@@ -50,8 +50,8 @@ label{margin-top: 0;}
 .agGridBox{width: 98%; height: 95%; margin: 0 auto;}
 
 .underArea{width: 98%; height: 10%;   display: flex; margin-left: 1%;}
-.underLeftArea{ width: 50%; height: 100%; }
-.underRightArea{width: 50%;  height: 100%;}
+.underLeftArea{ width: 50%; height: 100%; margin-top: 0.8%;}
+.underRightArea{width: 50%;  height: 100%;margin-top: 0.8%;} 
 .underBtn{ border: 1px solid #6693D7; background-color: #6693D7;  color: #fff; font-size: 1em; margin-right: 1%;}
 .underBtn:hover{background-color: #3f7bd4; border: 1px solid #5c8fdb}
 .underBtn.whiteBtn{background-color: #fff; border: 1px solid black; color: black;} 
@@ -106,5 +106,4 @@ select {  width: 60px; height: 30px; }
 
 /* button 간격 조절 */
 .ag-theme-alpine .ag-cell {line-height:30px }
-
 

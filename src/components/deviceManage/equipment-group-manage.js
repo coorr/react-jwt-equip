@@ -21,16 +21,7 @@ const CustomIcon = () => {
 }
 
 
-// EquipDatas.filter((e) => {
-//   if(search  == "" ) {
-//     return e
-//   } else if(e.equipment.toLowerCase().includes(search.toLowerCase()) ||
-//             e.nickname.toLowerCase().includes(search.toLowerCase()) ||
-//             e.settingIp.toLowerCase().includes(search.toLowerCase()) ||
-//             e.settingType.toLowerCase().includes(search.toLowerCase()))  {
-//     return e
-//   } 
-// }).forEach
+
 
 
 class manageEquipmentList extends React.Component {
@@ -84,8 +75,22 @@ class manageEquipmentList extends React.Component {
               v.children.forEach((e) => {
                 if(e.isLeaf === undefined) {
                   e.icon = <CustomIcon />
-                } 
-             })
+                }
+                if(e.children !== undefined) {
+                  e.children.forEach((c) => {
+                    if(c.isLeaf === undefined) {
+                      c.icon = <CustomIcon />
+                    } 
+                    if(c.children !== undefined) {
+                      c.children.forEach((d)=> {
+                        if(d.isLeaf === undefined) {
+                          d.icon = <CustomIcon />
+                        } 
+                      })
+                    }
+                  })
+                }
+              })
             });
             this.setState({groups: resDatas})
           })
@@ -186,26 +191,33 @@ class manageEquipmentList extends React.Component {
 
   componentDidMount() {
     GroupEquipmentService.getGroupEquipment()
-          .then((res) => {
-          console.log(res.data);
-          const resDatas=res.data;
+      .then((res) => {
+      console.log(res.data);
+      const resDatas=res.data;
 
-          resDatas.forEach((v,i) =>   {
-              v.children.forEach((e) => {
-                if(e.isLeaf === undefined) {
-                  e.icon = <CustomIcon />
-                }
-                if(e.children !== undefined) {
-                  e.children.forEach((c) => {
-                    if(c.isLeaf === undefined) {
-                      c.icon = <CustomIcon />
+      resDatas.forEach((v,i) =>   {
+          v.children.forEach((e) => {
+            if(e.isLeaf === undefined) {
+              e.icon = <CustomIcon />
+            }
+            if(e.children !== undefined) {
+              e.children.forEach((c) => {
+                if(c.isLeaf === undefined) {
+                  c.icon = <CustomIcon />
+                } 
+                if(c.children !== undefined) {
+                  c.children.forEach((d)=> {
+                    if(d.isLeaf === undefined) {
+                      d.icon = <CustomIcon />
                     } 
                   })
                 }
-             })
-            });
-            this.setState({groups: resDatas , groupArray:resDatas})
+              })
+            }
           })
+        });
+        this.setState({groups: resDatas , groupArray:resDatas})
+      })
 
      GroupEquipmentService.unGroupEquipment()
       .then((res) => {
@@ -221,7 +233,7 @@ class manageEquipmentList extends React.Component {
             const objs ={};
              objs.key = se.id;
              objs.title =[se.equipment,'/',se.nickname,'/',se.settingIp,'/',se.settingType,'/',eq.groups];
-            //  objs.icon= <img style={{width:15,padding:1}} src={Equipment} alt="Custom Icon" />
+             objs.icon=  <CustomIcon />
              EquipArray.push(objs);
           })
         })
@@ -387,6 +399,7 @@ class manageEquipmentList extends React.Component {
         group_id: event.node.props.eventKey.replace("-",""),
         equipment_id: dragChildrenTree
       }
+      console.log(insertChildrenDrag);
       GroupEquipmentService.insertGroupEquipmentMapping(insertChildrenDrag) 
       .then(res=> {
         console.log("insert Drag Children ")
