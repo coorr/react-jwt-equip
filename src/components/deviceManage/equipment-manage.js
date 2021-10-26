@@ -23,6 +23,14 @@ import { saveAs } from 'file-saver';
 import { Redirect } from 'react-router';
 import GroupEquipmentService from '../../services/groupEquipment.service';
 import Equipment from '../../images/equipment.png'
+import MenuBar from '../../images/menuBar.png'
+import { FaBeer } from 'react-icons/fa';
+import { AiOutlineMenu } from 'react-icons/ai'
+import { AiFillSetting } from 'react-icons/ai'
+import { BiUserCircle } from 'react-icons/bi';
+import { ProSidebar, SidebarHeader, SidebarFooter, SidebarContent } from 'react-pro-sidebar';
+import 'react-pro-sidebar/dist/css/styles.css';
+import { Navbar, Nav, NavDropdown,LinkContainer,NavItem,Logout } from "react-bootstrap";
 
 
 const initialValue = {
@@ -860,9 +868,22 @@ onSelectionChanged = (event) => {
 
     return (
       <div className="ContainerAdmin">
-        <div className="sideBarArea">
-        </div>
+         {/* <div className="sideBarArea">
+          //      <button className="sideBarButton" ><AiOutlineMenu className="sideImgMenuBar" size={20} color={'#fff'} /></button>
+          //     <button className="sideBarButtonIcon" ><AiFillSetting className="sideImgIcon" size={25}   /></button> 
+          //  <Navbar className="sideBarArea" bg="dark" variant="dark" expand="lg" >
+          // <Navbar.Collapse>
+          //     <Nav pullRight>
+          //       <NavDropdown eventKey={ 3 } id="profile-dropdown" >
+                  
+                  
+          //       </NavDropdown>
+          //     </Nav>
+          //   </Navbar.Collapse>
+          // </Navbar> 
 
+        </div>  */}
+        
       <div className="FilterContainer">
        <div className="topFilterArea"> 
           <div className="topFilterBox">
@@ -917,19 +938,6 @@ onSelectionChanged = (event) => {
                     </div>
                   </div>
               </div>
-
-            <div className="selectFilterSpace">
-                  <div className="selectBox">
-                      <p className="selectFont">장비 정보</p>
-                  </div>
-                  <div className="selectCheckBox">
-                    <div className="filterInput">
-                      {/* <input type="checkbox"/><span className="filterSpan">ALL |</span>
-                      <input type="checkbox"/><span className="filterSpan">수집 주기</span>
-                      <input type="checkbox"/><span className="filterSpan">PING</span> */}
-                    </div>
-                  </div>
-            </div>
           </div>
           <div className="topFilterBottomArea">
                     <Button className="topFilterBottomBtn" onClick={this.filterSelect} >조회하기</Button>

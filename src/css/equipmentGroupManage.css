@@ -13,7 +13,7 @@ input:focus {outline:none;}
 .searchIcon:active{width: 10%; background-color: white; border:1px solid #ddd;}
 .searchImg{width: 20px; padding: 1px;}
 .TobBarRight{ display: flex;  width: 100%; }
-.inputSelectEquipments{margin-top: 1.5%; margin-left: 2.5%; margin-left: 45%; }
+.inputSelectEquipments{margin-top: 1.5%; margin-left: 2.5%; margin-left: 57%; }
 .inputSelectEquipment{margin-top: 1.5%; margin-left: 2.5%;  }
 .labelSelectEquipment{margin-top: 0.9%; margin-left: 1%;}
 .buttonSelectEquipment{margin-left: 1.5%; background-color: #6693d7;border-color: #6693d7; color: #fff; width: 60px;}
@@ -27,8 +27,9 @@ input:focus {outline:none;}
 .buttonSelectEquipmentSize{ display: flex; margin-left: 43%;}
 .buttonSelectEquipmentLeft{   width: 60px; border: 1px solid #6693D7; background-color: #fff;  color: #6693D7; font-size: 0.9em; border-radius: 0;  margin-left: 2%;}
 .buttonSelectEquipmentLeft:hover{background-color: #6693D7; border: 1px solid #6693D7}
-.buttonSelectEquipmentLeftTwo{   width: 60px; border: 1px solid #29363d; background-color: #fff;  color: #29363d; font-size: 0.9em; border-radius: 0;  margin-left: 2%;}
+.buttonSelectEquipmentLeftTwo{  width: 60px; border: 1px solid #29363d; background-color: #fff;  color: #29363d; font-size: 0.9em; border-radius: 0;  margin-left: 2%;}
 .buttonSelectEquipmentLeftTwo:hover{background-color: #29363d; border: 1px solid #29363d; color: #fff;}
+.buttonSelectEquipmentPosition{border: 1px solid red; position: fixed; margin-left: 6.5%; }
 
 .ag-theme-alpine .ag-cell-wrapper > *:not(.ag-cell-value):not(.ag-group-value) { height:  28px; margin-left: 1px;}
 .ag-theme-alpine .ag-root-wrapper{border: 0px;}

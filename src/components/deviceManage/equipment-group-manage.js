@@ -526,8 +526,6 @@ class manageEquipmentList extends React.Component {
              
       if(type === 'all') {
         this.setState({equipment : allEquipment})
-      } else if(type === 'agent') {
-        this.setState({equipment : allEquipment})
       } else if(type === 'snmp') {
         this.setState({equipment : snmpEquipment})
       } else if(type === 'icmp') {
@@ -557,9 +555,25 @@ class manageEquipmentList extends React.Component {
             <div className="TopBarBoxLeft">
               <div className="TobBarTextLeft">장비 그룹</div>
               <div className="buttonSelectEquipmentSize" >
-              <Button className="buttonSelectEquipmentLeft" onClick={() => this.TreeAdd()} >추가</Button> 
-              <Button className="buttonSelectEquipmentLeft"   onClick={()=> this.TreeUpdate()}  >수정</Button>
-              <Button className="buttonSelectEquipmentLeftTwo"   onClick={() => this.TreeRemove()} >삭제</Button> 
+
+                {
+                  this.state.childrenTree.length <= 0 ? (
+                    <>
+                    <Button className="buttonSelectEquipmentLeft" onClick={() => this.TreeAdd()}  >추가</Button> 
+                    <Button className="buttonSelectEquipmentLeft" onClick={()=> this.TreeUpdate()}  >수정</Button>
+                    <Button className="buttonSelectEquipmentLeftTwo"   onClick={() => this.TreeRemove()} >삭제</Button>
+                    </>
+                  ) : (
+                    <>
+                    <Button className="buttonSelectEquipmentLeft" onClick={() => this.TreeAdd()} style={{display:'none'}} >추가</Button> 
+                    <Button className="buttonSelectEquipmentLeft" onClick={()=> this.TreeUpdate()} style={{display:'none'}} >수정</Button>
+                    <Button className="buttonSelectEquipmentLeftTwo"   onClick={() => this.TreeRemove()} style={{marginLeft:'120px',width:'58px'}} >삭제</Button>
+                    </>
+                  )
+                }
+             
+               
+              
               </div>
             </div>
           </div>
@@ -673,9 +687,6 @@ class manageEquipmentList extends React.Component {
               <div className="TobBarRight">
                 <input type="radio" className="inputSelectEquipments" value="all" checked={inputEquipmentData==='all'} onChange={(e)=> {this.selectEquipmentAll(e)}}  />
                 <label className="labelSelectEquipment" >All</label>
-
-                <input type="radio" className="inputSelectEquipment" value="agent" checked={inputEquipmentData==='agent'}  onChange={(e)=> {this.selectEquipmentAll(e)}} />
-                <label className="labelSelectEquipment" >Agent</label>
 
                 <input type="radio" className="inputSelectEquipment" value="snmp" checked={inputEquipmentData==='snmp'}  onChange={(e)=> {this.selectEquipmentAll(e)}} />
                 <label className="labelSelectEquipment" >SNMP</label>

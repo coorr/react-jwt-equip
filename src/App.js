@@ -66,56 +66,46 @@ class App extends Component {
     const isAuthorized = AuthService.getCurrentUser();
 
     return (
+      
       <div className="ContainerBox"> 
-      {/* { currentUser=== null ? <Redirect to="/" /> : null} */}
-        <nav className="navbar navbar-expand navbar-dark bg-dark navbarSize" >
-          <Link to={"/"} className="navbar-brand">
-            임시페이지
+        <nav className="rootNavBarArea" >
+          <Link to={"/"} className="rootNavBarTitle">
+              임시페이지
           </Link>
-          <div className="navbar-nav mr-auto">
-            <li className="nav-item">
-              <Link to={"/home"} className="nav-link">
+          <div className="rootNavBar">
+            <li className="rootNavBarList">
+              <Link to={"/home"} className="rootNavBarText">
                 Home
               </Link>
             </li>
 
             {showAdminBoard && (
-            <li className="nav-item">
-              <Link to={"/manageEquipmentList"} className="nav-link">
+            <li className="rootNavBarList">
+              <Link to={"/manageEquipmentList"} className="rootNavBarText">
                 장비그룹관리 
               </Link>
             </li>
             )}
 
-          {/* {showAdminBoard && (
-            <li className="nav-item">
-              <Link to={"/deviceTotalView"} className="nav-link">
-              장비등록
-              </Link>
-            </li>
-          )} */}
-
             {showModeratorBoard && (
-              <li className="nav-item">
-                <Link to={"/mod"} className="nav-link">
+              <li className="rootNavBarList">
+                <Link to={"/mod"} className="rootNavBarText">
                   Moderator Board
                 </Link>
               </li>
             )}
 
             {showAdminBoard && (
-              <li className="nav-item">
-                <Link to={"/admin"} className="nav-link">
+              <li className="rootNavBarList">
+                <Link to={"/admin"} className="rootNavBarText">
                   장비 관리
                 </Link>
               </li>
             )}
-            
-  
 
             {currentUser && (
-              <li className="nav-item">
-                <Link to={"/user"} className="nav-link">
+              <li className="rootNavBarList">
+                <Link to={"/user"} className="rootNavBarText">
                   User
                 </Link>
               </li>
@@ -123,34 +113,36 @@ class App extends Component {
           </div>
 
           {currentUser ? (
-            <div className="navbar-nav ml-auto">
-              <li className="nav-item">
-                <Link to={"/profile"} className="nav-link">
+            <div className="rootNavBarLogin">
+              <li className="rootNavBarListLogin">
+                <Link to={"/profile"} className="rootNavBarTextLogin">
                   {currentUser.username}
                 </Link>
               </li>
-              <li className="nav-item">
-                <a href="/login" className="nav-link" onClick={this.logOut}>
+              <li className="rootNavBarListLogin">
+                <a href="/login" className="rootNavBarTextLogin" onClick={this.logOut}>
                   LogOut
                 </a>
               </li>
             </div>
           ) : (
-            <div className="navbar-nav ml-auto">
-              <li className="nav-item">
-                <Link to={"/login"} className="nav-link ">
+            <div className="rootNavBarLogin">
+              <li className="rootNavBarListLogin">
+                <Link to={"/login"} className="rootNavBarTextLogin ">
                   Login
                 </Link>
               </li>
 
-              <li className="nav-item">
-                <Link to={"/register"} className="nav-link ">
+              <li className="rootNavBarListLogin">
+                <Link to={"/register"} className="rootNavBarTextLogin ">
                   Sign Up
                 </Link>
               </li>
             </div>
           )}
         </nav>
+
+        <div className="sideBarAreas"></div>
 
         <div>
           <Switch>
