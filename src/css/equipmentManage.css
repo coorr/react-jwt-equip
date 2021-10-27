@@ -2,7 +2,7 @@ body{overflow: hidden;}
 label{margin-top: 0;}
 
 .Container{width: 100%; height:54.9rem;  background-color: #ddd; display:flex;}
-.ContainerAdmin{width: 100%; height:55.1rem;  background-color: #ddd; display: flex; }
+.ContainerAdmin{width: 100%; height:55.8rem;  background-color: #ddd; display: flex;  }
 
 /* Side Bar */
 .sideBarArea{width: 2.5%; height: 100%;  background-color: #fff;}
@@ -13,7 +13,7 @@ label{margin-top: 0;}
 .sideImgIcon:hover{ color: #ddd;}
 
 /* ADMIN 페이지 */
-.FilterContainer{width: 97.5%; height: 100%;background-color: #E5E4EA;}
+.FilterContainer{width: 100%; height: 100%;background-color: #E5E4EA;}
 /* high 공간 */
 .topFilterArea{width: 99.5%; height: 24%; background-color: #fff; border: 1px solid #c2cfd6;margin: 0 auto; }
 .topFilterBox{width: 99.5%; height: 80%; border: 1px solid #c2cfd6;margin:0.2% 0 0 0.2%;   }

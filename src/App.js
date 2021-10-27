@@ -12,13 +12,25 @@ import Home from "./components/user/home.component";
 import Profile from "./components/user/profile.component";
 import BoardUser from "./components/user/board-user.component";
 import BoardModerator from "./components/user/board-moderator.component";
-import BoardAdmin from "./components/deviceManage/equipment-manage";
+import EquipmentManage from "./components/deviceManage/equipment-manage";
 import ManageEquipmentList from "./components/deviceManage/equipment-group-manage";
 import Modify from './modals/modify.component';
+import HistoryRecord from "./components/deviceManage/histroy-record";
 
 import EventBus from "./common/EventBus";
 import "rc-tree/assets/index.less";
 import "./styles.css";
+
+import Equipment from '../src/images/equipment.png'
+import { FaBeer } from 'react-icons/fa';
+import { AiOutlineMenu } from 'react-icons/ai'
+import { AiFillSetting } from 'react-icons/ai'
+import { BiUserCircle } from 'react-icons/bi';
+import { Navbar, Nav, NavDropdown,LinkContainer,NavItem,Logout,Container,DropdownButton,Dropdown } from "react-bootstrap";
+import { ProSidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar';
+import 'react-pro-sidebar/dist/css/styles.css';
+
+const AiOutlineMenuIcon = <AiOutlineMenu color='white' />
 
 class App extends Component {
   constructor(props) {
@@ -29,6 +41,7 @@ class App extends Component {
       showModeratorBoard: false,
       showAdminBoard: false,
       currentUser: undefined,
+      dropdownOpen:false,
     };
   }
 
@@ -61,9 +74,16 @@ class App extends Component {
     });
   }
 
+  onMouseOver = () => { this.setState({dropdownOpen:true}) }
+  onMouseLeave = () => { this.setState({dropdownOpen:false}) }
+  toggle = () => { this.setState(prevState => ({
+    dropdownOpen: !prevState.dropdownOpen
+  })) }
+
   render() {
     const { currentUser, showModeratorBoard, showAdminBoard } = this.state;
     const isAuthorized = AuthService.getCurrentUser();
+    console.log(this.state.dropdownOpen);
 
     return (
       
@@ -81,7 +101,7 @@ class App extends Component {
 
             {showAdminBoard && (
             <li className="rootNavBarList">
-              <Link to={"/manageEquipmentList"} className="rootNavBarText">
+              <Link to={"/equipmentGroupManage"} className="rootNavBarText">
                 장비그룹관리 
               </Link>
             </li>
@@ -97,8 +117,16 @@ class App extends Component {
 
             {showAdminBoard && (
               <li className="rootNavBarList">
-                <Link to={"/admin"} className="rootNavBarText">
+                <Link to={"/equipmentManage"} className="rootNavBarText">
                   장비 관리
+                </Link>
+              </li>
+            )}
+
+            {showAdminBoard && (
+              <li className="rootNavBarList">
+                <Link to={"/historyRecord"} className="rootNavBarText">
+                  감사 이력
                 </Link>
               </li>
             )}
@@ -142,26 +170,45 @@ class App extends Component {
           )}
         </nav>
 
-        <div className="sideBarAreas"></div>
+        
+        <div className="ContainerSecond">
+          <div className="sideBarAreas">
+          <Dropdown drop='right' onFocus={()=> this.onMouseOver()} toggle={()=> this.toggle()} onMouseOver={() => this.onMouseOver()} onMouseLeave={()=> this.onMouseLeave()} show={this.state.dropdownOpen}  >
+            <Dropdown.Toggle><AiOutlineMenu color={'white'} size={24} /></Dropdown.Toggle>
+              <Dropdown.Menu>
+                  <Dropdown.Item onClick={() => this.onMouseLeave()} as={Link} to={'/equipmentManage'}>장비 관리</Dropdown.Item>
+                  <Dropdown.Item  onClick={() => this.onMouseLeave()} as={Link} to={'/historyRecord'} >감사 이력</Dropdown.Item>
+                  
+                  
+              </Dropdown.Menu>
+          </Dropdown>
 
-        <div>
-          <Switch>
-            <Route exact path={["/", "/home"]} component={Home} />
-            <Route exact path="/login" component={Login} />
-            <Route exact path="/register" component={Register} />
-            <Route exact path="/profile" component={Profile} />
-            <Route path="/user" component={BoardUser} />
-            <Route path="/mod" component={BoardModerator} />
-            <Route path="/admin" component={BoardAdmin} />
-            <Route path="/manageEquipmentList" component={ManageEquipmentList} />
-            <Route path="/modify/:selectedData" component={Modify} />
-
-            {/* <Route path="/deviceListComponent" component={DeviceListComponent} /> */}
-          </Switch>
+          {/* <Dropdown drop='right' onFocus={()=> this.onMouseOver()} toggle={()=> this.toggle()} onMouseOver={() => this.onMouseOver()} onMouseLeave={()=> this.onMouseLeave()} show={this.state.dropdownOpen}  >
+              <Dropdown.Toggle><AiFillSetting color={'white'} size={24} /></Dropdown.Toggle>
+              <Dropdown.Menu>
+                  <Dropdown.Item as={Link} to={'/admin'}>sad</Dropdown.Item>
+                  <Dropdown.Item as={Link} to={'/historyRecord'} >sadsad</Dropdown.Item>
+              </Dropdown.Menu>
+          </Dropdown> */}
+          </div>
+          
+            <Switch>
+              <Route exact path={["/", "/home"]} component={Home} />
+              <Route exact path="/login" component={Login} />
+              <Route exact path="/register" component={Register} />
+              <Route exact path="/profile" component={Profile} />
+              <Route path="/user" component={BoardUser} />
+              <Route path="/mod" component={BoardModerator} />
+              <Route path="/equipmentManage" component={EquipmentManage} />
+              <Route path="/equipmentGroupManage" component={ManageEquipmentList} />
+              <Route path="/modify/:selectedData" component={Modify} />
+              <Route path="/historyRecord" component={HistoryRecord} />
+            </Switch>
+          
         </div>
-
-        { /*<AuthVerify logOut={this.logOut}/> */ }
+        
       </div>
+      
     );
   }
 }

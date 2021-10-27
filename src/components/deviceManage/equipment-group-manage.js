@@ -7,7 +7,7 @@ import GroupEquipmentService from "../../services/groupEquipment.service";
 import { Modal,Button,Form, Container, Row,Col,InputGroup,FormControl,Image} from 'react-bootstrap';
 import Search from '../../images/search.png';
 import Select from 'react-select'
-import "../../css/manageEquipmentList.css"
+import "../../css/equipmentGroupManage.css"
 import Equipment from '../../images/equipment.png'
 import ReactTooltip from 'react-tooltip';
 import GroupAdd from "../../modals/tree-add.component";
@@ -243,7 +243,7 @@ class manageEquipmentList extends React.Component {
     
   }
   
-  pathEquipmentGroupManage = () => { this.props.history.push("/admin") }
+  pathEquipmentGroupManage = () => { this.props.history.push("/equipmentManage") }
 
   onExpand = (expandkey,info) => {
 
@@ -545,10 +545,6 @@ class manageEquipmentList extends React.Component {
     return (
       <>
       <div className="Container">
-        
-        <div className="sideBarArea">
-        </div>
-
         {/* 왼쪽 화면 */}
          <div className="treeParantLift">
          <div className="treeTopBarArea"> 

@@ -119,26 +119,39 @@ componentDidMount() { }
         }
 
       console.log("equipment : " +JSON.stringify(equipment));
- 
+      const userDetail = JSON.parse(localStorage.getItem('user'))
+      console.log(userDetail);
+        const historyRecord = {
+          actionType: '',
+          userName: userDetail.username,
+          settingIp: '',
+          menuDepth1: '장비 관리',
+          menuDepth2: '',
+          menuDepth3: '',
+          menuDepth4: '',
+          pageURL: '/equipmentManage',
+          targetName: userDetail.username
+        }
+        console.log("historyRecord : " +JSON.stringify(historyRecord));
         AiwacsService.createEquipment(equipment)
         .then(
           res => {
           console.log("응답받는곳")
-          this.setState({redirect: "/admin" })
+          this.setState({redirect: "/equipmentManage" })
           alert("저장되었습니다.")
           window.location.reload();
         },
-          error => {
-            const resMessage =
-              (error.response &&
-                error.response.data &&
-                error.response.data.message) ||
-              error.message ||
-              error.toString();
+          // error => {
+          //   const resMessage =
+          //     (error.response &&
+          //       error.response.data &&
+          //       error.response.data.message) ||
+          //     error.message ||
+          //     error.toString();
 
-              console.log(resMessage);
-            alert("중복된 IP를 가진 장비가 존재합니다.");
-          }
+          //     console.log(resMessage);
+          //   alert("중복된 IP를 가진 장비가 존재합니다.");
+          // }
         )
         .catch(err =>  {
           console.log(err) 
@@ -175,6 +188,8 @@ componentDidMount() { }
 
 
   render() {
+    const userDetail = JSON.parse(localStorage.getItem('user'))
+    console.log(userDetail);
     if (this.state.redirect) {
       return <Redirect to={this.state.redirect} />
     }

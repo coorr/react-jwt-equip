@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-// import { render } from 'react-dom';
 import UserService from '../../services/user.service';
 import EventBus from '../../common/EventBus';
 import Modals from '../../modals/modal.component';
@@ -14,23 +13,12 @@ import AuthService from '../../services/auth.service';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import "ag-grid-enterprise";
-import "../../css/equipmentGroupManage.css"
+import "../../css/equipmentManage.css"
 import Select from 'react-select'
-import { findDOMNode } from 'react-dom';
-import { RowNode } from 'ag-grid-community';
-import * as ExcelJs from 'exceljs';
 import { saveAs } from 'file-saver';
-import { Redirect } from 'react-router';
 import GroupEquipmentService from '../../services/groupEquipment.service';
 import Equipment from '../../images/equipment.png'
-import MenuBar from '../../images/menuBar.png'
-import { FaBeer } from 'react-icons/fa';
-import { AiOutlineMenu } from 'react-icons/ai'
-import { AiFillSetting } from 'react-icons/ai'
-import { BiUserCircle } from 'react-icons/bi';
-import { ProSidebar, SidebarHeader, SidebarFooter, SidebarContent } from 'react-pro-sidebar';
-import 'react-pro-sidebar/dist/css/styles.css';
-import { Navbar, Nav, NavDropdown,LinkContainer,NavItem,Logout } from "react-bootstrap";
+
 
 
 const initialValue = {
@@ -40,13 +28,11 @@ const HardwareNumber =
 [{label:'5', value:'5'},{label:'10', value:'10'},{label:'15', value:'15'},{label:'20', value:'20'},{label:'30', value:'30'},{label:'60', value:'60'}
 ,{label:'120', value:'120'},{label:'150', value:'150'},{label:'180', value:'180'},{label:'240', value:'240'},{label:'300', value:'300'},{label:'600', value:'600'} ];
 
-// var equipChecks = false;
-
 const CustomIcon = () => {
   return <img style={{width:15,padding:1}} src={Equipment} alt="Custom Icon" />
 }
 
-export default class BoardAdmin extends Component {
+export default class EquipmentManage extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -1031,7 +1017,7 @@ onSelectionChanged = (event) => {
 
           <div className="underArea">
             <div className="underLeftArea">
-                    <Button className="underBtn" onClick={()=> {this.props.history.push("/manageEquipmentList")}}>장비 그룹 관리</Button>
+                    <Button className="underBtn" onClick={()=> {this.props.history.push("/equipmentGroupManage")}}>장비 그룹 관리</Button>
                     <Button className="underBtn">프록시 관리</Button>
                     <Button className="underBtn">Agent 관리</Button>
                     <Button className="underBtn whiteBtn" onClick={this.uploadOpenButtonTrue} >장비 일괄 관리</Button>
