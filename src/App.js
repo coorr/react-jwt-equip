@@ -173,16 +173,17 @@ class App extends Component {
         
         <div className="ContainerSecond">
           <div className="sideBarAreas">
-          <Dropdown drop='right' onFocus={()=> this.onMouseOver()} toggle={()=> this.toggle()} onMouseOver={() => this.onMouseOver()} onMouseLeave={()=> this.onMouseLeave()} show={this.state.dropdownOpen}  >
-            <Dropdown.Toggle><AiOutlineMenu color={'white'} size={24} /></Dropdown.Toggle>
-              <Dropdown.Menu>
-                  <Dropdown.Item onClick={() => this.onMouseLeave()} as={Link} to={'/equipmentManage'}>장비 관리</Dropdown.Item>
-                  <Dropdown.Item  onClick={() => this.onMouseLeave()} as={Link} to={'/historyRecord'} >감사 이력</Dropdown.Item>
-                  
-                  
-              </Dropdown.Menu>
-          </Dropdown>
-
+          {showAdminBoard && (
+            <Dropdown drop='right' onFocus={()=> this.onMouseOver()} toggle={()=> this.toggle()} onMouseOver={() => this.onMouseOver()} onMouseLeave={()=> this.onMouseLeave()} show={this.state.dropdownOpen}  >
+              <Dropdown.Toggle><AiOutlineMenu color={'white'} size={24} /></Dropdown.Toggle>
+                <Dropdown.Menu>
+                    <Dropdown.Item onClick={() => this.onMouseLeave()} as={Link} to={'/equipmentManage'}>장비 관리</Dropdown.Item>
+                    <Dropdown.Item  onClick={() => this.onMouseLeave()} as={Link} to={'/historyRecord'} >감사 이력</Dropdown.Item>
+                    
+                    
+                </Dropdown.Menu>
+            </Dropdown>
+          )}
           {/* <Dropdown drop='right' onFocus={()=> this.onMouseOver()} toggle={()=> this.toggle()} onMouseOver={() => this.onMouseOver()} onMouseLeave={()=> this.onMouseLeave()} show={this.state.dropdownOpen}  >
               <Dropdown.Toggle><AiFillSetting color={'white'} size={24} /></Dropdown.Toggle>
               <Dropdown.Menu>

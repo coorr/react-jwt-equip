@@ -10,10 +10,10 @@ label {
 .rootNavBarTitle{color: white; font-size: 1.5em; text-decoration: none; margin-left: 2%; }
 .rootNavBarTitle:hover{color: white; font-size: 1.5em; text-decoration: none; margin-left: 2%; }
 .rootNavBar{ width: 30%; height: 100%; display: flex; }
-.rootNavBarList{ margin-top: 1.8%; }
+.rootNavBarList{ margin-top: 1.8%; list-style:none;  margin-left: 5%;}
 .rootNavBarText{color: #93939b; text-decoration: none;}
 .rootNavBarText:hover{color: #93939b; text-decoration: none;}
-.rootNavBarLogin{margin-left: 50%;  width: 10%; height: 100%; display: flex;}
+.rootNavBarLogin{margin-left: 50%;  width: 10%; height: 100%; display: flex; list-style:none;}
 .rootNavBarListLogin{ margin-top: 5%; margin-left: 10%; }
 .rootNavBarTextLogin{color: #93939b; text-decoration: none; }
 .rootNavBarTextLogin:hover{color: #93939b; text-decoration: none;}

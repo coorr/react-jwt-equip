@@ -3,6 +3,26 @@
 
 /** 검색 상단 **/
 .historyFilterContainer{width: 99.5%; height: 20%;  background-color: #fff; margin-left: 0.25%;}
+.historyFilterBoxArea{ width: 99.5%; height: 76%; margin:0.2% 0 0 0.2%; border: 1px solid #c2cfd6;}
+.historyFilterBoxLeft{ width: 100%; height: 28%; border-bottom: 1px solid #c2cfd6; display: flex; }
+.historyFilterTitle{width: 9%; height: 100%; border-right: 1px solid #c2cfd6; background-color:#F5F3F4; display: flex;}
+.historyFilterText{ font-weight: bold; width: 90%; margin-top: 4.5%; margin-left: 3%; font-size: 0.9em; }
+.historyFilterSearchArea{width: 91%; height: 100%; display: flex; }
+.historyFilterSearchBox{ width: 98%; height: 80%; border: 1px solid #c2cfd6; margin: 0.2% 0 0 0.2%; display: flex; }
+.historyFilterSearch{ width: 4%; height: 100%; background-color: white; font-size: 0.9em; border: 1px solid #c2cfd6; }
+
+.historyFilterBoxLeftSecond{width: 100%; height: 40%; border-bottom: 1px solid #c2cfd6; display: flex; }
+.historyFilterTextSecond{ font-weight: bold; width: 90%; margin-top: 8%; margin-left: 3%; font-size: 0.9em;  }
+.historyFilterBoxLeftThird{ width: 100%; height: 32%; border-bottom: 1px solid #c2cfd6; display: flex;}
+.historyFilterTextThird{ font-weight: bold; width: 90%; margin-top: 7%; margin-left: 3%; font-size: 0.9em; }
+.historyMiddleSelectBtnSpace{ height: 20%; width: 100%; text-align: center; margin-top: 0.2%; }
+.historyMiddleSelectBtn{   border: 1px solid #29363d; background-color: #29363d; color: white;}
+.historyMiddleSelectBtn:hover {border:1px solid black; background-color: black; color: white;}
+.historyMiddleReloadBtn{ float: right; color: #6693D7; background-color: white; border: 1px solid #6693D7; margin-right: 0.3%;}
+.historyMiddleReloadBtn:hover{background-color: #6693D7; border: 1px solid #6693D7}
+/* .historyFilterTitleSecond{ } */
+
+
 .historyMiddleContainer{width: 99.5%; height: 4.3%; background-color: #E5E4EA; margin-left: 0.25%;}
 
 /** Ag-grid History **/
