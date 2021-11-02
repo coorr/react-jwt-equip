@@ -20,10 +20,22 @@
 .historyMiddleSelectBtn:hover {border:1px solid black; background-color: black; color: white;}
 .historyMiddleReloadBtn{ float: right; color: #6693D7; background-color: white; border: 1px solid #6693D7; margin-right: 0.3%;}
 .historyMiddleReloadBtn:hover{background-color: #6693D7; border: 1px solid #6693D7}
-/* .historyFilterTitleSecond{ } */
+.historyUserSelect{ width: 100%; height: 20px;}
 
-
+.css-tj5bde-Svg{display:none !important;}
+.css-1rhbuit-multiValue{background-color: #737C8B !important; margin: 0 !important; margin-bottom:15px !important;  margin-left: 3px !important; height: 25px !important; }
+.css-12jo7m5{ color: white !important; }
 .historyMiddleContainer{width: 99.5%; height: 4.3%; background-color: #E5E4EA; margin-left: 0.25%;}
+.histroyModel{ width: 1000px; height: 525px;}
+.userModel{ max-width: 50vw; }
+.css-1wa3eu0-placeholder{top:35% !important; }
+.historyFooter{ text-align: center;  width: 100%; padding:1%}
+.historyhideBtn{background-color: #ddd;border: 1px solid #ddd;color:black; }
+.historyhideBtn:hover{background-color: rgb(233, 222, 222); border: 1px solid #ddd; color: black;} 
+.historyActiveBtn{ border: 1px solid #6693D7; background-color: #6693D7;  color: #fff; font-size: 1em; margin-right: 1%;}
+.historyActiveBtn:hover{background-color: #3f7bd4; border: 1px solid #5c8fdb}
+
+.historyFilterInput{width: 100%; height: 80%; line-height: 50px; margin-left: 0.5%; }
 
 /** Ag-grid History **/
 .histroyExcelArea{width: 100%; height: 6%;  background-color: #fff; text-align: right;}
