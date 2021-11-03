@@ -3,6 +3,8 @@ import React, { Component } from "react";
 
 import UserService from "../../services/user.service";
 import EventBus from "../../common/EventBus";
+import Calendar from 'react-calendar'
+import 'react-calendar/dist/Calendar.css';
 
 export default class BoardUser extends Component {
   constructor(props) {
@@ -44,7 +46,7 @@ export default class BoardUser extends Component {
       <div className="container">
         <header className="jumbotron">
           <h3>{this.state.content}</h3>
-
+          <Calendar  calendarType="ISO 8601" />
         </header>
       </div>
     );

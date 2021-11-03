@@ -19,6 +19,7 @@
     "react": "^16.13.0",
     "react-bootstrap": "^1.6.1",
     "react-bootstrap-modal": "^4.2.0",
+    "react-calendar": "^3.5.0",
     "react-csv": "^2.0.3",
     "react-dom": "^16.13.0",
     "react-hyper-tree": "^0.2.18",

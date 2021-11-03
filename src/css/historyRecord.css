@@ -42,3 +42,17 @@
 .historyExcelText{background-color: #fff; color: black; border: 1px solid black; font-size: 0.9em;}
 .historyExcelText:hover{background-color: black; color: white; border: 1px solid black; font-size: 0.9em;}
 .historyAggridContainer{width: 99.5%; height: 70%;  background-color: #fff; margin-left: 0.25%;}
+
+/** Ag-grid Calendar **/
+.react-calendar{width: 290px; font-size: 0.8em; line-height: 1em;font-family : none; z-index: 9999 !important; position: absolute !important;}
+.react-calendar__navigation{margin-bottom: 0 !important; }
+.calendarAreaYear{ width: 15%; height: 60%; border: 1px solid #c2cfd6; margin-top: 0.5%; margin-left: 0.5%; background-color: #f0f3f5; display: flex; }
+.calendarInput{ margin-top: 1%; margin-left: 1%; height: 80%; width: 90%; border: 0; font-size: 0.9em; }
+.calendarIcon{background-color: white; border: 0;}
+.calendarIconStyle{margin-bottom: 5px;}
+.calendarStyle{margin-left:270px;  }
+
+.calendarTimeArea{ width: 8%; height: 60%; border: 1px solid #c2cfd6; margin-top: 0.5%; margin-left: 0.5%; background-color: #f0f3f5; display: flex;}
+.DateMiddle{ width: 1%;  margin-top: 0.5%; margin-left: 1%; }
+
+.calendarStyleSecond{ margin-left:1000px;}

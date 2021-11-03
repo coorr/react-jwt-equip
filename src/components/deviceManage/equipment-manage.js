@@ -769,7 +769,7 @@ downloadExcel = () => {
   .then((res) => {
     const mimeType = { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
     const blob =new Blob([res.data],mimeType);
-    saveAs(blob,"devices.xls")
+    saveAs(blob,"Devices.xls")
     console.log(res.data);
   })
 }

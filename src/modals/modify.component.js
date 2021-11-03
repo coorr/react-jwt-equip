@@ -124,7 +124,7 @@ componentDidMount() {
         AiwacsService.updateEquipmentByNo(this.state.equipId , equipment)
         .then(res => {
           console.log("응답받는곳")
-          this.setState({redirect: "/admin" })
+          // this.setState({redirect: "/equipmentManage" })
           alert("저장되었습니다.")
           window.location.reload();
         },

@@ -9,6 +9,9 @@ class HistoryRecord {
   getUserHistory() {
     return axios.get(API_URL + "getUserHistory");
   }
+  getSelectHistory(user,action) {
+    return axios.get(API_URL + "getSelectHistory/"+user+"/"+action);
+  }
 }
 
 export default new HistoryRecord();
