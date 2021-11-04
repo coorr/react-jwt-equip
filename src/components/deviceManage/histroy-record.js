@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
 import {  AgGridReact } from 'ag-grid-react';
 import HistoryRecord from '../../services/historyRecord.service'
+import AuthService from '../../services/auth.service'
 import Select from "react-select";
 import Search from '../../images/search.png'
-import Calendar from 'react-calendar'
-import 'react-calendar/dist/Calendar.css';
+
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { ko } from 'date-fns/esm/locale'
 import { FcCalendar } from "react-icons/fc"
+import Moment from 'moment';
+import { saveAs } from 'file-saver';
 
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
@@ -23,27 +28,42 @@ const customStyles = {
     minHeight: 28
   })
 };
+// 요일 반환
+const getDayName = (date) => { return date.toLocaleDateString('ko-KR', { weekday: 'long', }).substr(0, 1); }
+// 날짜 비교시 년 월 일까지만 비교하게끔
+const createDate = (date) => { return new Date(new Date(date.getFullYear() , date.getMonth() , date.getDate() , 0 , 0 , 0)); }
 
-const time = [{value:0},{value:1},{value:2},{value:3},{value:4},{value:5},{value:6},{value:7},{value:8},{value:9},{value:10},{value:11},{value:12},{value:13}
-            ,{value:14},{value:15},{value:16},{value:17},{value:18},{value:19},{value:20},{value:21},{value:22},{value:23}]
-const minute = [{value:0},{value:1},{value:2},{value:3},{value:4},{value:5},{value:6},{value:7},{value:8},{value:9},{value:10},{value:11},{value:12},{value:13},{value:14}
-,{value:15},{value:16},{value:17},{value:18},{value:19},{value:20},{value:21},{value:22},{value:23},{value:24},{value:25},{value:26},{value:27},{value:28},{value:29},
-{value:30},{value:31},{value:32},{value:33},{value:34},{value:35},{value:36},{value:37},{value:38},{value:39},{value:40},{value:41},{value:42},{value:43},{value:44},
-{value:45},{value:46},{value:47},{value:48},{value:49},{value:50},{value:51},{value:52},{value:53},{value:54},{value:55},{value:56},{value:57},{value:58},{value:59}]
+const time = [{value:'00'},{value:'01'},{value:'02'},{value:'03'},{value:'04'},{value:'05'},{value:'06'},{value:'07'},{value:'08'},{value:'09'},{value:'10'},{value:'11'},{value:'12'}
+,{value:'13'},{value:'14'},{value:'15'},{value:'16'},{value:'17'},{value:'18'},{value:'19'},{value:'20'},{value:'21'},{value:'22'},{value:'23'}]
+const minute = [{value:'00'},{value:'01'},{value:'02'},{value:'03'},{value:'04'},{value:'05'},{value:'06'},{value:'07'},{value:'08'},{value:'09'},{value:'10'},{value:'11'},{value:'12'},{value:'13'},{value:'14'}
+,{value:'15'},{value:'16'},{value:'17'},{value:'18'},{value:'19'},{value:'20'},{value:'21'},{value:'22'},{value:'23'},{value:'24'},{value:'25'},{value:'26'},{value:'27'},{value:'28'},{value:'29'},
+{value:'30'},{value:'31'},{value:'32'},{value:'33'},{value:'34'},{value:'35'},{value:'36'},{value:'37'},{value:'38'},{value:'39'},{value:'40'},{value:'41'},{value:'42'},{value:'43'},{value:'44'},
+{value:'45'},{value:'46'},{value:'47'},{value:'48'},{value:'49'},{value:'50'},{value:'51'},{value:'52'},{value:'53'},{value:'54'},{value:'55'},{value:'56'},{value:'57'},{value:'58'},{value:'59'}]
+
+const current = new Date();
+const firstDate = new Date(current.getTime() - 86400000);
+const test = setTimeout(current, 1000);
+
 
 export default class historyRecord extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      inputDisable:true,
+      firstDateFormat: Moment(firstDate, "YYYY.MM.DD").format("YYYY-MM-DD"),
+      firstTimeFormat: Moment(current, "HH").format("HH"),
+      firstMinuteFormat: Moment(current, "mm").format("mm"),
+      firstSecondFormat: Moment(current, "ss").format("ss"),
+      secondDateFormat: Moment(current, "YYYY.MM.DD").format("YYYY-MM-DD"),
+      secondTimeFormat: Moment(current, "HH").format("HH"), 
+      secondMinuteFormat: Moment(current, "mm").format("mm"),
+      secondSecondFormat: Moment(current, "ss").format("ss"),
       calendarCheckSecond:false,
-      calendarCheck:false,
+      calendarCheckFirst:false,
       date: new Date(),
       userDataCheck: false,
       historyModel: false,
       history: [],
-      test : [
-        { title:'aaa'}
-      ],
       columnDefs : [
         { headerName: '사용자', field:'userName' },   // rowGroup:true, width:200
         { headerName: '작업 구분', field:'actionType' },
@@ -68,8 +88,8 @@ export default class historyRecord extends Component {
       userColumnDefs: [ 
         { headerName: '로그인 ID', field:'username', headerCheckboxSelection: true, checkboxSelection:true },
         { headerName: '메일', field:'email'},
-        { headerName: '권한', field:'username'},
-        { headerName: '로그인 제한', field:'X'},
+        { headerName: '권한', field:'role'},
+        { headerName: '로그인 제한',  field:'roles', valueFormatter:this.loginFormatter},
       ],
       userDefaultColDef: {
         sortable:true, 
@@ -79,9 +99,6 @@ export default class historyRecord extends Component {
         flex:1,
         maxWidth:210,
       },
-      user: [
-        { value:"아아ㄴㅁㅇㄴㅁㅇ",label: "Blue"}
-      ],
       searchName:[],
       historyActiveArray:[],  
       historyActiveData:['LOGIN','LOGOUT','CREATE','UPDATE','DELETE','ACTIVE','INACTIVE','RESTART','DOWNLOAD'],
@@ -90,7 +107,6 @@ export default class historyRecord extends Component {
   }
 
   componentDidMount() {
-    const {historyActiveList,} = this.state;
     const activeData = [{id: 1,value:'LOGIN'},{id: 2,value:'LOGOUT'},{id: 3,value:'CREATE'},{id: 4,value:'UPDATE'},{id: 5,value:'DELETE'}
     ,{id: 6,value:'ACTIVE'},{id: 7,value:'INACTIVE'},{id: 8,value:'RESTART'},{id: 9,value:'DOWNLOAD'}];
 
@@ -103,8 +119,12 @@ export default class historyRecord extends Component {
     HistoryRecord.getHistoryRecord() 
       .then(res => {
         console.log(res.data);
+        res.data.map(h => {
+          h.workDate= h.workDate.replace("T"," ");
+        })
         this.setState({history:res.data})
       })
+
 
     HistoryRecord.getUserHistory()
       .then(res => {
@@ -118,6 +138,8 @@ export default class historyRecord extends Component {
         this.setState({searchName: data})
     })
   }
+
+  loginFormatter = (params) => { return params.data.roles ? 'X':'O' }
 
   historySelect = () => {
     HistoryRecord.getUserHistory()
@@ -155,7 +177,7 @@ export default class historyRecord extends Component {
       item = e.target.checked ? true:false;
       return item;
     })
-    this.setState({historyActiveData: e.target.checked ? newArray: [], historyActiveList:tmpArr,})
+    this.setState({historyActiveData: e.target.checked ? newArray: [], historyActiveList:tmpArr,inputDisable: e.target.checked ? true : false})
   }
 
   /* 작업 구분 개별 */
@@ -175,29 +197,181 @@ export default class historyRecord extends Component {
  }
 
  historySelectEvent = () => {
-   const { searchName,historyActiveData } = this.state;
+   const { searchName,historyActiveData,firstDateFormat,firstTimeFormat,firstMinuteFormat,
+    firstSecondFormat,secondDateFormat,secondTimeFormat,secondMinuteFormat,secondSecondFormat  } = this.state;
+   const firstDate = firstDateFormat+" "+firstTimeFormat+":"+firstMinuteFormat+":"+firstSecondFormat;
+   const secondDate = secondDateFormat+" "+secondTimeFormat+":"+secondMinuteFormat+":"+secondSecondFormat;
    const searchData = [];
    searchName.forEach(s=> {
     searchData.push(s.value);
    })
    console.log(searchData);
    console.log(historyActiveData);
-   HistoryRecord.getSelectHistory(searchData,historyActiveData)
+
+   if(historyActiveData.length === 0) {  // 체크박스 예외처리 
+    historyActiveData.push(["null"])
+   }
+  
+   HistoryRecord.getSelectHistory(searchData,historyActiveData,firstDate,secondDate)
     .then(res=> {
-      this.setState({history:res.data})
+        res.data.map(h => {
+          h.workDate= h.workDate.replace("T"," ");
+        })
+        this.setState({history:res.data})
     })
  }
+ calendarFirst = (e) => {
+   e.preventDefault();
+   this.setState({calendarCheckFirst:true})
+ }
+ calendarSecond = (e) => {
+  e.preventDefault();
+  this.setState({calendarCheckSecond:true})
+ }
 
+ calenderFirstChange = (date) => {
+  this.setState({
+    firstDateFormat:Moment(date, "YYYY.MM.DD").format("YYYY-MM-DD"), 
+    calendarCheckFirst:false
+  })
+ }
+ calenderSecondChange = (date) => {
+  this.setState({
+    secondDateFormat:Moment(date, "YYYY.MM.DD").format("YYYY-MM-DD"), 
+    calendarCheckSecond:false
+  })
+ }
+
+ timeEachEvent = () => {
+  const newDate= new Date();
+  const newTime = new Date(newDate.getTime() - 43200000);
+   this.setState({ 
+     firstTimeFormat: Moment(newTime, "HH").format("HH"),
+     firstDateFormat: Moment(newTime, "YYYY.MM.DD").format("YYYY-MM-DD"),
+     firstMinuteFormat: Moment(newDate, "mm").format("mm"),
+     firstSecondFormat: Moment(newDate, "ss").format("ss"),
+     secondDateFormat: Moment(newDate, "YYYY.MM.DD").format("YYYY-MM-DD"),
+     secondTimeFormat: Moment(newDate, "HH").format("HH"), 
+     secondMinuteFormat: Moment(newDate, "mm").format("mm"),
+     secondSecondFormat: Moment(newDate, "ss").format("ss"),
+    })
+ }
+ 
+ timeEachEventSecond =() => {
+  const newDate= new Date();
+  const newTime = new Date(newDate.getTime() - 86400000);
+  this.setState({ 
+    firstTimeFormat: Moment(newTime, "HH").format("HH"),
+    firstDateFormat: Moment(newTime, "YYYY.MM.DD").format("YYYY-MM-DD"),
+    firstMinuteFormat: Moment(newDate, "mm").format("mm"),
+    firstSecondFormat: Moment(newDate, "ss").format("ss"),
+    secondDateFormat: Moment(newDate, "YYYY.MM.DD").format("YYYY-MM-DD"),
+    secondTimeFormat: Moment(newDate, "HH").format("HH"), 
+    secondMinuteFormat: Moment(newDate, "mm").format("mm"),
+    secondSecondFormat: Moment(newDate, "ss").format("ss"),
+   })
+ }
+
+ timeEachEventThird = () => {
+  const newDate= new Date();
+  const newTime = new Date(newDate.getTime() - 604800000);
+  this.setState({ 
+    firstTimeFormat: Moment(newTime, "HH").format("HH"),
+    firstDateFormat: Moment(newTime, "YYYY.MM.DD").format("YYYY-MM-DD"),
+    firstMinuteFormat: Moment(newDate, "mm").format("mm"),
+    firstSecondFormat: Moment(newDate, "ss").format("ss"),
+    secondDateFormat: Moment(newDate, "YYYY.MM.DD").format("YYYY-MM-DD"),
+    secondTimeFormat: Moment(newDate, "HH").format("HH"), 
+    secondMinuteFormat: Moment(newDate, "mm").format("mm"),
+    secondSecondFormat: Moment(newDate, "ss").format("ss"),
+   })
+ }
+
+ timeEachEventFourth = () => {
+  const newDate= new Date();
+  const newTime = new Date(newDate.getTime() - 2592000000);
+  this.setState({ 
+    firstTimeFormat: Moment(newTime, "HH").format("HH"),
+    firstDateFormat: Moment(newTime, "YYYY.MM.DD").format("YYYY-MM-DD"),
+    firstMinuteFormat: Moment(newDate, "mm").format("mm"),
+    firstSecondFormat: Moment(newDate, "ss").format("ss"),
+    secondDateFormat: Moment(newDate, "YYYY.MM.DD").format("YYYY-MM-DD"),
+    secondTimeFormat: Moment(newDate, "HH").format("HH"), 
+    secondMinuteFormat: Moment(newDate, "mm").format("mm"),
+    secondSecondFormat: Moment(newDate, "ss").format("ss"),
+   })
+ }
+ 
+ reload = () => {
+  HistoryRecord.getHistoryRecord() 
+  .then(res => {
+    console.log(res.data);
+    res.data.map(h => {
+      h.workDate= h.workDate.replace("T"," ");
+    })
+    this.setState({history:res.data})
+  })
+  const activeData = [{id: 1,value:'LOGIN'},{id: 2,value:'LOGOUT'},{id: 3,value:'CREATE'},{id: 4,value:'UPDATE'},{id: 5,value:'DELETE'}
+    ,{id: 6,value:'ACTIVE'},{id: 7,value:'INACTIVE'},{id: 8,value:'RESTART'},{id: 9,value:'DOWNLOAD'}];
+
+  this.setState({ 
+    firstDateFormat: Moment(current, "YYYY.MM.DD").format("YYYY-MM-DD"),
+    firstTimeFormat: time[0].value,
+    firstMinuteFormat:time[0].value,
+    firstSecondFormat:time[0].value,
+    secondDateFormat: Moment(current, "YYYY.MM.DD").format("YYYY-MM-DD"),
+    secondTimeFormat: time[0].value,
+    secondMinuteFormat: time[0].value,
+    secondSecondFormat: time[0].value,
+    userDataCheck:false,
+    historyActiveArray:activeData,
+    historyActiveData:['LOGIN','LOGOUT','CREATE','UPDATE','DELETE','ACTIVE','INACTIVE','RESTART','DOWNLOAD'],
+    historyActiveList:new Array(activeData.length).fill(true),
+    inputDisable:true,
+   })
+   
+ }
+
+ historyDownloadExcel = () => {
+  const { firstDateFormat,firstTimeFormat,firstMinuteFormat,firstSecondFormat,secondDateFormat,secondTimeFormat,secondMinuteFormat,secondSecondFormat  } = this.state;
+  const firstDate = firstDateFormat+" "+firstTimeFormat+":"+firstMinuteFormat+":"+firstSecondFormat+"~"+secondDateFormat+" "+secondTimeFormat+":"+secondMinuteFormat+":"+secondSecondFormat;
+  const user = AuthService.getCurrentUser().username;
+  const outDate= Moment(current, "YYYY.MM.DD HH:mm:ss").format("YYYY-MM-DD HH:mm:ss");
+
+  HistoryRecord.historyDownloadExcel(user,firstDate,outDate)
+  .then((res) => {
+    const mimeType = { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
+    const blob =new Blob([res.data],mimeType);
+    saveAs(blob,"감사이력리스트.xls")
+  })
+}
 
   
 
   render() {
    const { columnDefs,test, defaultColDef,history,user,historyModel,userColumnDefs,userDefaultColDef,searchName, historyActiveArray,historyActiveData,historyActiveList
-    ,userDataCheck,calendarCheck,date, calendarCheckSecond } = this.state;
+    ,userDataCheck,date,calendarCheckFirst,firstDateFormat,firstTimeFormat,firstMinuteFormat,firstSecondFormat,calendarCheckSecond, secondDateFormat,
+    secondTimeFormat, secondMinuteFormat, secondSecondFormat,inputDisable } = this.state;
 
-    console.log(calendarCheck);
+    console.log(searchName);
     console.log(date);
-    console.log(new Date());
+    console.log(firstDate);
+    console.log(current);
+    console.log(firstDateFormat)
+    console.log(firstTimeFormat);
+    console.log(firstMinuteFormat);
+    console.log(firstSecondFormat);
+    console.log(historyActiveList.length);
+    console.log(historyActiveList);
+    console.log(historyActiveData.length);
+    console.log(historyActiveData);
+
+    const aa="2021-11-01";
+    const bb='23';
+    const cc='04';
+    const dd='55';
+    const ff=aa+" "+bb+":"+cc+":"+dd;
+    // console.log(ff);
 
     return (
           <div className="historyContainer">
@@ -280,7 +454,7 @@ export default class historyRecord extends Component {
                             {
                               historyActiveArray.map((o,i) => (
                                 <>
-                                <input type="checkbox" checked={historyActiveList[o.id -1]} onChange={(e)=> this.activeEach(o,e.target.checked,e.target.value)} />
+                                <input disabled={inputDisable ? true : false} type="checkbox" checked={historyActiveList[o.id -1]} onChange={(e)=> this.activeEach(o,e.target.checked,e.target.value)} />
                                 <span className="filterSpan">{o.value}</span>
                               </>
                               ))
@@ -295,23 +469,37 @@ export default class historyRecord extends Component {
                       </div>
                       <div className="historyFilterSearchArea">
                         <div className="calendarAreaYear">
-                            <input className="calendarInput" type="text" value="아아" disabled readonly />
-                            <button className="calendarIcon" onClick={()=> this.setState({calendarCheck:true})}>
+                            <input className="calendarInput" type="text" value={firstDateFormat} disabled readonly />
+                            <button className="calendarIcon" onClick={(e)=> this.calendarFirst(e)} >
                               <FcCalendar className="calendarIconStyle"  size="20" value={date} />
                             </button>
+                            {
+                              calendarCheckFirst && (
+                                <DatePicker
+                                locale={ko}
+                                selected={date}
+                                dateFormat="yyyy-mm-dd"
+                                onChange={date => this.calenderFirstChange(date)} 
+                                inline 
+                                dayClassName={date => getDayName(createDate(date)) === '토' ? "saturday" : getDayName(createDate(date)) === '일' ? "sunday" : undefined }
+
+                                />
+                              )
+                            }
+                            
                         </div>
                         
-                        <select className="calendarTimeArea" value={time}  >
+                        <select className="calendarTimeArea" placeholder="년월일 입력" defaultValue={firstTimeFormat} value={firstTimeFormat} onChange={e => this.setState({firstTimeFormat:e.target.value})}  >
                           {time.map(t => 
-                            <option value={t.value} selected={t.value}>{t.value}</option>
+                            <option value={t.value} selected={t.value} >{t.value}</option>
                             ) }
                         </select>
-                        <select className="calendarTimeArea" value={minute}  >
+                        <select className="calendarTimeArea" defaultValue={firstMinuteFormat} value={firstMinuteFormat} onChange={e => this.setState({firstMinuteFormat:e.target.value})}  >
                           {minute.map(t => 
                             <option value={t.value} selected={t.value}>{t.value}</option>
                             ) }
                         </select>
-                        <select className="calendarTimeArea" value={minute}  >
+                        <select className="calendarTimeArea" defaultValue={firstSecondFormat} value={firstSecondFormat} onChange={e => this.setState({firstSecondFormat:e.target.value})}  >
                           {minute.map(t => 
                             <option value={t.value} selected={t.value}>{t.value}</option>
                             ) }
@@ -320,48 +508,71 @@ export default class historyRecord extends Component {
                         <p className="DateMiddle">~</p>
 
                         <div className="calendarAreaYear">
-                            <input className="calendarInput" type="text" value="아아" disabled readonly />
-                            <button className="calendarIcon" onClick={()=> this.setState({calendarCheckSecond:true})}>
+                            <input className="calendarInput" type="text" value={secondDateFormat} disabled readonly />
+                            <button className="calendarIcon" onClick={(e)=> this.calendarSecond(e)} >
                               <FcCalendar className="calendarIconStyle"  size="20" value={date} />
                             </button>
+                            {
+                              calendarCheckSecond && (
+                                <DatePicker
+                                locale={ko}
+                                selected={date}
+                                dateFormat="yyyy-mm-dd"
+                                // minDate={new Date()}
+                                onChange={date => this.calenderSecondChange(date)} 
+                                inline 
+                                dayClassName={date => getDayName(createDate(date)) === '토' ? "saturday" : getDayName(createDate(date)) === '일' ? "sunday" : undefined }
+
+                                />
+                              )
+                            }
                         </div>
                         
-                        <select className="calendarTimeArea" value={time}  >
+                        <select className="calendarTimeArea" defaultValue={secondTimeFormat} value={secondTimeFormat} onChange={e => this.setState({secondTimeFormat:e.target.value})} >
                           {time.map(t => 
                             <option value={t.value} selected={t.value}>{t.value}</option>
                             ) }
                         </select>
-                        <select className="calendarTimeArea" value={minute}  >
+                        <select className="calendarTimeArea" defaultValue={secondMinuteFormat} value={secondMinuteFormat} onChange={e => this.setState({secondMinuteFormat:e.target.value})}  >
                           {minute.map(t => 
                             <option value={t.value} selected={t.value}>{t.value}</option>
                             ) }
                         </select>
-                        <select className="calendarTimeArea" value={minute}  >
+                        <select className="calendarTimeArea" defaultValue={secondSecondFormat} value={secondSecondFormat} onChange={e => this.setState({secondSecondFormat:e.target.value})}  >
                           {minute.map(t => 
                             <option value={t.value} selected={t.value}>{t.value}</option>
                             ) }
                         </select>
+
+                        <button className="timeEachBtn" onClick={()=> {this.timeEachEvent()}} >12h</button>
+                        <button className="timeEachBtn" onClick={()=> {this.timeEachEventSecond()}}>24h</button>
+                        <button className="timeEachBtn" onClick={()=> {this.timeEachEventThird()}} >7d</button>
+                        <button className="timeEachBtn" onClick={()=> {this.timeEachEventFourth()}}>30d</button>
                       </div>
                   </div>
               </div>
-              {
-                calendarCheck && (
-                  <>
-                   <Calendar className="calendarStyle" calendarType="US" />
-                  </>
-                ) 
-              }
-              {
-                calendarCheckSecond && (
-                  <>
-                   <Calendar className="calendarStyleSecond" calendarType="US" />
-                  </>
-                )
-              }
+         
+              {/* {
+                              calendarCheckSecond && (
+                                <DatePicker
+                                locale={ko}
+                                selected={date}
+                                dateFormat="yyyy-mm-dd"
+                                // minDate={new Date()}
+                                onChange={date => this.calenderSecondChange(date)} 
+                                inline 
+                                dayClassName={date => getDayName(createDate(date)) === '토' ? "saturday" : getDayName(createDate(date)) === '일' ? "sunday" : undefined }
+
+                                />
+                              )
+                            } */}
+
+           
+            
 
               <div className="historyMiddleSelectBtnSpace">
                   <Button className="historyMiddleSelectBtn" onClick={()=> this.historySelectEvent()}>조회하기</Button>
-                  <Button className="historyMiddleReloadBtn" >초기화</Button>
+                  <Button className="historyMiddleReloadBtn" onClick={()=> this.reload()}>초기화</Button>
               </div>
             </div>
             {/* 중간*/}
@@ -371,7 +582,7 @@ export default class historyRecord extends Component {
             {/* 하단 */}
             <div className="historyAggridContainer">
               <div className="histroyExcelArea">
-                <Button className="historyExcelText">내보내기</Button>
+                <Button className="historyExcelText" onClick={this.historyDownloadExcel}>내보내기</Button>
               </div>
                 <div className="ag-theme-alpine" style={{ width:'96vw', height:'55vh',marginLeft:'0.5vw'}}>
                 

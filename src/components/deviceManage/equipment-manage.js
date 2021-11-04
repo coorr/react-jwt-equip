@@ -943,17 +943,19 @@ onSelectionChanged = (event) => {
             </div>
             <div className="rightSaveBox">
               <div className="rightSnmpArea">
-                <label className="rightSnmpLabel">SNMP TimeOut</label>
-                <Button className="rightSnmpBtn">변경</Button>           
-                <label className="rightSnmpLabel">PING 설정</label>
-                <Button className="rightSnmpBtn">변경</Button>  
-                <label className="rightSnmpLabel">하드웨어 자원 수집 주기</label>
-                <Button onClick={()=>this.tooltipValidation()} data-tip data-for="checkHw" className="rightSnmpBtn">변경</Button>  
-                <label className="rightSnmpLabel">소프트웨어 자원 수집 주기</label>
-                <Button className="rightSnmpBtn">변경</Button>  
+                <div className="rightFloatArea">
+                    {/* <label className="rightSnmpLabel">SNMP TimeOut</label>
+                  <Button className="rightSnmpBtn">변경</Button>           
+                  <label className="rightSnmpLabel">PING 설정</label>
+                  <Button className="rightSnmpBtn">변경</Button>   */}
+                  <label className="rightSnmpLabel">하드웨어 자원 수집 주기</label>
+                  <Button onClick={()=>this.tooltipValidation()} data-tip data-for="checkHw" className="rightSnmpBtn">변경</Button>  
+                  {/* <label className="rightSnmpLabel">소프트웨어 자원 수집 주기</label>
+                  <Button className="rightSnmpBtn">변경</Button>   */}
 
-                <Button className="SaveBtn" onClick={this.modelOpenButtonTrue}>등록</Button>
-                <Button className="SaveBtnRemove" onClick={this.onRemoveClick}>삭제</Button>
+                  <Button className="SaveBtn" onClick={this.modelOpenButtonTrue}>등록</Button>
+                  <Button className="SaveBtnRemove" onClick={this.onRemoveClick}>삭제</Button>
+                </div>
                 {
                 this.state.modelOpen ? <Modals show={this.state.modelOpen}  onHide={this.modelOpenButton} /> : null
                 }
@@ -1018,8 +1020,8 @@ onSelectionChanged = (event) => {
           <div className="underArea">
             <div className="underLeftArea">
                     <Button className="underBtn" onClick={()=> {this.props.history.push("/equipmentGroupManage")}}>장비 그룹 관리</Button>
-                    <Button className="underBtn">프록시 관리</Button>
-                    <Button className="underBtn">Agent 관리</Button>
+                    {/* <Button className="underBtn">프록시 관리</Button>
+                    <Button className="underBtn">Agent 관리</Button> */}
                     <Button className="underBtn whiteBtn" onClick={this.uploadOpenButtonTrue} >장비 일괄 관리</Button>
                     {
                       this.state.uploadModal ? <Upload show={this.state.uploadModal}  onHide={this.uploadOpenButton} /> : null
@@ -1030,8 +1032,8 @@ onSelectionChanged = (event) => {
                 <div className="underRightBox">
                     <Button className="underBtn" onClick={this.onActiveButton} >장비 활성</Button>
                     <Button className="underBtn grayBtn" onClick={this.offActiveButton} >장비 비활성</Button>
-                    <Button className="underBtn">PING 활성</Button>
-                    <Button className="underBtn grayBtn">PING 비활성</Button> 
+                    {/* <Button className="underBtn">PING 활성</Button>
+                    <Button className="underBtn grayBtn">PING 비활성</Button>  */}
                </div>
             </div>
           </div>

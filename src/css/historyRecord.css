@@ -44,8 +44,7 @@
 .historyAggridContainer{width: 99.5%; height: 70%;  background-color: #fff; margin-left: 0.25%;}
 
 /** Ag-grid Calendar **/
-.react-calendar{width: 290px; font-size: 0.8em; line-height: 1em;font-family : none; z-index: 9999 !important; position: absolute !important;}
-.react-calendar__navigation{margin-bottom: 0 !important; }
+
 .calendarAreaYear{ width: 15%; height: 60%; border: 1px solid #c2cfd6; margin-top: 0.5%; margin-left: 0.5%; background-color: #f0f3f5; display: flex; }
 .calendarInput{ margin-top: 1%; margin-left: 1%; height: 80%; width: 90%; border: 0; font-size: 0.9em; }
 .calendarIcon{background-color: white; border: 0;}
@@ -54,5 +53,9 @@
 
 .calendarTimeArea{ width: 8%; height: 60%; border: 1px solid #c2cfd6; margin-top: 0.5%; margin-left: 0.5%; background-color: #f0f3f5; display: flex;}
 .DateMiddle{ width: 1%;  margin-top: 0.5%; margin-left: 1%; }
-
-.calendarStyleSecond{ margin-left:1000px;}
+/* .react-datepicker{z-index: 9999; position: absolute !important;} */
+.saturday { color: rgb(0, 0, 255) !important; } 
+.sunday { color: rgb(255, 0, 0) !important; }
+.timeEachBtn{ width: 2%;height: 60%; border: 1px solid #6693D7; background-color: #fff;  color: #6693D7; font-size: 0.8em; margin-top: 0.5%; margin-left: 0.5%;  }
+.timeEachBtn:hover{background-color: #6693D7; border: 1px solid #6693D7; color:white }
+.timeEachBtn:active{background-color: #6693D7; border: 1px solid #6693D7; color:white }

@@ -39,13 +39,14 @@ label{margin-top: 0;}
 .textFont{font-size: 0.8rem; margin-top: 2%; margin-left: 2%; font-weight: bold;}
 
 .rightSaveBox{width: 50%;height: 100%;   }
-.rightSnmpArea{display: flex; margin-left: 4.5%;}
-.rightSnmpLabel{font-size: 0.8em;  margin-right: 5px; margin-top: 1.5%; margin-left: 10px; }
+.rightSnmpArea{display: flex;  width: 100%; }
+.rightFloatArea{display: flex; width: 50%; margin-left: 48%;}
+.rightSnmpLabel{font-size: 0.8em;  margin-right: 5px; margin-top: 2.5%; }
 .rightSnmpBtn{ border: 1px solid #6693D7; background-color: #fff;  color: #6693D7; font-size: 0.9em; margin-top: 0.8%;   }
 .rightSnmpBtn:hover{background-color: #6693D7; border: 1px solid #6693D7}
 .rightSnmpBtn:focus{border: 1px solid #6693D7; background-color: #fff; color: #6693D7; }
 .rightSaveSpace{text-align: end; margin-right: 5%; margin-top: 1%; }
-.SaveBtn{ border: 1px solid #6693D7; background-color: #fff;  color: #6693D7; font-size: 0.9em; margin-top: 0.8%; margin-left: 3%; border-radius: 0; }
+.SaveBtn{ border: 1px solid #6693D7; background-color: #fff;  color: #6693D7; font-size: 0.9em; margin-top: 0.8%; margin-left: 30%; border-radius: 0; }
 .SaveBtn:hover{background-color: #6693D7; border: 1px solid #6693D7}
 .SaveBtn:focus{border: 1px solid #6693D7; background-color: #fff; color: #6693D7; }
 .SaveBtnRemove { border: 1px solid black; background-color: #fff;  color: black; font-size: 0.9em; margin-top: 0.8%; margin-left: 1%;border-radius: 0; }

@@ -179,8 +179,6 @@ class App extends Component {
                 <Dropdown.Menu>
                     <Dropdown.Item onClick={() => this.onMouseLeave()} as={Link} to={'/equipmentManage'}>장비 관리</Dropdown.Item>
                     <Dropdown.Item  onClick={() => this.onMouseLeave()} as={Link} to={'/historyRecord'} >감사 이력</Dropdown.Item>
-                    
-                    
                 </Dropdown.Menu>
             </Dropdown>
           )}
