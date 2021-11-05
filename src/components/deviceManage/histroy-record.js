@@ -4,6 +4,8 @@ import HistoryRecord from '../../services/historyRecord.service'
 import AuthService from '../../services/auth.service'
 import Select from "react-select";
 import Search from '../../images/search.png'
+import Loader from '../loader';
+import {Button, Modal,Form, Container, Row } from "react-bootstrap";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -15,10 +17,9 @@ import { saveAs } from 'file-saver';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import "ag-grid-enterprise";
-import {Button, Modal,Form, Container, Row } from "react-bootstrap";
+
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-
 import '../../css/historyRecord.css'
 
 const customStyles = {
@@ -40,10 +41,7 @@ const minute = [{value:'00'},{value:'01'},{value:'02'},{value:'03'},{value:'04'}
 {value:'30'},{value:'31'},{value:'32'},{value:'33'},{value:'34'},{value:'35'},{value:'36'},{value:'37'},{value:'38'},{value:'39'},{value:'40'},{value:'41'},{value:'42'},{value:'43'},{value:'44'},
 {value:'45'},{value:'46'},{value:'47'},{value:'48'},{value:'49'},{value:'50'},{value:'51'},{value:'52'},{value:'53'},{value:'54'},{value:'55'},{value:'56'},{value:'57'},{value:'58'},{value:'59'}]
 
-const current = new Date();
-const firstDate = new Date(current.getTime() - 86400000);
-const test = setTimeout(current, 1000);
-
+const firstDate = new Date(new Date().getTime() - 86400000);
 
 export default class historyRecord extends Component {
   constructor(props) {
@@ -51,19 +49,20 @@ export default class historyRecord extends Component {
     this.state = {
       inputDisable:true,
       firstDateFormat: Moment(firstDate, "YYYY.MM.DD").format("YYYY-MM-DD"),
-      firstTimeFormat: Moment(current, "HH").format("HH"),
-      firstMinuteFormat: Moment(current, "mm").format("mm"),
-      firstSecondFormat: Moment(current, "ss").format("ss"),
-      secondDateFormat: Moment(current, "YYYY.MM.DD").format("YYYY-MM-DD"),
-      secondTimeFormat: Moment(current, "HH").format("HH"), 
-      secondMinuteFormat: Moment(current, "mm").format("mm"),
-      secondSecondFormat: Moment(current, "ss").format("ss"),
+      firstTimeFormat: Moment(new Date(), "HH").format("HH"),
+      firstMinuteFormat: Moment(new Date(), "mm").format("mm"),
+      firstSecondFormat: Moment(new Date(), "ss").format("ss"),
+      secondDateFormat: Moment(new Date(), "YYYY.MM.DD").format("YYYY-MM-DD"),
+      secondTimeFormat: Moment(new Date(), "HH").format("HH"), 
+      secondMinuteFormat: Moment(new Date(), "mm").format("mm"),
+      secondSecondFormat: Moment(new Date(), "ss").format("ss"),
       calendarCheckSecond:false,
       calendarCheckFirst:false,
       date: new Date(),
       userDataCheck: false,
       historyModel: false,
       history: [],
+      user:[],
       columnDefs : [
         { headerName: '사용자', field:'userName' },   // rowGroup:true, width:200
         { headerName: '작업 구분', field:'actionType' },
@@ -83,6 +82,7 @@ export default class historyRecord extends Component {
         filter:'agTextColumnFilter', 
         flex:1,
         maxWidth:210,
+        cellStyle: {fontSize: '12px'}
       },
       /** user model **/
       userColumnDefs: [ 
@@ -103,10 +103,12 @@ export default class historyRecord extends Component {
       historyActiveArray:[],  
       historyActiveData:['LOGIN','LOGOUT','CREATE','UPDATE','DELETE','ACTIVE','INACTIVE','RESTART','DOWNLOAD'],
       historyActiveList:[],
+      loding:false,
     }
   }
 
   componentDidMount() {
+    console.log(window.location.href);
     const activeData = [{id: 1,value:'LOGIN'},{id: 2,value:'LOGOUT'},{id: 3,value:'CREATE'},{id: 4,value:'UPDATE'},{id: 5,value:'DELETE'}
     ,{id: 6,value:'ACTIVE'},{id: 7,value:'INACTIVE'},{id: 8,value:'RESTART'},{id: 9,value:'DOWNLOAD'}];
 
@@ -122,11 +124,12 @@ export default class historyRecord extends Component {
         res.data.map(h => {
           h.workDate= h.workDate.replace("T"," ");
         })
-        this.setState({history:res.data})
+        this.setState({history:res.data,loding:true})
+        this.infiniteData(res.data);
       })
 
 
-    HistoryRecord.getUserHistory()
+    HistoryRecord.getHistoryUser()
       .then(res => {
         const data = [];
         res.data.forEach(u=> {
@@ -142,7 +145,8 @@ export default class historyRecord extends Component {
   loginFormatter = (params) => { return params.data.roles ? 'X':'O' }
 
   historySelect = () => {
-    HistoryRecord.getUserHistory()
+    if(this.state.user.length === 0) {
+      HistoryRecord.getHistoryUser()
       .then(res => {
         console.log(res.data);
         const userData = [];
@@ -152,12 +156,16 @@ export default class historyRecord extends Component {
             u.role= r.name;
           })
         })
-        this.setState({user:res.data,historyModel:true})
+        this.setState({user:res.data})
       })
+    }
+    this.setState({historyModel:true })
+    
   }
   /** user 적용  **/
   historyApply = () => {
     const applyData = this.gridApi.getSelectedRows();
+    console.log(this.gridApi.getSelectedNodes());
     console.log(applyData);
     const applyUsername= [];
     applyData.forEach(a => {
@@ -177,7 +185,11 @@ export default class historyRecord extends Component {
       item = e.target.checked ? true:false;
       return item;
     })
-    this.setState({historyActiveData: e.target.checked ? newArray: [], historyActiveList:tmpArr,inputDisable: e.target.checked ? true : false})
+    this.setState({
+      historyActiveData: e.target.checked ? newArray: [], 
+      historyActiveList:tmpArr,
+      inputDisable: e.target.checked ? true : false
+    })
   }
 
   /* 작업 구분 개별 */
@@ -205,8 +217,11 @@ export default class historyRecord extends Component {
    searchName.forEach(s=> {
     searchData.push(s.value);
    })
+   console.log(firstTimeFormat);
    console.log(searchData);
    console.log(historyActiveData);
+   console.log(firstDate);
+   console.log(secondDate);
 
    if(historyActiveData.length === 0) {  // 체크박스 예외처리 
     historyActiveData.push(["null"])
@@ -217,16 +232,24 @@ export default class historyRecord extends Component {
         res.data.map(h => {
           h.workDate= h.workDate.replace("T"," ");
         })
-        this.setState({history:res.data})
+        this.infiniteData(res.data);
     })
  }
  calendarFirst = (e) => {
    e.preventDefault();
-   this.setState({calendarCheckFirst:true})
+   if(!this.state.calendarCheckFirst) {
+    this.setState({calendarCheckFirst:true})
+   } else if(this.state.calendarCheckFirst){
+    this.setState({calendarCheckFirst:false})
+   }
  }
  calendarSecond = (e) => {
   e.preventDefault();
-  this.setState({calendarCheckSecond:true})
+  if(!this.state.calendarCheckSecond) {
+    this.setState({calendarCheckSecond:true})
+   } else if(this.state.calendarCheckSecond){
+    this.setState({calendarCheckSecond:false})
+   }
  }
 
  calenderFirstChange = (date) => {
@@ -315,11 +338,11 @@ export default class historyRecord extends Component {
     ,{id: 6,value:'ACTIVE'},{id: 7,value:'INACTIVE'},{id: 8,value:'RESTART'},{id: 9,value:'DOWNLOAD'}];
 
   this.setState({ 
-    firstDateFormat: Moment(current, "YYYY.MM.DD").format("YYYY-MM-DD"),
+    firstDateFormat: Moment(new Date(), "YYYY.MM.DD").format("YYYY-MM-DD"),
     firstTimeFormat: time[0].value,
     firstMinuteFormat:time[0].value,
     firstSecondFormat:time[0].value,
-    secondDateFormat: Moment(current, "YYYY.MM.DD").format("YYYY-MM-DD"),
+    secondDateFormat: Moment(new Date(), "YYYY.MM.DD").format("YYYY-MM-DD"),
     secondTimeFormat: time[0].value,
     secondMinuteFormat: time[0].value,
     secondSecondFormat: time[0].value,
@@ -336,7 +359,7 @@ export default class historyRecord extends Component {
   const { firstDateFormat,firstTimeFormat,firstMinuteFormat,firstSecondFormat,secondDateFormat,secondTimeFormat,secondMinuteFormat,secondSecondFormat  } = this.state;
   const firstDate = firstDateFormat+" "+firstTimeFormat+":"+firstMinuteFormat+":"+firstSecondFormat+"~"+secondDateFormat+" "+secondTimeFormat+":"+secondMinuteFormat+":"+secondSecondFormat;
   const user = AuthService.getCurrentUser().username;
-  const outDate= Moment(current, "YYYY.MM.DD HH:mm:ss").format("YYYY-MM-DD HH:mm:ss");
+  const outDate= Moment(new Date(), "YYYY.MM.DD HH:mm:ss").format("YYYY-MM-DD HH:mm:ss");
 
   HistoryRecord.historyDownloadExcel(user,firstDate,outDate)
   .then((res) => {
@@ -346,6 +369,25 @@ export default class historyRecord extends Component {
   })
 }
 
+infiniteData = (data) => {
+  console.log(data);
+    var dataSource = {
+      getRows: function (params) {
+        setTimeout(function () {
+          var rowsThisPage = data.slice(params.startRow, params.endRow);
+          var lastRow = -1;
+          if (data.length <= params.endRow) {
+            lastRow = data.length;
+          }
+          params.successCallback(rowsThisPage, lastRow);
+        }, 500);
+      },
+    };
+    this.gridApis.setDatasource(dataSource);
+  };
+
+
+
   
 
   render() {
@@ -354,24 +396,13 @@ export default class historyRecord extends Component {
     secondTimeFormat, secondMinuteFormat, secondSecondFormat,inputDisable } = this.state;
 
     console.log(searchName);
-    console.log(date);
-    console.log(firstDate);
-    console.log(current);
-    console.log(firstDateFormat)
-    console.log(firstTimeFormat);
-    console.log(firstMinuteFormat);
-    console.log(firstSecondFormat);
-    console.log(historyActiveList.length);
-    console.log(historyActiveList);
-    console.log(historyActiveData.length);
-    console.log(historyActiveData);
-
-    const aa="2021-11-01";
-    const bb='23';
-    const cc='04';
-    const dd='55';
-    const ff=aa+" "+bb+":"+cc+":"+dd;
-    // console.log(ff);
+    // console.log(date);
+    // console.log(firstDate);
+    // console.log(current);
+    // console.log(firstDateFormat)
+    // console.log(firstTimeFormat);
+    // console.log(firstMinuteFormat);
+    // console.log(firstSecondFormat);
 
     return (
           <div className="historyContainer">
@@ -401,7 +432,6 @@ export default class historyRecord extends Component {
 
                             </Modal.Header>
                                 <Modal.Body>
-                                
                                       <div className="ag-theme-alpine" style={{ width:'43vw', height:'45vh'}}>
                                           <AgGridReact
                                             headerHeight='30'
@@ -414,7 +444,6 @@ export default class historyRecord extends Component {
                                             onGridReady={params => {this.gridApi = params.api;}} 
                                           />        
                                       </div>
-                                
                               </Modal.Body>
 
                               <Form.Group className="historyFooter">
@@ -482,7 +511,7 @@ export default class historyRecord extends Component {
                                 onChange={date => this.calenderFirstChange(date)} 
                                 inline 
                                 dayClassName={date => getDayName(createDate(date)) === '토' ? "saturday" : getDayName(createDate(date)) === '일' ? "sunday" : undefined }
-
+                                closeOnScroll={true}
                                 />
                               )
                             }
@@ -522,7 +551,7 @@ export default class historyRecord extends Component {
                                 onChange={date => this.calenderSecondChange(date)} 
                                 inline 
                                 dayClassName={date => getDayName(createDate(date)) === '토' ? "saturday" : getDayName(createDate(date)) === '일' ? "sunday" : undefined }
-
+                                closeOnScroll={true}
                                 />
                               )
                             }
@@ -552,24 +581,6 @@ export default class historyRecord extends Component {
                   </div>
               </div>
          
-              {/* {
-                              calendarCheckSecond && (
-                                <DatePicker
-                                locale={ko}
-                                selected={date}
-                                dateFormat="yyyy-mm-dd"
-                                // minDate={new Date()}
-                                onChange={date => this.calenderSecondChange(date)} 
-                                inline 
-                                dayClassName={date => getDayName(createDate(date)) === '토' ? "saturday" : getDayName(createDate(date)) === '일' ? "sunday" : undefined }
-
-                                />
-                              )
-                            } */}
-
-           
-            
-
               <div className="historyMiddleSelectBtnSpace">
                   <Button className="historyMiddleSelectBtn" onClick={()=> this.historySelectEvent()}>조회하기</Button>
                   <Button className="historyMiddleReloadBtn" onClick={()=> this.reload()}>초기화</Button>
@@ -585,17 +596,30 @@ export default class historyRecord extends Component {
                 <Button className="historyExcelText" onClick={this.historyDownloadExcel}>내보내기</Button>
               </div>
                 <div className="ag-theme-alpine" style={{ width:'96vw', height:'55vh',marginLeft:'0.5vw'}}>
+                  
+                {
+                  !this.state.loding && (
+                    <Loader />
+                  )
+                }  
                 
-                  <AgGridReact
-                  headerHeight='30'
-                  floatingFiltersHeight='23'
-                  rowHeight='25'
-                  columnDefs={columnDefs}  
-                  defaultColDef={defaultColDef}
-
-                  rowData={history}
-                //  autoGroupColumnDef={this.state.autoGroupColumnDef }  
+                    <AgGridReact
+                    headerHeight='30'
+                    floatingFiltersHeight='23'
+                    rowHeight='25'
+                    columnDefs={columnDefs}  
+                    defaultColDef={defaultColDef}
+                    rowModelType={'infinite'} 
+                    cacheBlockSize='30'
+                    onGridReady={params => { this.gridApis = params.api;}}
+                 
                   />
+                  
+                  
+                    
+                
+                  
+                  
                     
                  
                    

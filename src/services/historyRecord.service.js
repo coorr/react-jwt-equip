@@ -6,8 +6,8 @@ class HistoryRecord {
   getHistoryRecord() {
     return axios.get(API_URL + "getHistoryRecord");
   }
-  getUserHistory() {
-    return axios.get(API_URL + "getUserHistory");
+  getHistoryUser() {
+    return axios.get(API_URL + "getHistoryUser");
   }
   getSelectHistory(user,action,firstDate,secondDate) {
     return axios.get(API_URL + "getSelectHistory/"+user+"/"+action+"/"+firstDate+"/"+secondDate);
@@ -15,6 +15,7 @@ class HistoryRecord {
   historyDownloadExcel(user,firstDate,outDate) {
     return axios.get(API_URL + "history/historyDownloadExcel/"+user+"/"+firstDate+"/"+outDate, {responseType:'arraybuffer' , headers: authHeader()});
   }
+
 
   
 }

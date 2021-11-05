@@ -78,6 +78,7 @@ export default class EquipmentManage extends Component {
       columnDefs: [
         
         { headerName: '장비명', cellRendererFramework: this.equipmentTitle, onCellClicked: this.onUpdateClick, hide: true },   // rowGroup:true, width:200
+        { headerName: '별칭', field: 'nickname',onCellClicked: this.onUpdateClick  },  
         { headerName: 'Public Ip', field: 'settingIp',onCellClicked: this.onUpdateClick  },
         { headerName: 'OS', field: 'settingOs', onCellClicked: this.onUpdateClick },
         { headerName: '제조사', field: 'settingPerson', onCellClicked: this.onUpdateClick } ,
@@ -88,7 +89,8 @@ export default class EquipmentManage extends Component {
         { headerName: '사용자', field: '',onCellClicked: this.onUpdateClick },
       ],
       columnDefsSecond: [
-        { headerName: '장비명',  field: 'equipment', onCellClicked: this.onUpdateClick, headerCheckboxSelection: true, checkboxSelection:true },   
+        { headerName: '장비명',  field: 'equipment', onCellClicked: this.onUpdateClick, headerCheckboxSelection: true, checkboxSelection:true }, 
+        { headerName: '별칭', field: 'nickname',onCellClicked: this.onUpdateClick  },  
         { headerName: 'Public Ip', field: 'settingIp',onCellClicked: this.onUpdateClick },
         { headerName: 'OS', field: 'settingOs', onCellClicked: this.onUpdateClick },
         { headerName: '제조사', field: 'settingPerson', onCellClicked: this.onUpdateClick} ,

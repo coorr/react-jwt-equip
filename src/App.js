@@ -17,6 +17,7 @@ import ManageEquipmentList from "./components/deviceManage/equipment-group-manag
 import Modify from './modals/modify.component';
 import HistoryRecord from "./components/deviceManage/histroy-record";
 
+
 import EventBus from "./common/EventBus";
 import "rc-tree/assets/index.less";
 import "./styles.css";
@@ -202,6 +203,7 @@ class App extends Component {
               <Route path="/equipmentGroupManage" component={ManageEquipmentList} />
               <Route path="/modify/:selectedData" component={Modify} />
               <Route path="/historyRecord" component={HistoryRecord} />
+
             </Switch>
           
         </div>
