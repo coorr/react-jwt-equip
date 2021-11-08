@@ -9,15 +9,15 @@ class UserService {
   }
 
   getUserBoard() {
-    return axios.get(API_URL + 'user', { headers: authHeader() }); // Authorization: 'Bearer' + user.accessToken
+    return axios.get(API_URL + 'user', { headers: { Authorization:  authHeader()} }); // Authorization: 'Bearer' + user.accessToken
   }
 
   getModeratorBoard() {
-    return axios.get(API_URL + 'mod', { headers: authHeader() });
+    return axios.get(API_URL + 'mod', {headers: { Authorization:  authHeader()} });
   }
 
   getAdminBoard() {
-    return axios.get(API_URL + 'admin', { headers: authHeader() });
+    return axios.get(API_URL + 'admin', {headers: { Authorization:  authHeader()} });
   }
 
   getTestBoard() {

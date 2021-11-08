@@ -3,12 +3,12 @@ import axios from "axios";
 const API_URL = "http://localhost:8080/aiwacs/";
 
 class AuthService {
-  login(username, password) {
+  login(username, password,requestURL) {
     return axios
       .post(API_URL + "signin", {
         username,
         password
-      })
+      }, { headers: { Referers:requestURL}})
       .then(response => {
         if (response.data.accessToken) {
           localStorage.setItem("user", JSON.stringify(response.data));

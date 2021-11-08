@@ -205,7 +205,7 @@ export default class EquipmentManage extends Component {
       hwid.push(params.data.id);
     }
     console.log("equipId:"+hwid);
-    AiwacsService.getTooltipByNo(hwid) 
+    AiwacsService.getTooltipByNo(hwid,window.location.pathname) 
       .then((res)=> {
         const hwData=res.data;
         
@@ -322,7 +322,7 @@ export default class EquipmentManage extends Component {
     
     if(Object.keys(equipId).length > 0 && equipCheck === false) {
       GroupEquipmentService.deleteGroupEquipByNo(equipId)
-      AiwacsService.deleteEquipment(equipId)
+      AiwacsService.deleteEquipment(equipId,window.location.pathname)
         .then((res) => {
             console.log("장비 삭제 이벤트")
             alert("삭제 되었습니다.")
@@ -331,7 +331,7 @@ export default class EquipmentManage extends Component {
     }
     else if(Object.keys(equipId).length > 0 && equipCheck === true ) {
       GroupEquipmentService.deleteGroupEquipByNo(equipId)
-      AiwacsService.deleteEquipment(equipId)
+      AiwacsService.deleteEquipment(equipId,window.location.pathname)
         .then((res) => {
             console.log("그룹 삭제 이벤트")
             alert("삭제 되었습니다.")
@@ -371,7 +371,7 @@ export default class EquipmentManage extends Component {
     console.log(JSON.stringify(equipId));
     
     if(Object.keys(equipId).length > 0 && equipCheck === false) {
-      AiwacsService.onActiveEquipment(equipId)
+      AiwacsService.onActiveEquipment(equipId,window.location.pathname)
         .then((res) => {
           console.log("장비 활성 이벤트");
           alert("활성되었습니다.")
@@ -379,7 +379,7 @@ export default class EquipmentManage extends Component {
       }) 
     }
     else if(Object.keys(equipId).length > 0 && equipCheck === true ) {
-      AiwacsService.onActiveEquipment(equipId)
+      AiwacsService.onActiveEquipment(equipId,window.location.pathname)
       .then((res) => {
         console.log("그룹 활성 이벤트");
         alert("활성되었습니다.")
@@ -416,7 +416,7 @@ export default class EquipmentManage extends Component {
     console.log(JSON.stringify(equipId));
     
     if(Object.keys(equipId).length > 0 && equipCheck === false) {
-      AiwacsService.offActiveEquipment(equipId)
+      AiwacsService.offActiveEquipment(equipId,window.location.pathname)
         .then((res) => {
           console.log("장비 비활성 이벤트");
           alert("비활성되었습니다.")
@@ -424,7 +424,7 @@ export default class EquipmentManage extends Component {
       }) 
     }
     else if(Object.keys(equipId).length > 0 && equipCheck === true ) {
-      AiwacsService.offActiveEquipment(equipId)
+      AiwacsService.offActiveEquipment(equipId,window.location.pathname)
       .then((res) => {
         console.log("그룹 비활성 이벤트");
         alert("비활성되었습니다.")
@@ -512,7 +512,7 @@ filterSelect = () => {
 
     if(selectTypeList === '전체' && equipType !== '' && equipCatagory !== '') {
       // this.gridApi.setRowData(false);
-      AiwacsService.searchFilterEquipment(equipType,equipCatagory)
+      AiwacsService.searchFilterEquipment(equipType,equipCatagory,window.location.pathname)
       .then((res) => {
         this.setState({filterData:res.data,equipCheck:false, })
       })
@@ -577,7 +577,7 @@ defaultSnmpTooltip = () => {
 cpuOnClick = () => {
   // cosnt {equipment} = this.state;
   const {hwCpu,hwid,hwnull,equipment} = this.state;
-  AiwacsService.eachTooltipHwUpdateEquipment(hwCpu.value,hwnull,hwnull,hwnull,hwid)
+  AiwacsService.eachTooltipHwUpdateEquipment(hwCpu.value,hwnull,hwnull,hwnull,hwid,window.location.pathname)
   .then((res)=> {
      alert("변경되었습니다.")
     })
@@ -585,28 +585,28 @@ cpuOnClick = () => {
 
 diskOnClick = () => {
   const {hwDisk,hwid,hwnull} = this.state;
-  AiwacsService.eachTooltipHwUpdateEquipment(hwnull,hwDisk.value,hwnull,hwnull,hwid)  
+  AiwacsService.eachTooltipHwUpdateEquipment(hwnull,hwDisk.value,hwnull,hwnull,hwid,window.location.pathname)  
   .then(()=> {
      alert("변경되었습니다.")
     })
 }
 nicOnClick = () => {
   const {hwNic,hwid,hwnull} = this.state;
-  AiwacsService.eachTooltipHwUpdateEquipment(hwnull,hwnull,hwNic.value,hwnull,hwid) 
+  AiwacsService.eachTooltipHwUpdateEquipment(hwnull,hwnull,hwNic.value,hwnull,hwid,window.location.pathname) 
   .then(()=> {
      alert("변경되었습니다.")
     })
 }
 sensorOnClick = () => {
   const {hwSensor,hwid,hwnull} = this.state;
-  AiwacsService.eachTooltipHwUpdateEquipment(hwnull,hwnull,hwnull,hwSensor.value,hwid)  
+  AiwacsService.eachTooltipHwUpdateEquipment(hwnull,hwnull,hwnull,hwSensor.value,hwid,window.location.pathname)  
   .then(()=> {
      alert("변경되었습니다.")
     })
 }
 allHwOnClick = () => {
   const {hwid,hwNumber} = this.state;
-  AiwacsService.allTooltipHwUpdateEquipment(hwNumber.value,hwNumber.value,hwNumber.value,hwNumber.value,hwid)
+  AiwacsService.allTooltipHwUpdateEquipment(hwNumber.value,hwNumber.value,hwNumber.value,hwNumber.value,hwid,window.location.pathname)
   .then(()=> {
      alert("변경되었습니다.")
     })
@@ -631,7 +631,7 @@ allCheckHwOnClick = () => {
   console.log("equipId: "+ equipId);
 
   if(equipId !== '' && hwNumber.value !== '') {
-    AiwacsService.allTooltipHwUpdateEquipment(hwCpu.value,hwDisk.value,hwNic.value,hwSensor.value,equipId)
+    AiwacsService.allTooltipHwUpdateEquipment(hwCpu.value,hwDisk.value,hwNic.value,hwSensor.value,equipId,window.location.pathname)
     .then(()=> {
 
        alert("변경되었습니다.")
@@ -657,7 +657,7 @@ cpuCheckOnClick = () => {
   console.log("equipId: "+ equipId);
 
   if(equipId !== '' && hwCpu.value !== '') {
-  AiwacsService.eachTooltipHwUpdateEquipment(hwCpu.value,hwnull,hwnull,hwnull,equipId)
+  AiwacsService.eachTooltipHwUpdateEquipment(hwCpu.value,hwnull,hwnull,hwnull,equipId,window.location.pathname)
   .then(()=> {
      alert("변경되었습니다.")
     })
@@ -681,7 +681,7 @@ diskCheckOnClick = () => {
   const equipId = hwid.join(',');
   
   if(equipId !== '' && hwDisk.value !== '') {
-  AiwacsService.eachTooltipHwUpdateEquipment(hwnull,hwDisk.value,hwnull,hwnull,equipId)
+  AiwacsService.eachTooltipHwUpdateEquipment(hwnull,hwDisk.value,hwnull,hwnull,equipId,window.location.pathname)
   .then(()=> {
      alert("변경되었습니다.")
     })
@@ -705,7 +705,7 @@ nicCheckOnClick = () => {
   const equipId = hwid.join(',');
   
   if(equipId !== '' && hwNic.value !== '') {
-  AiwacsService.eachTooltipHwUpdateEquipment(hwnull,hwnull,hwNic.value,hwnull,equipId)
+  AiwacsService.eachTooltipHwUpdateEquipment(hwnull,hwnull,hwNic.value,hwnull,equipId,window.location.pathname)
   .then(()=> {
      alert("변경되었습니다.")
     })
@@ -729,7 +729,7 @@ sensorCheckOnClick = () => {
   const equipId = hwid.join(',');
   
   if(equipId !== '' && hwSensor.value !== '') {
-  AiwacsService.eachTooltipHwUpdateEquipment(hwnull,hwnull,hwnull,hwSensor.value,equipId)
+  AiwacsService.eachTooltipHwUpdateEquipment(hwnull,hwnull,hwnull,hwSensor.value,equipId,window.location.pathname)
   .then(()=> {
      alert("변경되었습니다.")
     })
@@ -767,7 +767,7 @@ tooltipValidation = () => {
 }
 /* excel 다운로드 */
 downloadExcel = () => {
-  AiwacsService.downloadExcel()
+  AiwacsService.downloadExcel(window.location.pathname)
   .then((res) => {
     const mimeType = { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
     const blob =new Blob([res.data],mimeType);

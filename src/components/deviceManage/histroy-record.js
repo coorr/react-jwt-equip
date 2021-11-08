@@ -47,12 +47,13 @@ export default class historyRecord extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      limitSize:30,
       inputDisable:true,
-      firstDateFormat: Moment(firstDate, "YYYY.MM.DD").format("YYYY-MM-DD"),
+      firstDateFormat: Moment(firstDate, "YYYY.MM.DD").format("YYYYMMDD"),
       firstTimeFormat: Moment(new Date(), "HH").format("HH"),
       firstMinuteFormat: Moment(new Date(), "mm").format("mm"),
       firstSecondFormat: Moment(new Date(), "ss").format("ss"),
-      secondDateFormat: Moment(new Date(), "YYYY.MM.DD").format("YYYY-MM-DD"),
+      secondDateFormat: Moment(new Date(), "YYYY.MM.DD").format("YYYYMMDD"),
       secondTimeFormat: Moment(new Date(), "HH").format("HH"), 
       secondMinuteFormat: Moment(new Date(), "mm").format("mm"),
       secondSecondFormat: Moment(new Date(), "ss").format("ss"),
@@ -108,7 +109,7 @@ export default class historyRecord extends Component {
   }
 
   componentDidMount() {
-    console.log(window.location.href);
+    console.log(window.location.pathname);
     const activeData = [{id: 1,value:'LOGIN'},{id: 2,value:'LOGOUT'},{id: 3,value:'CREATE'},{id: 4,value:'UPDATE'},{id: 5,value:'DELETE'}
     ,{id: 6,value:'ACTIVE'},{id: 7,value:'INACTIVE'},{id: 8,value:'RESTART'},{id: 9,value:'DOWNLOAD'}];
 
@@ -210,25 +211,29 @@ export default class historyRecord extends Component {
 
  historySelectEvent = () => {
    const { searchName,historyActiveData,firstDateFormat,firstTimeFormat,firstMinuteFormat,
-    firstSecondFormat,secondDateFormat,secondTimeFormat,secondMinuteFormat,secondSecondFormat  } = this.state;
-   const firstDate = firstDateFormat+" "+firstTimeFormat+":"+firstMinuteFormat+":"+firstSecondFormat;
-   const secondDate = secondDateFormat+" "+secondTimeFormat+":"+secondMinuteFormat+":"+secondSecondFormat;
+    firstSecondFormat,secondDateFormat,secondTimeFormat,secondMinuteFormat,secondSecondFormat,limitSize  } = this.state;
+  //  const firstDate = firstDateFormat+" "+firstTimeFormat+":"+firstMinuteFormat+":"+firstSecondFormat;
+   const firstDate = firstDateFormat+firstTimeFormat+firstMinuteFormat+firstSecondFormat;
+   const secondDate = secondDateFormat+secondTimeFormat+secondMinuteFormat+secondSecondFormat;
    const searchData = [];
    searchName.forEach(s=> {
     searchData.push(s.value);
    })
+   const searchDatas = searchData.join(',');
+   const historyActiveDatas = historyActiveData.join(',');
+   const size = 30;
+   console.log(searchDatas);
    console.log(firstTimeFormat);
    console.log(searchData);
    console.log(historyActiveData);
    console.log(firstDate);
    console.log(secondDate);
 
-   if(historyActiveData.length === 0) {  // 체크박스 예외처리 
-    historyActiveData.push(["null"])
-   }
+   
   
-   HistoryRecord.getSelectHistory(searchData,historyActiveData,firstDate,secondDate)
+   HistoryRecord.getSelectHistory(limitSize,searchDatas,historyActiveDatas,firstDate,secondDate)
     .then(res=> {
+     console.log(res.data);
         res.data.map(h => {
           h.workDate= h.workDate.replace("T"," ");
         })
@@ -254,13 +259,13 @@ export default class historyRecord extends Component {
 
  calenderFirstChange = (date) => {
   this.setState({
-    firstDateFormat:Moment(date, "YYYY.MM.DD").format("YYYY-MM-DD"), 
+    firstDateFormat:Moment(date, "YYYY.MM.DD").format("YYYYMMDD"), 
     calendarCheckFirst:false
   })
  }
  calenderSecondChange = (date) => {
   this.setState({
-    secondDateFormat:Moment(date, "YYYY.MM.DD").format("YYYY-MM-DD"), 
+    secondDateFormat:Moment(date, "YYYY.MM.DD").format("YYYYMMDD"), 
     calendarCheckSecond:false
   })
  }
@@ -270,10 +275,10 @@ export default class historyRecord extends Component {
   const newTime = new Date(newDate.getTime() - 43200000);
    this.setState({ 
      firstTimeFormat: Moment(newTime, "HH").format("HH"),
-     firstDateFormat: Moment(newTime, "YYYY.MM.DD").format("YYYY-MM-DD"),
+     firstDateFormat: Moment(newTime, "YYYY.MM.DD").format("YYYYMMDD"),
      firstMinuteFormat: Moment(newDate, "mm").format("mm"),
      firstSecondFormat: Moment(newDate, "ss").format("ss"),
-     secondDateFormat: Moment(newDate, "YYYY.MM.DD").format("YYYY-MM-DD"),
+     secondDateFormat: Moment(newDate, "YYYY.MM.DD").format("YYYYMMDD"),
      secondTimeFormat: Moment(newDate, "HH").format("HH"), 
      secondMinuteFormat: Moment(newDate, "mm").format("mm"),
      secondSecondFormat: Moment(newDate, "ss").format("ss"),
@@ -285,10 +290,10 @@ export default class historyRecord extends Component {
   const newTime = new Date(newDate.getTime() - 86400000);
   this.setState({ 
     firstTimeFormat: Moment(newTime, "HH").format("HH"),
-    firstDateFormat: Moment(newTime, "YYYY.MM.DD").format("YYYY-MM-DD"),
+    firstDateFormat: Moment(newTime, "YYYY.MM.DD").format("YYYYMMDD"),
     firstMinuteFormat: Moment(newDate, "mm").format("mm"),
     firstSecondFormat: Moment(newDate, "ss").format("ss"),
-    secondDateFormat: Moment(newDate, "YYYY.MM.DD").format("YYYY-MM-DD"),
+    secondDateFormat: Moment(newDate, "YYYY.MM.DD").format("YYYYMMDD"),
     secondTimeFormat: Moment(newDate, "HH").format("HH"), 
     secondMinuteFormat: Moment(newDate, "mm").format("mm"),
     secondSecondFormat: Moment(newDate, "ss").format("ss"),
@@ -300,10 +305,10 @@ export default class historyRecord extends Component {
   const newTime = new Date(newDate.getTime() - 604800000);
   this.setState({ 
     firstTimeFormat: Moment(newTime, "HH").format("HH"),
-    firstDateFormat: Moment(newTime, "YYYY.MM.DD").format("YYYY-MM-DD"),
+    firstDateFormat: Moment(newTime, "YYYY.MM.DD").format("YYYYMMDD"),
     firstMinuteFormat: Moment(newDate, "mm").format("mm"),
     firstSecondFormat: Moment(newDate, "ss").format("ss"),
-    secondDateFormat: Moment(newDate, "YYYY.MM.DD").format("YYYY-MM-DD"),
+    secondDateFormat: Moment(newDate, "YYYY.MM.DD").format("YYYYMMDD"),
     secondTimeFormat: Moment(newDate, "HH").format("HH"), 
     secondMinuteFormat: Moment(newDate, "mm").format("mm"),
     secondSecondFormat: Moment(newDate, "ss").format("ss"),
@@ -315,10 +320,10 @@ export default class historyRecord extends Component {
   const newTime = new Date(newDate.getTime() - 2592000000);
   this.setState({ 
     firstTimeFormat: Moment(newTime, "HH").format("HH"),
-    firstDateFormat: Moment(newTime, "YYYY.MM.DD").format("YYYY-MM-DD"),
+    firstDateFormat: Moment(newTime, "YYYY.MM.DD").format("YYYYMMDD"),
     firstMinuteFormat: Moment(newDate, "mm").format("mm"),
     firstSecondFormat: Moment(newDate, "ss").format("ss"),
-    secondDateFormat: Moment(newDate, "YYYY.MM.DD").format("YYYY-MM-DD"),
+    secondDateFormat: Moment(newDate, "YYYY.MM.DD").format("YYYYMMDD"),
     secondTimeFormat: Moment(newDate, "HH").format("HH"), 
     secondMinuteFormat: Moment(newDate, "mm").format("mm"),
     secondSecondFormat: Moment(newDate, "ss").format("ss"),
@@ -326,6 +331,7 @@ export default class historyRecord extends Component {
  }
  
  reload = () => {
+  const newTime = new Date(new Date() - 86400000);
   HistoryRecord.getHistoryRecord() 
   .then(res => {
     console.log(res.data);
@@ -338,11 +344,11 @@ export default class historyRecord extends Component {
     ,{id: 6,value:'ACTIVE'},{id: 7,value:'INACTIVE'},{id: 8,value:'RESTART'},{id: 9,value:'DOWNLOAD'}];
 
   this.setState({ 
-    firstDateFormat: Moment(new Date(), "YYYY.MM.DD").format("YYYY-MM-DD"),
+    firstDateFormat: Moment(newTime, "YYYY.MM.DD").format("YYYYMMDD"),
     firstTimeFormat: time[0].value,
     firstMinuteFormat:time[0].value,
     firstSecondFormat:time[0].value,
-    secondDateFormat: Moment(new Date(), "YYYY.MM.DD").format("YYYY-MM-DD"),
+    secondDateFormat: Moment(new Date(), "YYYY.MM.DD").format("YYYYMMDD"),
     secondTimeFormat: time[0].value,
     secondMinuteFormat: time[0].value,
     secondSecondFormat: time[0].value,
@@ -360,8 +366,9 @@ export default class historyRecord extends Component {
   const firstDate = firstDateFormat+" "+firstTimeFormat+":"+firstMinuteFormat+":"+firstSecondFormat+"~"+secondDateFormat+" "+secondTimeFormat+":"+secondMinuteFormat+":"+secondSecondFormat;
   const user = AuthService.getCurrentUser().username;
   const outDate= Moment(new Date(), "YYYY.MM.DD HH:mm:ss").format("YYYY-MM-DD HH:mm:ss");
+  const requestURL= window.location.pathname;
 
-  HistoryRecord.historyDownloadExcel(user,firstDate,outDate)
+  HistoryRecord.historyDownloadExcel(user,firstDate,outDate,requestURL)
   .then((res) => {
     const mimeType = { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
     const blob =new Blob([res.data],mimeType);
@@ -370,19 +377,46 @@ export default class historyRecord extends Component {
 }
 
 infiniteData = (data) => {
+  const { searchName,historyActiveData,firstDateFormat,firstTimeFormat,firstMinuteFormat,
+    firstSecondFormat,secondDateFormat,secondTimeFormat,secondMinuteFormat,secondSecondFormat,limitSize  } = this.state;
+   const firstDate = firstDateFormat+firstTimeFormat+firstMinuteFormat+firstSecondFormat;
+   const secondDate = secondDateFormat+secondTimeFormat+secondMinuteFormat+secondSecondFormat;
+   const searchData = [];
+   searchName.forEach(s=> {
+    searchData.push(s.value);
+   })
+   const searchDatas = searchData.join(',');
+   const historyActiveDatas = historyActiveData.join(',');
   console.log(data);
+   
     var dataSource = {
       getRows: function (params) {
+         var size = params.endRow;
+         console.log(size);
+         console.log(typeof size);
+         console.log(typeof limitSize);
+         
+      
+         HistoryRecord.getSelectHistory(params.endRow,searchDatas,historyActiveDatas,firstDate,secondDate)
+          .then(res=> {
+           console.log(res.data);
+              res.data.map(h => {
+                h.workDate= h.workDate.replace("T"," ");
+              })
+          })
+
         setTimeout(function () {
           var rowsThisPage = data.slice(params.startRow, params.endRow);
           var lastRow = -1;
           if (data.length <= params.endRow) {
             lastRow = data.length;
           }
+
           params.successCallback(rowsThisPage, lastRow);
         }, 500);
       },
     };
+
     this.gridApis.setDatasource(dataSource);
   };
 
@@ -395,6 +429,11 @@ infiniteData = (data) => {
     ,userDataCheck,date,calendarCheckFirst,firstDateFormat,firstTimeFormat,firstMinuteFormat,firstSecondFormat,calendarCheckSecond, secondDateFormat,
     secondTimeFormat, secondMinuteFormat, secondSecondFormat,inputDisable } = this.state;
 
+
+    const firstDateFormatInput = Moment(firstDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
+    const secondDateFormatInput = Moment(secondDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
+
+    console.log(this.state.limitSize);
     console.log(searchName);
     // console.log(date);
     // console.log(firstDate);
@@ -498,7 +537,7 @@ infiniteData = (data) => {
                       </div>
                       <div className="historyFilterSearchArea">
                         <div className="calendarAreaYear">
-                            <input className="calendarInput" type="text" value={firstDateFormat} disabled readonly />
+                            <input className="calendarInput" type="text" value={firstDateFormatInput} disabled readonly />
                             <button className="calendarIcon" onClick={(e)=> this.calendarFirst(e)} >
                               <FcCalendar className="calendarIconStyle"  size="20" value={date} />
                             </button>
@@ -537,7 +576,7 @@ infiniteData = (data) => {
                         <p className="DateMiddle">~</p>
 
                         <div className="calendarAreaYear">
-                            <input className="calendarInput" type="text" value={secondDateFormat} disabled readonly />
+                            <input className="calendarInput" type="text" value={secondDateFormatInput} disabled readonly />
                             <button className="calendarIcon" onClick={(e)=> this.calendarSecond(e)} >
                               <FcCalendar className="calendarIconStyle"  size="20" value={date} />
                             </button>

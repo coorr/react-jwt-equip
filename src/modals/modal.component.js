@@ -133,7 +133,8 @@ componentDidMount() { }
           targetName: userDetail.username
         }
         console.log("historyRecord : " +JSON.stringify(historyRecord));
-        AiwacsService.createEquipment(equipment)
+        const requestURL = window.location.pathname;
+        AiwacsService.createEquipment(equipment,requestURL)
         .then(
           res => {
           console.log("응답받는곳")

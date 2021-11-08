@@ -121,7 +121,7 @@ componentDidMount() {
           hwNic:this.state.hwNic.value,
           hwSensor:this.state.hwSensor.value,
         }
-        AiwacsService.updateEquipmentByNo(this.state.equipId , equipment)
+        AiwacsService.updateEquipmentByNo(this.state.equipId , equipment,window.location.pathname)
         .then(res => {
           console.log("응답받는곳")
           // this.setState({redirect: "/equipmentManage" })

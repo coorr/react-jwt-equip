@@ -125,7 +125,7 @@ export default class upload extends Component  {
 
         console.log(JSON.stringify(data));
           if(window.confirm("등록 하시겠습니까?") === true) {
-            AiwacsService.uploadExcel(data)
+            AiwacsService.uploadExcel(data,window.location.pathname)
             .then(
               res => {
               this.setState({ipCheckData:res.data})
