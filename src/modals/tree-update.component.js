@@ -37,7 +37,7 @@ export default class groupUpdate extends Component  {
 treeUpdate = () => {
   const treeName = { treeName : this.state.treeName }
   this.setState({loading: true})
-  GroupEquipmentService.updateGroupName(this.state.parentTree,treeName)
+  GroupEquipmentService.updateGroupName(this.state.parentTree,treeName,window.location.pathname)
     .then(res => {
       console.log("수정 진행");
       this.setState({loading:false})

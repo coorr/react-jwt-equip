@@ -53,7 +53,7 @@
 /* 추가 && 수정 모달 */
 .header_area_add{background-color: #282363; padding: 0.5rem; } 
 .header_add{color: #fff; font-size: 1.1em;margin-left: 80px; display: flex;}
-.changeBtn{background-color: #6693d7;border-color: #6693d7; color: #fff; padding: 1%; margin-right: 1%; width: 50px;}
+.changeBtn{background-color: #6693d7;border-color: #6693d7; color: #fff; padding: 1%; margin-right: 1%; width: 50px;border: 1px solid #5c8fdb;}
 .changeBtn:hover{background-color: #3f7bd4; border: 1px solid #5c8fdb}
 .addGroupInput{ border: 1px solid #ddd; width: 150px; height: 25px;   margin-left: 1%;}
 .addHideArea{margin-left: 65px; width: 30px; height: 100%;  }

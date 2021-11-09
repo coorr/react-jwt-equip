@@ -16,6 +16,7 @@ import EquipmentManage from "./components/deviceManage/equipment-manage";
 import ManageEquipmentList from "./components/deviceManage/equipment-group-manage";
 import Modify from './modals/modify.component';
 import HistoryRecord from "./components/deviceManage/histroy-record";
+import ReportResoruce from "./components/deviceManage/report-resource";
 
 
 import EventBus from "./common/EventBus";
@@ -47,7 +48,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const user = AuthService.getCurrentUser();
+    const user = AuthService.getCurrentUser(); 
 
     if (user) {
       this.setState({
@@ -84,10 +85,11 @@ class App extends Component {
   render() {
     const { currentUser, showModeratorBoard, showAdminBoard } = this.state;
     const isAuthorized = AuthService.getCurrentUser();
-    console.log(this.state.dropdownOpen);
 
     return (
-      
+      <>
+      {!window.localStorage.getItem('user') && ( <Redirect to="/login" />) }
+     
       <div className="ContainerBox"> 
         <nav className="rootNavBarArea" >
           <Link to={"/"} className="rootNavBarTitle">
@@ -123,11 +125,20 @@ class App extends Component {
                 </Link>
               </li>
             )}
+          
 
             {showAdminBoard && (
               <li className="rootNavBarList">
                 <Link to={"/historyRecord"} className="rootNavBarText">
                   감사 이력
+                </Link>
+              </li>
+            )}
+
+            {showAdminBoard && (
+              <li className="rootNavBarList">
+                <Link to={"/reportResoruce"} className="rootNavBarText">
+                  보고서
                 </Link>
               </li>
             )}
@@ -197,19 +208,18 @@ class App extends Component {
               <Route exact path="/login" component={Login} />
               <Route exact path="/register" component={Register} />
               <Route exact path="/profile" component={Profile} />
-              <Route path="/user" component={BoardUser} />
-              <Route path="/mod" component={BoardModerator} />
-              <Route path="/equipmentManage" component={EquipmentManage} />
-              <Route path="/equipmentGroupManage" component={ManageEquipmentList} />
-              <Route path="/modify/:selectedData" component={Modify} />
-              <Route path="/historyRecord" component={HistoryRecord} />
-
+              <Route exact path="/user" component={BoardUser} />
+              <Route exact path="/mod" component={BoardModerator} />
+              <Route exact path="/equipmentManage"      component={showAdminBoard ? EquipmentManage : () => <div>Loading posts...</div>  }  />
+              <Route exact path="/equipmentGroupManage" component={showAdminBoard ? ManageEquipmentList : () => <div>Loading posts...</div>  } />
+              <Route exact path="/historyRecord"        component={showAdminBoard ? HistoryRecord : () => <div>Loading posts...</div>} />
+              <Route exact path="/reportResoruce"        component={showAdminBoard ? ReportResoruce : () => <div>Loading posts...</div>} />
             </Switch>
           
         </div>
         
       </div>
-      
+      </>
     );
   }
 }

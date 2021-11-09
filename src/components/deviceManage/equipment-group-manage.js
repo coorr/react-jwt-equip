@@ -192,7 +192,7 @@ class manageEquipmentList extends React.Component {
   componentDidMount() {
     GroupEquipmentService.getGroupEquipment()
       .then((res) => {
-      console.log(res.data);
+      // console.log(res.data);
       const resDatas=res.data;
 
       resDatas.forEach((v,i) =>   {
@@ -298,7 +298,7 @@ class manageEquipmentList extends React.Component {
     console.log(parentKey);
 
     if(parentTree.length > 0) {
-      GroupEquipmentService.deleteGroupEquipmentMapping('parent',parentKey)
+      GroupEquipmentService.deleteGroupEquipmentMapping('parent',parentKey,window.location.pathname)
         .then(() => {
           console.log("부모 삭제");
           alert("삭제 되었습니다.");
@@ -308,7 +308,7 @@ class manageEquipmentList extends React.Component {
                   
         })
     } else if(childrenTree.length > 0 ){
-      GroupEquipmentService.deleteGroupEquipmentMapping('children',childrenTree)
+      GroupEquipmentService.deleteGroupEquipmentMapping('children',childrenTree,window.location.pathname)
         .then((res) => {
         console.log("자식 삭제");
          alert("삭제 되었습니다.");
@@ -354,7 +354,7 @@ class manageEquipmentList extends React.Component {
         group_id: event.node.props.eventKey.replace("-",""),
         equipment_id: deviceTree[i]
       }
-      GroupEquipmentService.insertGroupEquipmentMapping(insertMappingDevice) 
+      GroupEquipmentService.insertGroupEquipmentMapping(insertMappingDevice,window.location.pathname) 
       .then(res=> {
         console.log("insert Equipment")
         deviceCount+=1;
@@ -372,7 +372,7 @@ class manageEquipmentList extends React.Component {
         equipment_id: dragDeviceTree,
       }
       console.log(insertMappingDrag);
-      GroupEquipmentService.insertGroupEquipmentMapping(insertMappingDrag) 
+      GroupEquipmentService.insertGroupEquipmentMapping(insertMappingDrag,window.location.pathname) 
       .then(res=> {
         console.log("insert Drag ")
         this.eventChange();
@@ -385,7 +385,7 @@ class manageEquipmentList extends React.Component {
         group_id: event.node.props.eventKey.replace("-",""),
         equipment_id: childrenTree[c]
       }
-      GroupEquipmentService.insertGroupEquipmentMapping(insertMappingChildren) 
+      GroupEquipmentService.insertGroupEquipmentMapping(insertMappingChildren,window.location.pathname) 
       .then(res=> {
         console.log("insert Children ")
         // this.eventChange();
@@ -400,7 +400,7 @@ class manageEquipmentList extends React.Component {
         equipment_id: dragChildrenTree
       }
       console.log(insertChildrenDrag);
-      GroupEquipmentService.insertGroupEquipmentMapping(insertChildrenDrag) 
+      GroupEquipmentService.insertGroupEquipmentMapping(insertChildrenDrag,window.location.pathname) 
       .then(res=> {
         console.log("insert Drag Children ")
         this.eventChange();
@@ -431,7 +431,7 @@ class manageEquipmentList extends React.Component {
     console.log("parentKey 대체 키 : ", parentKey);
 
     if(parentKey.length === 0 ) {
-      GroupEquipmentService.insertGroupFirst(name)
+      GroupEquipmentService.insertGroupFirst(name,window.location.pathname)
       .then((res)=> {
         console.log("장비 추가")
         alert("저장되었습니다.")
@@ -445,7 +445,7 @@ class manageEquipmentList extends React.Component {
         treeName : addTreeName,
         depth: 1,
       }
-      GroupEquipmentService.insertGroupSecond(groupChildren)
+      GroupEquipmentService.insertGroupSecond(groupChildren,window.location.pathname)
         .then(res => {
           console.log("Second Depth");
           alert("저장되었습니다.")
@@ -474,7 +474,7 @@ class manageEquipmentList extends React.Component {
     }
     console.log(parentKey);
 
-    GroupEquipmentService.updateGroupName(parentKey,treeName)
+    GroupEquipmentService.updateGroupName(parentKey,treeName,window.location.pathname)
       .then(res => {
         console.log("수정 진행");
         alert("수정되었습니다.")

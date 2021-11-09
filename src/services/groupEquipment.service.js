@@ -9,29 +9,29 @@ class GroupEquipment {
   unGroupEquipment() {
     return axios.get(API_URL + "group/unGroupEquipment");
   }
-  deleteGroupEquipmentMapping(name,id) {
-    return axios.post(API_URL + "group/deleteGroupEquipmentMapping/"+name+"/"+id, null, { headers: authHeader() }  );
+  deleteGroupEquipmentMapping(name,id,requestURL) {
+    return axios.post(API_URL + "group/deleteGroupEquipmentMapping/"+name+"/"+id, null, { headers: { Authorization:  authHeader(), Referers:requestURL}}  );
   } 
-  insertGroupFirst(treeName) {
-    return axios.post(API_URL + "group/insertGroupFirst", treeName , { headers: authHeader() } );
+  insertGroupFirst(treeName,requestURL) {
+    return axios.post(API_URL + "group/insertGroupFirst", treeName , { headers: { Authorization:  authHeader(), Referers:requestURL}  } );
   } 
-  insertGroupSecond(groupChildren) {
-    return axios.post(API_URL + "group/insertGroupSecond", groupChildren , { headers: authHeader() });
+  insertGroupSecond(groupChildren,requestURL) {
+    return axios.post(API_URL + "group/insertGroupSecond", groupChildren , { headers: { Authorization:  authHeader(), Referers:requestURL}});
   } 
-  insertGroupEquipmentMapping(insertMappingKey) {
-    return axios.post(API_URL + "group/insertGroupEquipmentMapping", insertMappingKey , { headers: authHeader() } );
+  insertGroupEquipmentMapping(insertMappingKey,requestURL) {
+    return axios.post(API_URL + "group/insertGroupEquipmentMapping", insertMappingKey ,  { headers: { Authorization:  authHeader(), Referers:requestURL}} );
   } 
-  updateGroupName(id,treeName) {
-    return axios.post(API_URL + "group/updateGroupName/"+id, treeName , { headers: authHeader() } );
+  updateGroupName(id,treeName,requestURL) {
+    return axios.post(API_URL + "group/updateGroupName/"+id, treeName ,  { headers: { Authorization:  authHeader(), Referers:requestURL}} );
   } 
-  getGroupName(id) {
-    return axios.get(API_URL + "group/getGroupName/"+id ,null, { headers: authHeader() } );
+  getGroupName(id,requestURL) {
+    return axios.get(API_URL + "group/getGroupName/"+id ,null,  { headers: { Authorization:  authHeader(), Referers:requestURL}} );
   } 
   searchFilterGroup(equipType,equipCatagory) { 
     return axios.get(API_URL + "group/filterType/"+equipType+'/'+equipCatagory ); 
   }
-  deleteGroupEquipByNo(equipId) { 
-    return axios.post(API_URL + "group/deleteGroupEquipByNo/"+equipId ,null,{ headers: authHeader() }); 
+  deleteGroupEquipByNo(equipId,requestURL) { 
+    return axios.post(API_URL + "group/deleteGroupEquipByNo/"+equipId ,null, { headers: { Authorization:  authHeader(), Referers:requestURL}}); 
   }
 
   

@@ -76,7 +76,6 @@ export default class EquipmentManage extends Component {
       },
       groups:[],
       columnDefs: [
-        
         { headerName: '장비명', cellRendererFramework: this.equipmentTitle, onCellClicked: this.onUpdateClick, hide: true },   // rowGroup:true, width:200
         { headerName: '별칭', field: 'nickname',onCellClicked: this.onUpdateClick  },  
         { headerName: 'Public Ip', field: 'settingIp',onCellClicked: this.onUpdateClick  },
@@ -266,16 +265,11 @@ export default class EquipmentManage extends Component {
       },
     );
    
-
     GroupEquipmentService.searchFilterGroup(equipType,equipCatagory)
           .then((res) => {
-          console.log(res.data);
           const resDatas=res.data;
-            
           this.setState({groups: resDatas })
-          })
-       
-          
+          })   
   }
 
  
@@ -321,7 +315,7 @@ export default class EquipmentManage extends Component {
     console.log(JSON.stringify(equipId));
     
     if(Object.keys(equipId).length > 0 && equipCheck === false) {
-      GroupEquipmentService.deleteGroupEquipByNo(equipId)
+      GroupEquipmentService.deleteGroupEquipByNo(equipId,window.location.pathname)
       AiwacsService.deleteEquipment(equipId,window.location.pathname)
         .then((res) => {
             console.log("장비 삭제 이벤트")
@@ -330,7 +324,7 @@ export default class EquipmentManage extends Component {
           })
     }
     else if(Object.keys(equipId).length > 0 && equipCheck === true ) {
-      GroupEquipmentService.deleteGroupEquipByNo(equipId)
+      GroupEquipmentService.deleteGroupEquipByNo(equipId,window.location.pathname)
       AiwacsService.deleteEquipment(equipId,window.location.pathname)
         .then((res) => {
             console.log("그룹 삭제 이벤트")
@@ -776,11 +770,8 @@ downloadExcel = () => {
   })
 }
 
-
-
 recursion = (data, parent, childHierachy) => {
   var newData =[];
-
   if(data) {
     data.forEach((d,i) => {
       
@@ -809,7 +800,6 @@ recursion = (data, parent, childHierachy) => {
  })
 }
   return newData;
-
 }
 
 
@@ -835,43 +825,16 @@ test = (data,parent) => {
   return newData;
 }
 
-
-onSelectionChanged = (event) => {
-  console.log(event);
-  console.log(event.node);
-  console.log(event.rowIndex);
-}
-
-
-
-
-
-
   render() {
     const { columnDefs ,defaultColDef,equipment,formData,typeArray,typecheckList,typeData,groups,testDb,columnDefsSecond
     ,catagoryArray,CatagoryCheckList,catagoryData,filterData,equipCheck,gridComponents,hwCpu,hwDisk,hwSensor,hwNic,hwid,hwNumber, selectTypeList} = this.state;
-    
+
     // console.log(equipCheck);
     // console.log(filterData);
 
     return (
-      <div className="ContainerAdmin">
-         {/* <div className="sideBarArea">
-          //      <button className="sideBarButton" ><AiOutlineMenu className="sideImgMenuBar" size={20} color={'#fff'} /></button>
-          //     <button className="sideBarButtonIcon" ><AiFillSetting className="sideImgIcon" size={25}   /></button> 
-          //  <Navbar className="sideBarArea" bg="dark" variant="dark" expand="lg" >
-          // <Navbar.Collapse>
-          //     <Nav pullRight>
-          //       <NavDropdown eventKey={ 3 } id="profile-dropdown" >
-                  
-                  
-          //       </NavDropdown>
-          //     </Nav>
-          //   </Navbar.Collapse>
-          // </Navbar> 
-
-        </div>  */}
-        
+    <>
+    <div className="ContainerAdmin">
       <div className="FilterContainer">
        <div className="topFilterArea"> 
           <div className="topFilterBox">
@@ -969,9 +932,6 @@ onSelectionChanged = (event) => {
             <div className="agGridBox">
             {/* <ReactTooltip /> */}
             <div className="ag-theme-alpine" style={{ width:'95vw', height:'48vh'}}>
-             
-          
-                {/* tree data ? rowGroup  */}
                 {
                   equipCheck ?  
                   <AgGridReact
@@ -991,7 +951,6 @@ onSelectionChanged = (event) => {
                   getDataPath= {data => {
                     return data.hierarchy;
                   }}
-                  onSelectionChanged={this.onSelectionChanged}
                   />
                  : null  }
 
@@ -1010,8 +969,6 @@ onSelectionChanged = (event) => {
                   columnDefs={columnDefsSecond}   
                 /> 
                 : null }
-              
-                
                 {
                  this.state.modifyOpen  ? <Modify show={this.state.modifyOpen}  onHide={this.modifyOpenButton} data={formData}  /> : null
                 }         
@@ -1046,7 +1003,11 @@ onSelectionChanged = (event) => {
        ref= {el => this.tooltipTwo = el} className="extraClass" place="right" type="dark" effect="float" clickable={true}  isCapture={true}   id="hw">
            <div className="tooltipArea">
               <div className="tooltipHigh">
-                  <button className="hideHwTooltip" onClick={()=>{this.tooltipTwo.tooltipRef = null; ReactTooltip.hide(); }}><span style={{color:'#267dff',fontWeight:'bold'}}>X</span></button>
+                  <button className="hideHwTooltip" onClick={()=>{this.tooltipTwo.tooltipRef = null; ReactTooltip.hide(); }}>
+                    <span style={{color:'#267dff',fontWeight:'bold'}}>
+                      X
+                    </span>
+                  </button>
               </div>
               <div className="headerArea">
               <div className="headerLeft">
@@ -1097,7 +1058,11 @@ onSelectionChanged = (event) => {
        <ReactTooltip ref= {el => this.tooltip = el}  className="extraClass" place="right" type="dark" effect="float" clickable={true}  isCapture={true} event="click"  id="checkHw">
            <div className="tooltipAreaTwo">
               <div className="tooltipHigh">
-                  <button className="hideHwTooltipTwo" onClick={()=>{this.tooltip.tooltipRef = null; ReactTooltip.hide()}}><span style={{color:'#267dff',fontWeight:'bold'}}>X</span></button>
+                  <button className="hideHwTooltipTwo" onClick={()=>{this.tooltip.tooltipRef = null; ReactTooltip.hide()}}>
+                    <span style={{color:'#267dff',fontWeight:'bold'}}>
+                    X
+                    </span>
+                  </button>
               </div>
             <div className="headerAreaTwo">
               <div className="headerLeftTwo">
@@ -1148,8 +1113,7 @@ onSelectionChanged = (event) => {
      </div>
 
     </div>
-
-        
+    </>
     );
   }
 }

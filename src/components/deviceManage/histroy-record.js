@@ -49,6 +49,7 @@ export default class historyRecord extends Component {
     this.state = {
       limitSize:30,
       inputDisable:true,
+      /** 시간  */
       firstDateFormat: Moment(firstDate, "YYYY.MM.DD").format("YYYYMMDD"),
       firstTimeFormat: Moment(new Date(), "HH").format("HH"),
       firstMinuteFormat: Moment(new Date(), "mm").format("mm"),
@@ -64,6 +65,7 @@ export default class historyRecord extends Component {
       historyModel: false,
       history: [],
       user:[],
+      /** 감사 이력 model */
       columnDefs : [
         { headerName: '사용자', field:'userName' },   // rowGroup:true, width:200
         { headerName: '작업 구분', field:'actionType' },
@@ -101,6 +103,7 @@ export default class historyRecord extends Component {
         maxWidth:210,
       },
       searchName:[],
+      /** 작업 구분(체크박스) */
       historyActiveArray:[],  
       historyActiveData:['LOGIN','LOGOUT','CREATE','UPDATE','DELETE','ACTIVE','INACTIVE','RESTART','DOWNLOAD'],
       historyActiveList:[],
@@ -109,7 +112,6 @@ export default class historyRecord extends Component {
   }
 
   componentDidMount() {
-    console.log(window.location.pathname);
     const activeData = [{id: 1,value:'LOGIN'},{id: 2,value:'LOGOUT'},{id: 3,value:'CREATE'},{id: 4,value:'UPDATE'},{id: 5,value:'DELETE'}
     ,{id: 6,value:'ACTIVE'},{id: 7,value:'INACTIVE'},{id: 8,value:'RESTART'},{id: 9,value:'DOWNLOAD'}];
 
@@ -118,17 +120,15 @@ export default class historyRecord extends Component {
       historyActiveList:new Array(activeData.length).fill(true),
     })
 
-
     HistoryRecord.getHistoryRecord() 
       .then(res => {
-        console.log(res.data);
+        // console.log(res.data);
         res.data.map(h => {
           h.workDate= h.workDate.replace("T"," ");
         })
         this.setState({history:res.data,loding:true})
         this.infiniteData(res.data);
       })
-
 
     HistoryRecord.getHistoryUser()
       .then(res => {
@@ -144,33 +144,40 @@ export default class historyRecord extends Component {
   }
 
   loginFormatter = (params) => { return params.data.roles ? 'X':'O' }
-
+  /** 유저 모델 조회 */
   historySelect = () => {
     if(this.state.user.length === 0) {
       HistoryRecord.getHistoryUser()
       .then(res => {
         console.log(res.data);
-        const userData = [];
         const data = res.data;
         data.forEach(u => {
           u.roles.forEach(r=> {
             u.role= r.name;
           })
         })
+        // console.log(res.data);
         this.setState({user:res.data})
       })
     }
     this.setState({historyModel:true })
     
+    
   }
   /** user 적용  **/
   historyApply = () => {
+    // this.gridApi.forEachLeafNode(node => {
+    //   node.setSelected(true)
+    //   // console.log(roleId)
+    //   // if(node.data.id === )
+    // })
     const applyData = this.gridApi.getSelectedRows();
     console.log(this.gridApi.getSelectedNodes());
     console.log(applyData);
     const applyUsername= [];
     applyData.forEach(a => {
         const obj = {};
+        obj.id = a.id;
         obj.value = a.username;
         obj.label = a.username;
         applyUsername.push(obj);
@@ -208,11 +215,10 @@ export default class historyRecord extends Component {
   this.setState({historyActiveList:changeCheck})
   this.setState({historyActiveData:newArray})
  }
-
+ /** 조회하기 */
  historySelectEvent = () => {
    const { searchName,historyActiveData,firstDateFormat,firstTimeFormat,firstMinuteFormat,
     firstSecondFormat,secondDateFormat,secondTimeFormat,secondMinuteFormat,secondSecondFormat,limitSize  } = this.state;
-  //  const firstDate = firstDateFormat+" "+firstTimeFormat+":"+firstMinuteFormat+":"+firstSecondFormat;
    const firstDate = firstDateFormat+firstTimeFormat+firstMinuteFormat+firstSecondFormat;
    const secondDate = secondDateFormat+secondTimeFormat+secondMinuteFormat+secondSecondFormat;
    const searchData = [];
@@ -221,16 +227,13 @@ export default class historyRecord extends Component {
    })
    const searchDatas = searchData.join(',');
    const historyActiveDatas = historyActiveData.join(',');
-   const size = 30;
+   
    console.log(searchDatas);
-   console.log(firstTimeFormat);
-   console.log(searchData);
-   console.log(historyActiveData);
+   console.log(historyActiveDatas);
    console.log(firstDate);
    console.log(secondDate);
+   console.log(limitSize);
 
-   
-  
    HistoryRecord.getSelectHistory(limitSize,searchDatas,historyActiveDatas,firstDate,secondDate)
     .then(res=> {
      console.log(res.data);
@@ -240,6 +243,7 @@ export default class historyRecord extends Component {
         this.infiniteData(res.data);
     })
  }
+ /** 달력1 open */
  calendarFirst = (e) => {
    e.preventDefault();
    if(!this.state.calendarCheckFirst) {
@@ -248,6 +252,7 @@ export default class historyRecord extends Component {
     this.setState({calendarCheckFirst:false})
    }
  }
+ /** 달력2 open */
  calendarSecond = (e) => {
   e.preventDefault();
   if(!this.state.calendarCheckSecond) {
@@ -256,20 +261,21 @@ export default class historyRecord extends Component {
     this.setState({calendarCheckSecond:false})
    }
  }
-
+/** 달력1 이벤트 */
  calenderFirstChange = (date) => {
   this.setState({
     firstDateFormat:Moment(date, "YYYY.MM.DD").format("YYYYMMDD"), 
     calendarCheckFirst:false
   })
  }
+ /** 달력2 이벤트 */
  calenderSecondChange = (date) => {
   this.setState({
     secondDateFormat:Moment(date, "YYYY.MM.DD").format("YYYYMMDD"), 
     calendarCheckSecond:false
   })
  }
-
+ /** 시간(12시) */
  timeEachEvent = () => {
   const newDate= new Date();
   const newTime = new Date(newDate.getTime() - 43200000);
@@ -284,7 +290,7 @@ export default class historyRecord extends Component {
      secondSecondFormat: Moment(newDate, "ss").format("ss"),
     })
  }
- 
+ /** 시간(24시) */
  timeEachEventSecond =() => {
   const newDate= new Date();
   const newTime = new Date(newDate.getTime() - 86400000);
@@ -299,7 +305,7 @@ export default class historyRecord extends Component {
     secondSecondFormat: Moment(newDate, "ss").format("ss"),
    })
  }
-
+/** 시간(7일) */
  timeEachEventThird = () => {
   const newDate= new Date();
   const newTime = new Date(newDate.getTime() - 604800000);
@@ -314,7 +320,7 @@ export default class historyRecord extends Component {
     secondSecondFormat: Moment(newDate, "ss").format("ss"),
    })
  }
-
+ /** 시간(30일) */
  timeEachEventFourth = () => {
   const newDate= new Date();
   const newTime = new Date(newDate.getTime() - 2592000000);
@@ -329,16 +335,16 @@ export default class historyRecord extends Component {
     secondSecondFormat: Moment(newDate, "ss").format("ss"),
    })
  }
- 
+ /** 초기화 */
  reload = () => {
   const newTime = new Date(new Date() - 86400000);
   HistoryRecord.getHistoryRecord() 
   .then(res => {
-    console.log(res.data);
     res.data.map(h => {
       h.workDate= h.workDate.replace("T"," ");
     })
     this.setState({history:res.data})
+    this.infiniteData(res.data)
   })
   const activeData = [{id: 1,value:'LOGIN'},{id: 2,value:'LOGOUT'},{id: 3,value:'CREATE'},{id: 4,value:'UPDATE'},{id: 5,value:'DELETE'}
     ,{id: 6,value:'ACTIVE'},{id: 7,value:'INACTIVE'},{id: 8,value:'RESTART'},{id: 9,value:'DOWNLOAD'}];
@@ -360,7 +366,7 @@ export default class historyRecord extends Component {
    })
    
  }
-
+/** 감사이력 엑셀 */
  historyDownloadExcel = () => {
   const { firstDateFormat,firstTimeFormat,firstMinuteFormat,firstSecondFormat,secondDateFormat,secondTimeFormat,secondMinuteFormat,secondSecondFormat  } = this.state;
   const firstDate = firstDateFormat+" "+firstTimeFormat+":"+firstMinuteFormat+":"+firstSecondFormat+"~"+secondDateFormat+" "+secondTimeFormat+":"+secondMinuteFormat+":"+secondSecondFormat;
@@ -375,7 +381,7 @@ export default class historyRecord extends Component {
     saveAs(blob,"감사이력리스트.xls")
   })
 }
-
+/** 무한 스크롤 */
 infiniteData = (data) => {
   const { searchName,historyActiveData,firstDateFormat,firstTimeFormat,firstMinuteFormat,
     firstSecondFormat,secondDateFormat,secondTimeFormat,secondMinuteFormat,secondSecondFormat,limitSize  } = this.state;
@@ -387,36 +393,25 @@ infiniteData = (data) => {
    })
    const searchDatas = searchData.join(',');
    const historyActiveDatas = historyActiveData.join(',');
-  console.log(data);
    
     var dataSource = {
       getRows: function (params) {
-         var size = params.endRow;
-         console.log(size);
-         console.log(typeof size);
-         console.log(typeof limitSize);
-         
-      
          HistoryRecord.getSelectHistory(params.endRow,searchDatas,historyActiveDatas,firstDate,secondDate)
           .then(res=> {
-           console.log(res.data);
               res.data.map(h => {
                 h.workDate= h.workDate.replace("T"," ");
               })
           })
-
         setTimeout(function () {
           var rowsThisPage = data.slice(params.startRow, params.endRow);
           var lastRow = -1;
           if (data.length <= params.endRow) {
             lastRow = data.length;
           }
-
           params.successCallback(rowsThisPage, lastRow);
         }, 500);
       },
     };
-
     this.gridApis.setDatasource(dataSource);
   };
 
@@ -433,8 +428,7 @@ infiniteData = (data) => {
     const firstDateFormatInput = Moment(firstDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
     const secondDateFormatInput = Moment(secondDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
 
-    console.log(this.state.limitSize);
-    console.log(searchName);
+
     // console.log(date);
     // console.log(firstDate);
     // console.log(current);
@@ -480,7 +474,15 @@ infiniteData = (data) => {
                                             columnDefs={userColumnDefs} 
                                             defaultColDef={userDefaultColDef}
                                             rowSelection='multiple'
-                                            onGridReady={params => {this.gridApi = params.api;}} 
+                                            onGridReady={params => {this.gridApi = params.api; 
+                                              this.gridApi.forEachLeafNode( (node) => {
+                                              searchName.forEach(s => {
+                                                if (node.data.id === s.id) {
+                                                  node.setSelected(true);
+                                              }
+                                              })
+                                              
+                                           });}} 
                                           />        
                                       </div>
                               </Modal.Body>
