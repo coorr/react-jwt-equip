@@ -1,5 +1,5 @@
 /** 공통 **/
-.historyContainer{width: 100%; height: 100%; background-color: #E5E4EA;}
+.historyContainer{width: 100%; height: 100%; background-color: #E5E4EA; overflow: hidden; margin-left: 50px; margin-top: 2.4%;}
 
 /** 검색 상단 **/
 .historyFilterContainer{width: 99.5%; height: 20%;  background-color: #fff; margin-left: 0.25%;}
@@ -25,10 +25,11 @@
 .css-tj5bde-Svg{display:none !important;}
 .css-1rhbuit-multiValue{background-color: #737C8B !important; margin: 0 !important; margin-bottom:15px !important;  margin-left: 3px !important; height: 25px !important; }
 .css-12jo7m5{ color: white !important; }
+.css-1wa3eu0-placeholder{top:35% !important; }
+.css-9jizcr-control{border-radius: 0px !important;}
 .historyMiddleContainer{width: 99.5%; height: 4.3%; background-color: #E5E4EA; margin-left: 0.25%;}
 .histroyModel{ width: 1000px; height: 525px;}
 .userModel{ max-width: 50vw; }
-.css-1wa3eu0-placeholder{top:35% !important; }
 .historyFooter{ text-align: center;  width: 100%; padding:1%}
 .historyhideBtn{background-color: #ddd;border: 1px solid #ddd;color:black; }
 .historyhideBtn:hover{background-color: rgb(233, 222, 222); border: 1px solid #ddd; color: black;} 
@@ -53,9 +54,9 @@
 
 .calendarTimeArea{ width: 8%; height: 60%; border: 1px solid #c2cfd6; margin-top: 0.5%; margin-left: 0.5%; background-color: #f0f3f5; display: flex;}
 .DateMiddle{ width: 1%;  margin-top: 0.5%; margin-left: 1%; }
-.react-datepicker{z-index: 9999; position: absolute !important;}
+.react-datepicker{z-index: 1; position: absolute !important;}
 .saturday { color: rgb(0, 0, 255) !important; } 
 .sunday { color: rgb(255, 0, 0) !important; }
 .timeEachBtn{ width: 2%;height: 60%; border: 1px solid #6693D7; background-color: #fff;  color: #6693D7; font-size: 0.8em; margin-top: 0.5%; margin-left: 0.5%;  }
 .timeEachBtn:hover{background-color: #6693D7; border: 1px solid #6693D7; color:white }
-.timeEachBtn:active{background-color: #6693D7; border: 1px solid #6693D7; color:white }
+.timeEachBtnActive{background-color: #6693D7; border: 1px solid #6693D7; color:white; width: 2%;height: 60%;font-size: 0.8em; margin-top: 0.5%; margin-left: 0.5%;  }

@@ -47,6 +47,7 @@ export default class historyRecord extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      buttonActive:false,
       limitSize:30,
       inputDisable:true,
       /** 시간  */
@@ -422,7 +423,7 @@ infiniteData = (data) => {
   render() {
    const { columnDefs,test, defaultColDef,history,user,historyModel,userColumnDefs,userDefaultColDef,searchName, historyActiveArray,historyActiveData,historyActiveList
     ,userDataCheck,date,calendarCheckFirst,firstDateFormat,firstTimeFormat,firstMinuteFormat,firstSecondFormat,calendarCheckSecond, secondDateFormat,
-    secondTimeFormat, secondMinuteFormat, secondSecondFormat,inputDisable } = this.state;
+    secondTimeFormat, secondMinuteFormat, secondSecondFormat,inputDisable, buttonActive } = this.state;
 
 
     const firstDateFormatInput = Moment(firstDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
@@ -539,7 +540,7 @@ infiniteData = (data) => {
                       </div>
                       <div className="historyFilterSearchArea">
                         <div className="calendarAreaYear">
-                            <input className="calendarInput" type="text" value={firstDateFormatInput} disabled readonly />
+                          <input className="calendarInput" type="text" value={firstDateFormatInput} disabled readonly />
                             <button className="calendarIcon" onClick={(e)=> this.calendarFirst(e)} >
                               <FcCalendar className="calendarIconStyle"  size="20" value={date} />
                             </button>
