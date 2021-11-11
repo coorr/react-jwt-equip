@@ -10,6 +10,9 @@ class AiwacsService {
     getEquipment() {
         return axios.get(API_URL + "getEquipment" ,);
     }
+    getEquipmentSnmp() {
+      return axios.get(API_URL + "getEquipmentSnmp" ,);
+  }
     updateEquipmentByNo(equipId,equipment,requestURL) {
         return axios.post(API_URL + "equipment/"+equipId, equipment , { headers: { Authorization:  authHeader(), Referers:requestURL}});
     } 

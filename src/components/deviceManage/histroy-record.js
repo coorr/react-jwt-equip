@@ -76,7 +76,7 @@ export default class historyRecord extends Component {
         { headerName: '메뉴 4' , field:'menuDepth4'  },
         { headerName: '작업 대상', field:'targetName'  },
         { headerName: '사용자 IP', field:'settingIp' },
-        { headerName: '작업 URL', field:'pageURL' },
+        { headerName: '작업 URL', field:'pageUrl' },
         { headerName: '작업 일자', field:'workDate' },
       ],
       defaultColDef: {
@@ -167,11 +167,6 @@ export default class historyRecord extends Component {
   }
   /** user 적용  **/
   historyApply = () => {
-    // this.gridApi.forEachLeafNode(node => {
-    //   node.setSelected(true)
-    //   // console.log(roleId)
-    //   // if(node.data.id === )
-    // })
     const applyData = this.gridApi.getSelectedRows();
     console.log(this.gridApi.getSelectedNodes());
     console.log(applyData);

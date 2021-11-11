@@ -55,14 +55,39 @@
 /* 보고서 출력 */
 .reportOutputBox { width: 90%; height: 4%;  display: flex; margin-left: 1%;}
 .reportOutputButton{ background-color: white; color: #6693D7; border: 1px solid #6693D7;  border-radius: 0; margin-right: 0.5%; font-size: 0.9em;}
+.reportOutputButton:hover{ background-color: #3f7bd4; color: #fff; border: 1px solid #6693D7;  border-radius: 0; margin-right: 0.5%; font-size: 0.9em;}
 
-.reportChartArea{ width: 97%; padding: 1.1rem 1.1rem 0.2rem; background-color: white;   margin:1%;}
-.reportChartBox{ width: 100%;   }
-.qqq{border: 1px solid red;}
+.reportChartParent{ width: 100%;  background-color: #E5E4EA; padding-left: 1.1rem; padding-top: 0.5rem;}
+.reportChartArea{ width: 97%; background-color: white;  padding: 1.1rem;   } 
+.reportChartBox{  display: flex;  }
 .highcharts-credits{display: none;}
 
+.reportChartTotalBox{ border: 1px solid #ddd; margin-top: 1%; margin-left: 1%; background-color: white; border: 0; border-bottom: 1px solid black;}
+.reportChartTotalText{font-size: 0.9em; font-weight: bold;}
 
+.reportChartMaxSelect{  width: 100%;  }
+.reportChartInput{margin-top: 3%; background-color: #E5E4EA; float: right; margin-right: 2%;}
+.reportChartLabel{font-size: 0.9em;  float: right; margin-top: 1%; margin-right: 6%;}
+.reportChartSelect{float: right;}
 
+/* 보고서 자원 model */
+.reportModelHw{margin-top: -5%;}
+
+/* 보고서 장비 model */
+.reportDeviceBar{ margin-bottom: 1%;}
+.reportModelDevice{  background-color: white; border: 0;  padding: 5px; margin-right: 2%;  }
+.reportModelDeviceAction{  padding: 5px; background-color: white; border: 0;  border-bottom: 5px solid #20a8d8; margin-right: 2%;}
+.reportModelDeviceLabel{ color:black; font-size: 1em; }
+.reportModelDeviceLabel:hover{ color:rgb(117, 109, 109); font-size: 1em; }
+.reportModelDeviceLabelAction{ color:#20a8d8; font-size: 1em;}
+
+.reportHwFooter{ text-align: center;  width: 100%; padding:1%; margin-top: 10px; border-top: 1px solid #ddd; }
+.reportFooter{ text-align: center;  width: 100%; padding:1%; margin-top: 60px; border-top: 1px solid #ddd; }
+.reporthideBtn{background-color: #ddd;border: 1px solid #ddd;color:black; }
+.reporthideBtn:hover{background-color: rgb(233, 222, 222); border: 1px solid #ddd; color: black;} 
+.reportActiveBtn{ border: 1px solid #6693D7; background-color: #6693D7;  color: #fff; font-size: 1em; margin-right: 1%;}
+.reportActiveBtn:hover{background-color: #3f7bd4; border: 1px solid #5c8fdb}
+.reportDeviceSelect{ width: 100%; height: 20px;}
 
 
 
