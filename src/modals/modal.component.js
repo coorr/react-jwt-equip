@@ -3,7 +3,7 @@ import { Modal,Button,Form, Container, Row,Col} from 'react-bootstrap';
 import '../css/modal.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Select from 'react-select'
-import AiwacsService from '../services/aiwacs.service';
+import AiwacsService from '../services/equipment.service';
 import { Redirect } from 'react-router';
 
 

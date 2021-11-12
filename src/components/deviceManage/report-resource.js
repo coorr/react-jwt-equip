@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Select from "react-select";
-import AiwacsService from '../../services/aiwacs.service';
+import AiwacsService from '../../services/equipment.service';
+import ReportService from '../../services/report.service';
 
 import Search from '../../images/search.png'
 import Loader from '../loader';
@@ -59,7 +60,7 @@ const hwDatas = [
 {id:23, group:"Network", network:"Network Traffic"},{id:24, group:"Network", network:"Network PPS"},{id:25, group:"Network", network:"NIC Discards"},
 {id:26, group:"Network", network:"NIC Errors"}]
 
-const oneMonth = new Date(new Date().getTime() - 2592000000);
+const oneMonth = new Date(new Date().getTime() - 34128000000 );
 
 class ReportResoruce extends Component {
   constructor(props) {
@@ -132,6 +133,7 @@ class ReportResoruce extends Component {
       config : [],
       text:'아아',
       /* 조회 데이터  */
+      graphCheck:false,
       deviceId: [],
       // deviceSelectData:
       hwName:[],
@@ -143,38 +145,38 @@ class ReportResoruce extends Component {
   componentDidMount() {
     const { config } = this.state;
 
-    this.setState({
-      config:{ 
-        chart: { type: 'line', height:300, width:1500 },   
-        title: { text: '<span style="font-weight: bold; font-size:18px; margin-top:3px">CPU Processor (%) </span> / 2021-11-10~2021-11-10, DESKTOP-26LI6N0(10.10.80.106)', 
-                  align:'left',style:{'fontSize':'12','fontWeight':'bold'}, margin:40}, 
-        xAxis: { type: 'category',}, 
-        yAxis: { title: { text: '' },min:0 ,max:100, tickInterval:20  }, 
-        legend: {
-          align: 'right',
-          verticalAlign: 'top',
-          layout: 'vertical',
-          x: 0,
-          y: 100,
-          labelFormat: this.state.text,
-          // enabled: false 
-      },
-        series: [{ 
-           data: [{ name: '2021-11-10 00:00', y: 99.33, drilldown: '2021-11-10 00:00' }, 
-                  { name: '2021-11-10 01:00', y: 24.03, drilldown: '2021-11-10 01:00' }, 
-                  { name: '2021-11-10 02:00', y: 10.38, drilldown: '2021-11-10 02:00' }, 
-                  { name: '2021-11-10 03:00', y: 4.77,  drilldown: '2021-11-10 03:00' }, 
-                  { name: '2021-11-10 04:00', y: 0.91, drilldown: '2021-11-10 04:00' }, 
-                  { name: '2021-11-10 05 :00', y: 0.2, drilldown: '2021-11-10 05:00' }, 
-                  { name: '2021-11-10 06 :00', y: 64.2, drilldown: '2021-11-10 06:00' }, 
-                  { name: '2021-11-10 07 :00', y: 23.2, drilldown: '2021-11-10 07:00' }, 
-                  { name: '2021-11-10 08 :00', y: 64.2, drilldown: '2021-11-10 08:00' }, 
-                  { name: '2021-11-10 13 :00', y: 99.2, drilldown: '2021-11-10 13:00' }, 
-                  { name: '2021-11-10 15 :00', y: 1.2, drilldown: '2021-11-10 15:00' }, 
-                  { name: '2021-11-10 20 :00', y: 2.2, drilldown: '2021-11-10 20:00' }, 
+    // this.setState({
+    //   config:{ 
+    //     chart: { type: 'line', height:300, width:1500 },   
+    //     title: { text: '<span style="font-weight: bold; font-size:18px; margin-top:3px">CPU Processor (%) </span> / 2021-11-10~2021-11-10, DESKTOP-26LI6N0(10.10.80.106)', 
+    //               align:'left',style:{'fontSize':'12','fontWeight':'bold'}, margin:40}, 
+    //     xAxis: { type: 'category',}, 
+    //     yAxis: { title: { text: '' },min:0 ,max:100, tickInterval:20  }, 
+    //     legend: {
+    //       align: 'right',
+    //       verticalAlign: 'top',
+    //       layout: 'vertical',
+    //       x: 0,
+    //       y: 100,
+    //       labelFormat: this.state.text,
+    //       // enabled: false 
+    //   },
+    //     series: [{ 
+    //        data: [{ name: '2021-11-10 00:00', y: 99.33, drilldown: '2021-11-10 00:00' }, 
+    //               { name: '2021-11-10 01:00', y: 24.03, drilldown: '2021-11-10 01:00' }, 
+    //               { name: '2021-11-10 02:00', y: 10.38, drilldown: '2021-11-10 02:00' }, 
+    //               { name: '2021-11-10 03:00', y: 4.77,  drilldown: '2021-11-10 03:00' }, 
+    //               { name: '2021-11-10 04:00', y: 0.91, drilldown: '2021-11-10 04:00' }, 
+    //               { name: '2021-11-10 05 :00', y: 0.2, drilldown: '2021-11-10 05:00' }, 
+    //               { name: '2021-11-10 06 :00', y: 64.2, drilldown: '2021-11-10 06:00' }, 
+    //               { name: '2021-11-10 07 :00', y: 23.2, drilldown: '2021-11-10 07:00' }, 
+    //               { name: '2021-11-10 08 :00', y: 64.2, drilldown: '2021-11-10 08:00' }, 
+    //               { name: '2021-11-10 13 :00', y: 99.2, drilldown: '2021-11-10 13:00' }, 
+    //               { name: '2021-11-10 15 :00', y: 1.2, drilldown: '2021-11-10 15:00' }, 
+    //               { name: '2021-11-10 20 :00', y: 2.2, drilldown: '2021-11-10 20:00' }, 
       
-                ]}],         },
-    })
+    //             ]}],         },
+    // })
 
   }
 
@@ -258,26 +260,33 @@ clickHwModelSubmit = () => {
     alert("체크 박스를 선택해주세요");
   } else {
     hwNode.forEach(node => {
-      console.log(node.data);
+      // console.log(node.data);
       const obj = {};
       console.log(node.data.group);
       if(node.data.cpu !== undefined) {
         obj.label=node.data.group+" > "+node.data.cpu;
         obj.value=node.data.group+" > "+node.data.cpu;
-      }  if(node.data.memory !== undefined) {
+        obj.name=node.data.cpu;
+      }  
+      if(node.data.memory !== undefined) {
         obj.label=node.data.group+" > "+node.data.memory;
         obj.value=node.data.group+" > "+node.data.memory;
-      }  if(node.data.disk !== undefined) {
+        obj.name=node.data.memory;
+      }  
+      if(node.data.disk !== undefined) {
         obj.label=node.data.group+" > "+node.data.disk;
         obj.value=node.data.group+" > "+node.data.disk;
-      }  if(node.data.network !== undefined) {
+        obj.name=node.data.disk;
+      }  
+      if(node.data.network !== undefined) {
         obj.label=node.data.group+" > "+node.data.network;
         obj.value=node.data.group+" > "+node.data.network;
+        obj.name=node.data.network;
       }
       hwNodeName.push(obj);
       groupName.push(node.data.group);
-      console.log(groupName);
-      this.setState({hwName:groupName,clickHwModel:false, hwSearchName: hwNodeName})
+      // console.log(groupName);
+      this.setState({hwName:groupName,clickHwModel:false, hwSearchName: hwNodeName })
     })
   }
 }
@@ -298,17 +307,14 @@ calenderFirstChange = (date) => {
  }
  /** 통계 이벤트 */
  reportSelectSubmit = () => {
-   const { firstDateFormat,firstTimeFormat, secondDateFormat,secondTimeFormat,hwName } = this.state;
+   const { firstDateFormat,firstTimeFormat, secondDateFormat,secondTimeFormat,hwName,deviceId, hwSearchName,deviceSearchName } = this.state;
    const startDate=firstDateFormat+firstTimeFormat+'0000';
    const endDate= secondDateFormat+secondTimeFormat+'5959';
    console.log(hwName);
    hwName.forEach(h => {
-     if(h==='CPU') {
+     if(h==='CPU' || h == 'Disk') {
        console.log(1);
      }
-     if(h==='Disk') {
-      console.log(2);
-    }
     if(h==='Network') {
       console.log(3);
     }
@@ -323,14 +329,129 @@ calenderFirstChange = (date) => {
      console.log(2);
    }
    console.log(startDate);
-   console.log(endDate)
+   console.log(endDate);
+   console.log(deviceId);
+
+   const graphStartDate = Moment(firstDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
+   const graphEndDate = Moment(secondDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
+
+  
+
+   ReportService.getSysCpuDisk(deviceId,startDate,endDate)
+    .then(res => {
+      console.log(res.data)
+      const data = res.data;
+      const time = [];
+      const cpuProcessor = [];
+      const graphHwName =[];
+      const graphDeviceName =[];
+      const cpuUser = [];
+      data.forEach(d => {
+        d.generateTime= d.generateTime.replace("T"," ");
+        Moment(d.generateTime, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:00");
+        time.push(Moment(d.generateTime, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:00"));
+        cpuProcessor.push(d.cpuProcessor);
+        cpuUser.push(d.cpuUser);
+      })
+      hwSearchName.forEach(h => {
+        if(h.name.includes("CPU Processor (%)")) {
+          graphHwName.push(h.name);
+        }
+        if(h.name.includes("CPU User (%)")) {
+          graphHwName.push(h.name);
+        }
+      })
+      deviceSearchName.forEach(d => {
+        graphDeviceName.push(d.value)
+      })
+      console.log(time);
+      console.log(cpuProcessor);
+      console.log(graphHwName);
+      console.log(graphDeviceName);
+
+      const test = [];
+
+      const config = {
+        chart: { type: 'line', height:300, width:1500 },   
+        xAxis: { categories: time, tickInterval:2 }, 
+        yAxis: { title: { text: '' },min:0 ,max:100, tickInterval:20  }, 
+        plotOptions: { line: { marker: { enabled: false } }},
+        title: { margin:40, align:'left',style:{'fontSize':'12','fontWeight':'bold'}},
+        legend: { align: 'right', verticalAlign: 'top', layout: 'vertical', x: 0, y: 100, },
+        series:[{data: null}],
+       
+
+        // title: { text: '<span style="font-weight: bold; font-size:18px; margin-top:3px">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+graphDeviceName+'',}, 
+        // legend: { labelFormat: graphDeviceName, },
+        // series: [{ data: cpuProcessor }], 
+    };
+    // test.push(config);
+      
+      if(graphHwName.includes("CPU Processor (%)")) {
+        const array = [];
+        hwSearchName.forEach(h => {
+          if(h.name.includes("CPU Processor (%)")) {
+            array.push(h.name);
+          }
+        })
+        // const config = { 
+        //   chart: { type: 'line', height:300, width:1500 },   
+        //   title: { text: '<span style="font-weight: bold; font-size:18px; margin-top:3px">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+graphDeviceName+'', 
+        //             align:'left',style:{'fontSize':'12','fontWeight':'bold'}, margin:40}, 
+        //   xAxis: { categories: time, tickInterval:2 }, 
+        //   yAxis: { title: { text: '' },min:0 ,max:100, tickInterval:20  }, 
+        //   plotOptions: { line: { marker: { enabled: false } }},
+        //   legend: { align: 'right', verticalAlign: 'top', layout: 'vertical', x: 0, y: 100, labelFormat: graphDeviceName, },
+        //   series: [{ data: cpuProcessor }], 
+        // }
+
+        
+        
+        // var title = {};
+        // title.text = '';
+        // title.generateTime
+        // config.title = title;
+        config.series.data = cpuProcessor;
+        test.push(config);
+
+        
+      }
+      
+      if(graphHwName.includes("CPU User (%)")) {
+        const array = [];
+        hwSearchName.forEach(h => {
+          if(h.name.includes("CPU User (%)")) {
+            array.push(h.name);
+          }
+        })
+        const config = { 
+          chart: { type: 'line', height:300, width:1500 },   
+          title: { text: '<span style="font-weight: bold; font-size:18px; margin-top:3px">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+graphDeviceName+'', 
+                    align:'left',style:{'fontSize':'12','fontWeight':'bold'}, margin:40}, 
+          xAxis: { categories: time, tickInterval:2 }, 
+          yAxis: { title: { text: '' },min:0 ,max:100, tickInterval:20  }, 
+          plotOptions: { line: { marker: { enabled: false } }},
+          legend: { align: 'right', verticalAlign: 'top', layout: 'vertical', x: 0, y: 100, labelFormat: graphDeviceName, },
+          series: [{ data: cpuUser }], 
+        }
+        test.push(config);
+      }
+      console.log(test);
+      this.setState({
+        graphCheck:true,
+        config:test
+      })
+     
+    })
+
+    
  }
 
 
   render() {
     const { buttonIdsArray,clickedId,calendarCheckFirst,calendarCheckSecond,date,firstDateFormat,secondDateFormat,firstTimeFormat,secondTimeFormat,filterCheck,
       config,clickHwModel,hwColumnDefs,hwData,hwDefaultColDef,clickDeviceModel,deviceColumnDefs,deviceData,deviceDefaultColDef,buttonIdsDeviceArray,clickedDeviceId,
-      autoGroupColumnDef,deviceSearchName,hwSearchName } =this.state;
+      autoGroupColumnDef,deviceSearchName,hwSearchName,graphCheck } =this.state;
 
 
     const firstDateFormatInput = Moment(firstDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
@@ -368,19 +489,21 @@ calenderFirstChange = (date) => {
                         선택
                         <img src={Search} style={{width:20, padding:1}} />
                       </button>
-                      <Select 
-                        value={hwSearchName}
-                        className="reportFilterSelect" 
-                        isDisabled={true} 
-                        isMulti
-                        name="colors"
-                        components={{
-                          DropdownIndicator: () => null,
-                          IndicatorSeparator: () => null
-                        }}
-                        styles={customStyles}
-                        placeholder="검색"
-                      />
+                      <div className="reportFilterScroll">
+                        <Select 
+                          value={hwSearchName}
+                          className="reportFilterSelect" 
+                          isDisabled={true} 
+                          isMulti
+                          name="colors"
+                          components={{
+                            DropdownIndicator: () => null,
+                            IndicatorSeparator: () => null
+                          }}
+                          styles={customStyles}
+                          placeholder="검색"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -435,19 +558,21 @@ calenderFirstChange = (date) => {
                         선택
                         <img src={Search} style={{width:20, padding:1}} />
                       </button>
-                      <Select 
-                        value={deviceSearchName}
-                        className="reportFilterSelect" 
-                        isDisabled={true} 
-                        isMulti
-                        name="colors"
-                        components={{
-                          DropdownIndicator: () => null,
-                          IndicatorSeparator: () => null
-                        }}
-                        styles={customStyles}
-                        placeholder="검색"
-                      />
+                      <div className="reportFilterScroll">
+                        <Select 
+                          value={deviceSearchName}
+                          className="reportFilterSelect" 
+                          isDisabled={true} 
+                          isMulti
+                          name="colors"
+                          components={{
+                            DropdownIndicator: () => null,
+                            IndicatorSeparator: () => null
+                          }}
+                          styles={customStyles}
+                          placeholder="검색"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -497,7 +622,7 @@ calenderFirstChange = (date) => {
                               </div>
                       </Modal.Body>
 
-                      <Form.Group className="reportFooter">
+                      <Form.Group className="reportDeviceFooter">
                           <Button onClick={()=> this.clickDeviceModelSubmit()} className="reportActiveBtn"  >적용</Button>
                           <Button onClick={()=> this.setState({clickDeviceModel:false})} className="reporthideBtn"  >닫기</Button>
                       </Form.Group>
@@ -603,69 +728,41 @@ calenderFirstChange = (date) => {
           <Button className="reportOutputButton">Excel-자원 통합</Button>
         </div>
 
-        <div className="reportChartParent">
-          <div className="reportChartArea">
-            <div className="reportChartBox">
-                {/* <div className="reportChartChildren"> */}
-                  <ReactHighcharts config={config} />
-                  <div className="reportChartMaxSelect">
-                    <select className="reportChartSelect">
-                      <option>Line</option>
-                      <option>Bar</option>
-                    </select>
-                    <label className="reportChartLabel">최대치 기준</label>
-                    <input type="checkbox" className="reportChartInput" />
+        {
+          graphCheck && (
+            <>
+                  {
+                    config.map((c,i) => (
+                      <>
+                      <div className="reportChartParent">
+                      <div className="reportChartArea">
+                        <div className="reportChartBox">
+                      <ReactHighcharts config={c} />
+                      <div className="reportChartMaxSelect">
+                        <select className="reportChartSelect">
+                          <option>Line</option>
+                          <option>Bar</option>
+                        </select>
+                        <label className="reportChartLabel">최대치 기준</label>
+                        <input type="checkbox" className="reportChartInput" />
+                      </div>
+                      </div>
+                      <button className="reportChartTotalBox">
+                        <label className="reportChartTotalText">
+                          ▼ 차트 통계
+                        </label>
+                      </button>
+                    </div>
                   </div>
-                {/* </div> */}
-            </div>
-            <button className="reportChartTotalBox">
-              <label className="reportChartTotalText">
-                ▼ 차트 통계
-              </label>
-            </button>
-          </div>
-        </div>
-
-        <div className="reportChartParent">
-          <div className="reportChartArea">
-            <div className="reportChartBox">
-                <ReactHighcharts config={config} />
-            </div>
-            <label>
-              아아
-            </label>
-          </div>
-        </div>
-        <div className="reportChartParent">
-          <div className="reportChartArea">
-            <div className="reportChartBox">
-                <ReactHighcharts config={config} />
-            </div>
-          </div>
-        </div>
-
-        <div className="reportChartParent">
-          <div className="reportChartArea">
-            <div className="reportChartBox">
-                <ReactHighcharts config={config} />
-            </div>
-          </div>
-        </div>
-
+                  
+                      </>
+                    ))
+                  }
+            <div className="reportFooter"></div>
+            </>
+          )
+        }
         
-
-{/*
-        <div className="reportChartArea">
-          <div className="reportChartBox">
-              <ReactHighcharts config={config} />
-          </div>
-        </div>
-
-        <div className="reportChartArea">
-          <div className="reportChartBox">
-              <ReactHighcharts config={config} />
-          </div>
-        </div> */}
       </div>
 
       

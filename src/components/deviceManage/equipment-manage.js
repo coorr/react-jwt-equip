@@ -6,7 +6,7 @@ import Modify from '../../modals/modify.component';
 import Upload from '../../modals/upload.component';
 import { Button } from 'react-bootstrap';
 import {  AgGridReact } from 'ag-grid-react';
-import AiwacsService from '../../services/aiwacs.service';
+import AiwacsService from '../../services/equipment.service';
 import ReactTooltip from 'react-tooltip';
 import AuthService from '../../services/auth.service';
 

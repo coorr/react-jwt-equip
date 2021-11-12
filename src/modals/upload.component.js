@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { Modal,Button,Form, Container, Row,Col} from 'react-bootstrap';
 import '../css/modal.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import AiwacsService from '../services/aiwacs.service';
+import AiwacsService from '../services/equipment.service';
 import * as ExcelJs from 'exceljs';
 import { saveAs } from 'file-saver';
 import XLSX from 'xlsx';

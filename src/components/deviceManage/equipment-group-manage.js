@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import ReactDOM from "react-dom";
 import Tree, { TreeNode } from "rc-tree";
-import AiwacsService from "../../services/aiwacs.service";
+import AiwacsService from "../../services/equipment.service";
 import GroupEquipmentService from "../../services/groupEquipment.service";
 import { Modal,Button,Form, Container, Row,Col,InputGroup,FormControl,Image} from 'react-bootstrap';
 import Search from '../../images/search.png';
