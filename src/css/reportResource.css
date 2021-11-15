@@ -19,9 +19,9 @@
 .reportFilterRightBoxSecond{display: flex;  border: 1px solid #c2cfd6; }
 .reportFilterRightBoxThird{ width: 90%; height: 100%; padding: 0.25rem;  padding: 0.25rem; display: flex; }
 .reportFilterSearch{ width: 4%; height: 100%; background-color: white; font-size: 0.8em; border: 1px solid #c2cfd6; }
-.reportFilterScroll{ width: 100%; height: 25px; overflow-y: scroll;  }
+.reportFilterScroll{ width: 100%; height: 25px; overflow-y: scroll; background-color: hsl(0, 0%, 95%); }
 .reportFilterSelect{ width: 100%; height: 20px; font-size: 0.8em;}
-.css-4tzcfa-control{border-radius: 0px !important;}
+.css-4tzcfa-control{border-radius: 0px !important; border: 0px !important;}
 
 /* 보고서 filter calendar */
 .reportCalendarYear{ width: 13%; height: 100%; border: 1px solid #c2cfd6;  background-color: #F3F3F5; display: flex; padding: 0.2rem; }
@@ -63,8 +63,7 @@
 .reportChartBox{  display: flex;  }
 .highcharts-credits{display: none;}
 
-.reportChartTotalBox{ border: 1px solid #ddd; margin-top: 1%; margin-left: 1%; background-color: white; border: 0; border-bottom: 1px solid black;}
-.reportChartTotalText{font-size: 0.9em; font-weight: bold;}
+
 
 .reportChartMaxSelect{  width: 100%;  }
 .reportChartInput{margin-top: 3%; background-color: #E5E4EA; float: right; margin-right: 2%;}
@@ -90,7 +89,13 @@
 .reportActiveBtn:hover{background-color: #3f7bd4; border: 1px solid #5c8fdb}
 .reportDeviceSelect{ width: 100%; height: 20px;}
 
+/* Hight Chart */
+
+/* .reportChartTotalArea{ border:1px solid red; } */
+.reportChartTotalBox{ border: 1px solid #ddd; margin-top: 1%; margin-left: 1%; background-color: white; border: 0; border-bottom: 1px solid black;}
+.reportChartTotalText{font-size: 0.9em; font-weight: bold;}
+.reportChartTotalGrid{ margin-top: 1%; margin-left: 0.5%;}
+
 /* footer */
 .reportFooter{height: 100px; width: 100%; background-color: #E5E4EA; }
-
 
