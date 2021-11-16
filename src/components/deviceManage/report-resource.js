@@ -62,6 +62,7 @@ const hwDatas = [
 
 const oneMonth = new Date(new Date().getTime() - 34128000000 );
 
+const selectDatas = ['line'];
 class ReportResoruce extends Component {
   constructor(props) {
     super(props);
@@ -408,6 +409,7 @@ calenderFirstChange = (date) => {
         const array = [];
         hwSearchName.forEach(h => { if(h.id === 1) {  array.push(h.name); }})
         const obj= {};
+        obj.id="chart_0"
         obj.series = [{data: cpuProcessor  }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+d.name+'' }
         obj.legend={ labelFormat : d.name} 
@@ -423,6 +425,7 @@ calenderFirstChange = (date) => {
         configArray.push(obj);
       }
       if(graphHwName.includes("CPU Context Switch")) {
+
         const array = [];
         hwSearchName.forEach(h => { if(h.id === 3) { array.push(h.name); }})
         const obj = {};
@@ -433,6 +436,7 @@ calenderFirstChange = (date) => {
         configArray.push(obj);
       }
       if(graphHwName.includes("CPU Run Queue")) {
+
         const array = [];
         hwSearchName.forEach(h => { if(h.id === 4) { array.push(h.name); }})
         const obj = {};
@@ -443,6 +447,7 @@ calenderFirstChange = (date) => {
         configArray.push(obj);
       }
       if(graphHwName.includes("Load Avg")) {
+
         const array = [];
         hwSearchName.forEach(h => { if(h.id === 5) { array.push(h.name); }})
         const obj = {};
@@ -464,36 +469,62 @@ calenderFirstChange = (date) => {
  }
 
  inputChartLineBar = (e,c,i) => {
+   console.log(e);
+   console.log(c);
    console.log(i);
 
-   if(e.target.value === 'bar') {
+   console.log(e.target);
+   
+   const aa = document.getElementById("chart_"+i)
+   const qq = document.getElementById("chart_id"+i)
+   console.log(aa.id);
+   console.log(qq);
+
+   if(e.target.value === 'line') {
+     c.chart = {type: 'line'};
+   } else if(e.target.value === 'bar') {
     c.chart={type: 'column'};
-
-    if(c.chart.type === 'column') {
-      this.setState({inputIdsChartType: e.target.value, inputIdsChartCheck:i })
-    } 
-   } 
-
-   else if(e.target.value === 'line') { 
-    c.chart={type: 'line'};
-    if(c.chart.type === 'line') {
-      this.setState({inputIdsChartType: e.target.value , inputIdsChartCheck:i })
-    }
    }
+  // setState 해줄 때 개인의 차트를 찾아서 setState를 해줘야한다?
+  // const { config} = this.state;
+  // const configArray=[];
+  // config.forEach(c  => {
+  //   configArray.push()
+  // })
+
+   this.setState({ [e.target.name] : e.target.value});
+
  }
 
  /* 최대치 기준 */
  maxStandred = (e,c) => {
+
+  console.log(e);
+  console.log(e.target);
+
+  if(e.target.checked == true) {
+
+  }
+
    console.log(e.target.checked);
    console.log(c);
    this.setState({inputMaxCheck:e.target.checked})
  
-  const { processor} =this.state;
+  const { processor } =this.state;
   const max = Math.max.apply(null,processor);
   const min = Math.min.apply(null,processor);
   const maxStandred =  max / 10;
   const minStandred = min / 5;
   c.yAxis={min:min , max:max, tickInterval:20}
+ }
+
+ chartTotalCheck = () => {
+   const { chartTotalBoxCheck } = this.state;
+   if(chartTotalBoxCheck === false) {
+    this.setState({chartTotalBoxCheck : true})
+   } else {
+    this.setState({chartTotalBoxCheck : false})
+   }
  }
 
 
@@ -506,7 +537,8 @@ calenderFirstChange = (date) => {
     const firstDateFormatInput = Moment(firstDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
     const secondDateFormatInput = Moment(secondDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
 
-    console.log(inputIdsChartCheck);
+    console.log(inputIdsChartDefault);
+    console.log(selectDatas);
     
     return (
       <>
@@ -630,7 +662,6 @@ calenderFirstChange = (date) => {
                     </Modal.Header>
                         <Modal.Body>
                               <div className="ag-theme-alpine" style={{ width:'43vw', height:'40vh'}}>
-                                {/* <button>아아</button> */}
                                 <div className="reportDeviceBar">
                                   { 
                                     buttonIdsDeviceArray.map((b,i) => (
@@ -772,61 +803,37 @@ calenderFirstChange = (date) => {
         {
           graphCheck && (
             <>
-                  {
-                    config.map((c,i) => (
-                      <>
-                      <div className="reportChartParent">
-                      <div className="reportChartArea">
-                        <div className="reportChartBox">
-                      <ReactHighcharts config={c} />
+              {
+                config.map((c,i) => (
+                  <>
+                  <div className="reportChartParent">
+                  <div className="reportChartArea" id={"chart_"+i}    >
+                    <div className="reportChartBox">
+                      <ReactHighcharts config={c}  id={"chart_id"+i}  />
                       <div className="reportChartMaxSelect">
-                        {
-                          inputIdsChartCheck !== i  ?  (
-                            <>
-                            <select 
-                              className="reportChartSelect"
-                              defaultValue={inputIdsChartDefault}
-                              value={inputIdsChartDefault}
-                              onChange={e => this.inputChartLineBar(e,c,i)}
-                              >
-                              {
-                                inputIdsChart.map(i => (
-                                  <option value={i.value} selected={i.value}>{i.value}</option>
-                                ))
-                              }
-                            </select>
-                            </>
-                          ) : (
-                            <>
-                            <select 
-                              className="reportChartSelect"
-                              defaultValue={inputIdsChartType}
-                              value={inputIdsChartType}
-                              onChange={e => this.inputChartLineBar(e,c,i)}
-                              >
-                              {
-                                inputIdsChart.map(i => (
-                                  <option value={i.value} selected={i.value}>{i.value}</option>
-                                ))
-                              }
-                            </select>
-                            </>
-                          )
-                        }
-                        <label className="reportChartLabel">최대치 기준</label>
-                        <input type="checkbox" checked={inputMaxCheck} onChange={(e)=> this.maxStandred(e,c)} className="reportChartInput" />
-                      </div>
-                      </div>
+                        <select 
+                          name={"select_"+i} 
+                          className="reportChartSelect"
+                          onChange={e => this.inputChartLineBar(e,c,i)} >
+                            <option value="line">Line</option>
+                            <option value="bar">Bar</option>
+                        </select>
+                    <label className="reportChartLabel">최대치 기준</label>
+                    <input type="checkbox" checked={inputMaxCheck} name={"checkbox_"+i} onChange={(e)=> this.maxStandred(e,c)} className="reportChartInput" />
+                  </div>
+                  </div>
 
-                      <div className="reportChartTotalArea">
-                      <button className="reportChartTotalBox" onClick={() => this.setState({chartTotalBoxCheck: true})}>
-                        <label className="reportChartTotalText">
-                          ▼ 차트 통계
-                        </label>
-                      </button>
-
+                  <div className="reportChartTotalArea">
+                    <button className="reportChartTotalBox" onClick={() => this.chartTotalCheck()}>
+                      <label className="reportChartTotalText">
+                        ▼ 차트 통계
+                      </label>
+                    </button>
+                  {
+                    chartTotalBoxCheck && (
+                      <>
                       <div className="reportChartTotalGrid">
-                         <div className="ag-theme-alpine" style={{ width:'90vw', height:'40vh',marginLeft:'0.5vw'}}>
+                        <div className="ag-theme-alpine" style={{ width:'90vw', height:'40vh',marginLeft:'0.5vw'}}>
                             <AgGridReact
                             headerHeight='30'
                             floatingFiltersHeight='23'
@@ -836,15 +843,19 @@ calenderFirstChange = (date) => {
                             rowData={totalData}
                             onGridReady={params => { this.gridApis = params.api;}}
                           />       
-                         </div>
-                       </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                  
                       </>
-                    ))
+                    )
                   }
+
+                  </div>
+                </div>
+              </div>
+              
+                  </>
+                ))
+              }
             <div className="reportFooter"></div>
             </>
           )
