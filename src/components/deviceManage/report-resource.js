@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Select from "react-select";
 import AiwacsService from '../../services/equipment.service';
@@ -20,27 +20,11 @@ import {  AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import "ag-grid-enterprise";
-
-
 import '../../css/reportResource.css'
+
 const time = [{value:'00'},{value:'01'},{value:'02'},{value:'03'},{value:'04'},{value:'05'},{value:'06'},{value:'07'},{value:'08'},{value:'09'},{value:'10'},{value:'11'},{value:'12'}
 ,{value:'13'},{value:'14'},{value:'15'},{value:'16'},{value:'17'},{value:'18'},{value:'19'},{value:'20'},{value:'21'},{value:'22'},{value:'23'}]
 
-const configs = { 
-  // plotOptions: { series: { color:'#FF0000', borderWidth: 1, dataLabels: { enabled: true, format: '{point.y:.1f}%' } } }, 
-  // tooltip: { headerFormat: '<span style="font-size:11px">{series.name}</span><br>', 
-  //           pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}%</b> of total<br/>' }, 
-  // drilldown: { 
-  //   animation: false, 
-  //   series: [{ name: 'Microsoft Internet Explorer', id: 'Microsoft Internet Explorer', 
-  //   data: [ [ 'v11.0', 24.13 ], [ 'v8.0', 17.2 ], [ 'v9.0', 8.11 ], [ 'v10.0', 5.33 ], [ 'v6.0', 1.06 ], [ 'v7.0', 0.5 ] ] }, 
-  //   { name: '2021-11-10 01:00', 
-  //     id: 'Chrome', 
-  //     data: [ [ 'v40.0', 5 ], [ 'v41.0', 4.32 ], [ 'v42.0', 3.68 ], [ 'v39.0', 2.96 ], [ 'v36.0', 2.53 ], [ 'v43.0', 1.45 ], [ 'v31.0', 1.24 ], [ 'v35.0', 0.85 ], [ 'v38.0', 0.6 ], [ 'v32.0', 0.55 ], [ 'v37.0', 0.38 ], [ 'v33.0', 0.19 ], [ 'v34.0', 0.14 ], [ 'v30.0', 0.14 ] ] }, 
-  //           { name: 'Firefox', id: 'Firefox', data: [ [ 'v35', 2.76 ], [ 'v36', 2.32 ], [ 'v37', 2.31 ], [ 'v34', 1.27 ], [ 'v38', 1.02 ], [ 'v31', 0.33 ], [ 'v33', 0.22 ], [ 'v32', 0.15 ] ] }, 
-  //           { name: 'Safari', id: 'Safari', data: [ [ 'v8.0', 2.56 ], [ 'v7.1', 0.77 ], [ 'v5.1', 0.42 ], [ 'v5.0', 0.3 ], [ 'v6.1', 0.29 ], [ 'v7.0', 0.26 ], [ 'v6.2', 0.17 ] ] }, 
-  //           { name: 'Opera', id: 'Opera', data: [ [ 'v12.x', 0.34 ], [ 'v28', 0.24 ], [ 'v27', 0.17 ], [ 'v29', 0.16 ] ] }] } 
-          };
 // calendar 사이즈 조절
 const customStyles = { control: base => ({ ...base, height: 26, minHeight: 26 }) };
 // 요일 반환
@@ -63,9 +47,10 @@ const hwDatas = [
 const oneMonth = new Date(new Date().getTime() - 34128000000 );
 
 const selectDatas = ['line'];
-class ReportResoruce extends Component {
+class ReportResoruce extends PureComponent {
   constructor(props) {
     super(props);
+    this.imageRef = React.createRef();
     this.state = {
       processor:[],
       totalData:[],
@@ -303,37 +288,36 @@ calenderFirstChange = (date) => {
  /** 통계 이벤트 */
  reportSelectSubmit = () => {
    const { firstDateFormat,firstTimeFormat, secondDateFormat,secondTimeFormat,hwName,deviceId, hwSearchName,deviceSearchName } = this.state;
+   const configArray = [];
    const startDate=firstDateFormat+firstTimeFormat+'0000';
    const endDate= secondDateFormat+secondTimeFormat+'5959';
+   const graphStartDate = Moment(firstDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
+   const graphEndDate = Moment(secondDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
 
    const sys=[];
    const sysNetwork=[];
    const sysMemoey=[];
    hwName.forEach(h => {
      console.log(h);
-    if(h==='CPU' || h == 'Memory') {
+    if(h.includes("CPU") || h.includes("Memory")) {
       sys.push(1);
-    } else { 
+    } else if(sys[0] === undefined) {
       sys.push(0);
     }
      
-    if(h==='Network') {
+    if(h.includes("Network")) {
       sysNetwork.push(1);
-    } else { 
+    } else {
       sysNetwork.push(0);
     }
 
-    if(h==='Disk') {
+    if(h.includes("Disk")) {
       sysMemoey.push(1);
-    } else { 
+    } else if (!h.includes("Disk")){
       sysMemoey.push(0);
     }
    })
-
-   const graphStartDate = Moment(firstDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
-   const graphEndDate = Moment(secondDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
-   const configArray = [];
-
+   console.log(sysMemoey);
    deviceId.forEach(d => {
     ReportService.getSysCpuDisk(d.id,sys[0],sysNetwork[0],sysMemoey[0],startDate,endDate)
     .then(res => {
@@ -409,7 +393,7 @@ calenderFirstChange = (date) => {
         const array = [];
         hwSearchName.forEach(h => { if(h.id === 1) {  array.push(h.name); }})
         const obj= {};
-        obj.id="chart_0"
+        obj.key="chart_0"
         obj.series = [{data: cpuProcessor  }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+d.name+'' }
         obj.legend={ labelFormat : d.name} 
@@ -419,6 +403,7 @@ calenderFirstChange = (date) => {
         const array = [];
         hwSearchName.forEach(h => { if(h.id === 2) { array.push(h.name); }})
         const obj = {};
+        obj.key="chart_1"
         obj.series = [{data: cpuUser}]
         obj.title= {text :'<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+d.name+''}
         obj.legend={ labelFormat : d.name}
@@ -429,6 +414,7 @@ calenderFirstChange = (date) => {
         const array = [];
         hwSearchName.forEach(h => { if(h.id === 3) { array.push(h.name); }})
         const obj = {};
+        obj.key="chart_2"
         obj.yAxis = { title: { text: '' },min:0 ,max:5000, tickInterval:1000 }
         obj.series = [{data: cpuContextSwitch}]
         obj.title= {text :'<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+d.name+''}
@@ -440,6 +426,7 @@ calenderFirstChange = (date) => {
         const array = [];
         hwSearchName.forEach(h => { if(h.id === 4) { array.push(h.name); }})
         const obj = {};
+        obj.key="chart_3"
         obj.yAxis = { title: { text: '' },min:0 ,max:100, tickInterval:20 }
         obj.series = [{data: cpuRunQueue}]
         obj.title= {text :'<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+d.name+''}
@@ -451,6 +438,7 @@ calenderFirstChange = (date) => {
         const array = [];
         hwSearchName.forEach(h => { if(h.id === 5) { array.push(h.name); }})
         const obj = {};
+        obj.key="chart_4"
         obj.yAxis = { title: { text: '' },min:0 ,max:2, tickInterval:0.5 }
         obj.series = [{data: cpuLoadAvg}]
         obj.title= {text :'<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+d.name+''}
@@ -469,43 +457,68 @@ calenderFirstChange = (date) => {
  }
 
  inputChartLineBar = (e,c,i) => {
+   const { config } =this.state;
+   
    console.log(e);
    console.log(c);
    console.log(i);
 
-   console.log(e.target);
+  //  console.log(this.chart.Highcharts.charts[i].options.chart.type);
+  //  this.chart.Highcharts.charts[i].options.chart = {type : 'column'}
+  //  console.log(this.chart.Highcharts.charts[i].options.chart.type);
    
-   const aa = document.getElementById("chart_"+i)
-   const qq = document.getElementById("chart_id"+i)
-   console.log(aa.id);
-   console.log(qq);
-
+  //  const aa = document.getElementById("chart_"+i)
+  //  const aaa = document.getElementById("chartss_"+i);
+  //  const aaaa = document.getElementsByName("namesss_"+i)
+  //  console.log(aaaa);
+  //  console.log(aaa);
+  //  console.log(this.imageRef);
+  // //  console.log(this.imageRef.current.props.config);
+  //  console.log(aa);
+  // console.log(c.key);
+  // console.log(e.target.value);
    if(e.target.value === 'line') {
      c.chart = {type: 'line'};
    } else if(e.target.value === 'bar') {
-    c.chart={type: 'column'};
+     c.chart={type: 'column'};
    }
-  // setState 해줄 때 개인의 차트를 찾아서 setState를 해줘야한다?
-  // const { config} = this.state;
-  // const configArray=[];
-  // config.forEach(c  => {
-  //   configArray.push()
-  // })
+    
+  // //  const array = [];
+  // //  array.push(c)
+  // //  aa.config = array;
+  // //  aa.className=null;
+  // //  console.log(array);
+  //  console.log(this.state.config[i]);
+   var arrr = [...this.state.config]
+  //  arrr.splice(i,1);
+   
+   var arrrs = {...arrr[i]};
+   console.log(c.key);
+   console.log(arrrs.key);
+   console.log(arrr);
+   console.log(arrrs);
+   arrrs.chart= {type:'column'}
+   arrr[i] = c;
+   console.log(arrr);
+   this.setState({config:arrr})
 
-   this.setState({ [e.target.name] : e.target.value});
+  
+  }
 
- }
+//   shouldComponentUpdate(nextProps,nextState) {
+//     // only re-render if props.value has changed
+//     return this.state.config === nextState.config;
+// }
+
+
 
  /* 최대치 기준 */
  maxStandred = (e,c) => {
-
   console.log(e);
   console.log(e.target);
 
   if(e.target.checked == true) {
-
   }
-
    console.log(e.target.checked);
    console.log(c);
    this.setState({inputMaxCheck:e.target.checked})
@@ -533,12 +546,11 @@ calenderFirstChange = (date) => {
       config,clickHwModel,hwColumnDefs,hwData,hwDefaultColDef,clickDeviceModel,deviceColumnDefs,deviceData,deviceDefaultColDef,buttonIdsDeviceArray,clickedDeviceId,
       autoGroupColumnDef,deviceSearchName,hwSearchName,graphCheck,inputIdsChart,inputIdsChartDefault,inputIdsChartCheck,inputIdsChartType,inputMaxCheck,chartTotalBoxCheck,
       chartColumnDefs,totalData,chartDefaultColDef } =this.state;
-      
+
     const firstDateFormatInput = Moment(firstDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
     const secondDateFormatInput = Moment(secondDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
 
-    console.log(inputIdsChartDefault);
-    console.log(selectDatas);
+    console.log(config);
     
     return (
       <>
@@ -708,7 +720,7 @@ calenderFirstChange = (date) => {
                   </div>
                   <div className="reportFilterRightBoxThird">
                     <div className="reportCalendarYear">
-                       <input className="reportCalendarInput" type="text" value={firstDateFormatInput} disabled readonly />
+                       <input className="reportCalendarInput" type="text" value={firstDateFormatInput} disabled readOnly />
                        <button className="reportCalendarIcon" onClick={(e)=> this.calendarFirst(e)} >
                         <FcCalendar className="reportCalendarIconStyle"  size="20" />
                       </button>
@@ -730,17 +742,17 @@ calenderFirstChange = (date) => {
                     <select 
                       className="reportCalendarTimeArea" 
                       placeholder="년월일 입력" 
-                      defaultValue={firstTimeFormat} 
+                      // defaultValue={firstTimeFormat} 
                       value={firstTimeFormat} 
                       onChange={e => this.setState({firstTimeFormat:e.target.value})}  
                     >
-                      {time.map(t => 
-                        <option value={t.value} selected={t.value} >{t.value}</option>
+                      {time.map((t,i) => 
+                        <option key={i} value={t.value} selected={t.value} >{t.value}</option>
                         ) }
                     </select>
                     <p className="reportCalendarDateMiddle">~</p>
                     <div className="reportCalendarYear">
-                       <input className="reportCalendarInput" type="text" value={secondDateFormatInput} disabled readonly />
+                       <input className="reportCalendarInput" type="text" value={secondDateFormatInput} disabled readOnly />
                        <button className="reportCalendarIcon"  onClick={(e)=> this.calendarSecond(e)} >
                         <FcCalendar className="reportCalendarIconStyle"  size="20" />
                       </button>
@@ -763,12 +775,12 @@ calenderFirstChange = (date) => {
                     <select 
                       className="reportCalendarTimeArea" 
                       placeholder="년월일 입력" 
-                      defaultValue={secondTimeFormat} 
+                      // defaultValue={secondTimeFormat} 
                       value={secondTimeFormat} 
                       onChange={e => this.setState({secondTimeFormat:e.target.value})}  
                     >
-                      {time.map(t => 
-                        <option value={t.value} selected={t.value} >{t.value}</option>
+                      {time.map((t,i) => 
+                        <option key={i} value={t.value} selected={t.value} >{t.value}</option>
                         ) }
                     </select>
                   </div>
@@ -805,23 +817,25 @@ calenderFirstChange = (date) => {
             <>
               {
                 config.map((c,i) => (
-                  <>
-                  <div className="reportChartParent">
-                  <div className="reportChartArea" id={"chart_"+i}    >
+                  <div className="reportChartParent" id={"chart_"+i}   key={c.key}   >
+                  <div className="reportChartArea"  >
                     <div className="reportChartBox">
-                      <ReactHighcharts config={c}  id={"chart_id"+i}  />
+                      <ReactHighcharts config={c}  key={c.key}    ref={this.imageRef}  />
                       <div className="reportChartMaxSelect">
                         <select 
-                          name={"select_"+i} 
+                          // name={"select_"+i} 
+                          key={c.key}
+                          id={`${c.key}`}
                           className="reportChartSelect"
                           onChange={e => this.inputChartLineBar(e,c,i)} >
                             <option value="line">Line</option>
                             <option value="bar">Bar</option>
                         </select>
-                    <label className="reportChartLabel">최대치 기준</label>
-                    <input type="checkbox" checked={inputMaxCheck} name={"checkbox_"+i} onChange={(e)=> this.maxStandred(e,c)} className="reportChartInput" />
-                  </div>
-                  </div>
+
+                        <label className="reportChartLabel">최대치 기준</label>
+                        <input type="checkbox" checked={inputMaxCheck} name={"checkbox_"+i} onChange={(e)=> this.maxStandred(e,c)} className="reportChartInput" />
+                      </div>
+                    </div>
 
                   <div className="reportChartTotalArea">
                     <button className="reportChartTotalBox" onClick={() => this.chartTotalCheck()}>
@@ -841,7 +855,7 @@ calenderFirstChange = (date) => {
                             columnDefs={chartColumnDefs}  
                             defaultColDef={chartDefaultColDef}
                             rowData={totalData}
-                            onGridReady={params => { this.gridApis = params.api;}}
+                            onGridReady={params => { this.gridApiss = params.api;}}
                           />       
                         </div>
                       </div>
@@ -852,8 +866,6 @@ calenderFirstChange = (date) => {
                   </div>
                 </div>
               </div>
-              
-                  </>
                 ))
               }
             <div className="reportFooter"></div>

@@ -18,6 +18,7 @@ import Modify from './modals/modify.component';
 import HistoryRecord from "./components/deviceManage/histroy-record";
 import ReportResoruce from "./components/deviceManage/report-resource";
 
+import test from "./components/deviceManage/test";
 
 import EventBus from "./common/EventBus";
 import "rc-tree/assets/index.less";
@@ -145,7 +146,7 @@ class App extends Component {
 
             {currentUser && (
               <li className="rootNavBarList">
-                <Link to={"/user"} className="rootNavBarText">
+                <Link to={"/test"} className="rootNavBarText">
                   User
                 </Link>
               </li>
@@ -206,6 +207,8 @@ class App extends Component {
           
             <Switch>
               <Route exact path={["/", "/home"]} component={Home} />
+              <Route exact path="/test" component={test} />
+
               <Route exact path="/login" component={Login} />
               <Route exact path="/register" component={Register} />
               <Route exact path="/profile" component={Profile} />
@@ -220,7 +223,9 @@ class App extends Component {
         </div>
         
       </div>
+      {/* <div style={{height:'100px', border:'1px solid green'}}>
 
+      </div> */}
       </>
     );
   }
