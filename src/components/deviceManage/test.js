@@ -1,94 +1,81 @@
-import React, { PureComponent } from 'react';
+import React, { Component, PureComponent } from 'react';
+import PropTypes from 'prop-types';
+import Select from "react-select";
+import AiwacsService from '../../services/equipment.service';
+import ReportService from '../../services/report.service';
 
-const Counter = ({ name, value })  => {
-  console.log(name);
-  console.log(`Rendering counter ${name}`);
-  return (
-    <div>
-      {name}: {value}
-    </div>
-  );
-}
+import Search from '../../images/search.png'
+import Loader from '../loader';
+
+import {Button, Modal,Form, Container, Row } from "react-bootstrap";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { ko } from 'date-fns/esm/locale'
+import { FcCalendar } from "react-icons/fc"
+import { AiOutlineArrowUp } from "react-icons/ai"
+import Moment from 'moment';
+import ReactHighcharts from 'react-highcharts';
+import Drilldown from 'highcharts-drilldown'; 
+import {  AgGridReact } from 'ag-grid-react';
+import 'ag-grid-community/dist/styles/ag-grid.css';
+import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
+import "ag-grid-enterprise";
+import '../../css/reportResource.css'
+
+import _ from "lodash";
 
 
 
-class test extends PureComponent {
+class test extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      counterA:0,
-      counterB:0,
-      Areadata:[{
-        id:1,
-        name:"ㅇㅇ",
-        Thumbnail_text:"ㅇㅇㅁㅁ",
+      data:  [{
+        chart: { type:  'line', height:300, width:1400, },   
+        xAxis: { tickInterval: 2 ,labels: {align:'center'}}, 
+        yAxis: { title: { text: '' },min:0 ,max:100, tickInterval:20  }, 
+        plotOptions: { line: { marker: { enabled: false } }},
+        title: { text:null, margin:40, align:'left',style:{'fontSize':'12','fontWeight':'bold'}},
+        legend: { labelFormat:null, align: 'right', verticalAlign: 'top', layout: 'vertical', x: 0, y: 100, },
+        series: [{data: [1,2,3,4,5,6]}]
       },
-      {
-        id:2,
-        name:"ㅇㅇㄴㄴ",
-        Thumbnail_text:"ㅇㅇㅁㅁㄴㄴ",
-      },
-    ]
+       { chart: { type:  'line', height:300, width:1400, },   
+        xAxis: { tickInterval: 2 ,labels: {align:'center'}}, 
+        yAxis: { title: { text: '' },min:0 ,max:100, tickInterval:20  }, 
+        plotOptions: { line: { marker: { enabled: false } }},
+        title: { text:null, margin:40, align:'left',style:{'fontSize':'12','fontWeight':'bold'}},
+        legend: { labelFormat:null, align: 'right', verticalAlign: 'top', layout: 'vertical', x: 0, y: 100, },
+        series: [{data: [1,2,3,4,5,6]}]  } ]
     }
   }
+  
+  change = () => {
+    const { data } = this.state;
 
-  // shouldComponentUpdate(prevProps, prevState) {
-  //   return this.state.counterB !== prevState.counterB;
-  // }
+    console.log(data[0]);
+
+    data[0].chart.type='column'
+    console.log(data);
+    this.setState({})
+  }
 
   render() {
-    const { counterA,counterB,Areadata } = this.state;
     return (
-      <div style={{marginTop:'70px', marginLeft:'100px'}}>
+      <div style={{marginLeft:'100px', marginTop:'100px'}}>
+        {
+          this.state.data.map((c,i) => (
+                <div key={i} id={"chart_"+i}>
+                  <ReactHighcharts config={c} />
+                  {/* <button onClick={() => this.change()} >아아</button>   */}
+                </div>
+          ))
+        }
+                          <button onClick={() => this.change()} >아아</button>  
 
-{Areadata.map(data => (
-                  
-                  <li key={data.id} >
-                    <div>
-                      {/* <img  src={`${data.Thumbnail_img}`} alt={data.Tourlist_name} /> */}
-                      
-                    </div>
-                    <div>
-                      <p>{data.name}</p>
-                      <p>{data.Thumbnail_text}</p>
-                    </div>
-                </li>
-            
-          ))}
-       {/* <Counter name="A" value={counterA} />
-       <Counter name="B" value={counterB} />
-      <button
-        onClick={() => {
-          console.log("Click button");
-          this.setState({ counterA: counterA + 1 }) 
-        }}
-      >
-        Increment counter A
-      </button> */}
+        
       </div>
     );
   }
 }
-
-
-// constructor(){
-//   super();
-//   this.state={
-//     count:10
-//   }
-// }
-
-// render(){
-//   console.warn('render');
-//   return (
-//     <div className="App" style={{marginTop:'50px', marginLeft:'100px'}}>
-//       <header className="App-header">
-//         <h1>Pure Component State Count {this.state.count}</h1>
-        
-//         <button onClick={()=>{this.setState({count:20})}}>Update Count</button>
-//       </header>
-//     </div>
-//   );
-// }
 
 export default test;
