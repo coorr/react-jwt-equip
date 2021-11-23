@@ -48,16 +48,19 @@ const hwDatas = [
 {id:24, group:"Disk", disk:"Disk I/O Bytes"},{id:25, group:"Disk", disk:"Disk Queue"},
 
 {id:26, group:"Network", network:"Network Traffic"},{id:27, group:"Network", network:"Network PPS"},
-{id:28, group:"Network", network:"NIC Discards"},{id:29, group:"Network", network:"NIC Errors"}]
+{id:28, group:"Network", network:"NIC Discards"},{id:29, group:"Network", network:"NIC Errors"} ]
 
 const oneMonth = new Date(new Date().getTime() - 34128000000 );
 
-const selectDatas = ['line'];
+
+
 class ReportResoruce extends PureComponent {
   constructor(props) {
     super(props);
     this.imageRef = React.createRef();
     this.state = {
+      loader:false,
+      
       processor:[],
       totalData:[],
       deviceDefaultColDef: {
@@ -113,9 +116,8 @@ class ReportResoruce extends PureComponent {
         floatingFilter: true,
         filter:'agTextColumnFilter', 
         flex:1,
-        // cellStyle: {fontSize: '12px'}
       },
-      chartColumnDefs:[{headerName:'시간' ,field:'generateTime',maxWidth:180},{headerName:'시간' ,field:'cpuProcessor',type: 'rightAligned'}],
+      chartColumnDefs:[],
       clickDeviceModel:false,
       clickHwModel:false,
       filterCheck:true,
@@ -141,6 +143,8 @@ class ReportResoruce extends PureComponent {
 
       /* 차트 */
       config : [],
+      timeChart:[],
+
       /* 조회 데이터  */
       graphCheck:true,
       deviceId: [],
@@ -148,12 +152,13 @@ class ReportResoruce extends PureComponent {
       hwName:[],
       deviceSearchName:[],
       hwSearchName:[],
+      testt:{value:"아아"}
       
     }
   }
-  componentDidMount() {
+  // componentDidMount() {
 
-  }
+  // }
 
   groupCountRenderer = (params) => {
     console.log(params.value);
@@ -216,11 +221,11 @@ clickDeviceModelSubmit = () => {
       obj.label=node.data.equipment;
       deviceName.push(obj)
       
-      // test 이름 값도
-      const objj= {};
-      objj.id =node.data.id;
-      objj.name = node.data.equipment;
-      deviceArray.push(objj)
+      // id 추가 
+      const objSec= {};
+      objSec.id =node.data.id;
+      objSec.name = node.data.equipment;
+      deviceArray.push(objSec)
     })
     this.setState({deviceId:deviceArray, clickDeviceModel:false, deviceSearchName:deviceName})
   }
@@ -266,9 +271,7 @@ clickHwModelSubmit = () => {
         obj.id=node.data.id;
         obj.name=node.data.network;
       }
-      console.log(obj);
       hwNodeName.push(obj);
-      console.log(hwNodeName);
 
       groupName.push(node.data.group);
       // console.log(groupName);
@@ -293,6 +296,7 @@ calenderFirstChange = (date) => {
  }
  /** 통계 이벤트 */
  reportSelectSubmit = () => {
+   this.setState({loader:true})
    const { firstDateFormat,firstTimeFormat, secondDateFormat,secondTimeFormat,hwName,deviceId, hwSearchName,deviceSearchName } = this.state;
    const configArray = [];
    const startDate=firstDateFormat+firstTimeFormat+'0000';
@@ -306,7 +310,6 @@ calenderFirstChange = (date) => {
    const id = [];
    const deviceName = [];
    hwName.forEach(h => {
-     console.log(h);
     if(h.includes("CPU") || h.includes("Memory")) {
       sys.push(1);
     } 
@@ -323,14 +326,13 @@ calenderFirstChange = (date) => {
    if(sys.length === 0) { sys.push(0) }
    if(sysNetwork.length === 0) { sysNetwork.push(0) }
    if(sysMemoey.length === 0) { sysMemoey.push(0) }
-   console.log(deviceId);
 
    deviceId.forEach(d => {
       id.push(d.id)
       deviceName.push(d.name)
    })
    const ids = id.join('|');
-   console.log(ids);
+
     ReportService.getSysCpuDisk(ids,sys[0],sysNetwork[0],sysMemoey[0],startDate,endDate)
     .then(res => {
       console.log(res.data)
@@ -356,61 +358,81 @@ calenderFirstChange = (date) => {
       const memoryPagefault=[];
       const diskTotalUsedPercentage =[];
       const diskTotalUsedBytes =[];
-      const diskUsedPercentage =[];
-      const diskUsedBytes =[];
-      const diskIoPercentage =[];
-      const diskIoCount =[];
-      const diskIoBytes =[];
-      const diskQueue =[];
-      
-      
+      const diskUsedPercentage =[{value:[]},{value:[]},{value:[]}]
+      const diskUsedBytes =[{value:[]},{value:[]},{value:[]}];
+      const diskIoPercentage =[{value:[]},{value:[]},{value:[]}];
+      const diskIoCount =[{value:[]},{value:[]},{value:[]}];
+      const diskIoBytes =[{value:[]},{value:[]},{value:[]}];
+      const diskQueue =[{value:[]},{value:[]},{value:[]}];
+      const networkTraffic = [{in:[]},{out:[]}];
+      const networkPps = [{in:[]},{out:[]}];
+      const nicDiscards = [{in:[]},{out:[]}];
+      const nicErrors = [{in:[]},{out:[]}];
       
 
-      /* CPU,MEMOEY DISK NIC 분리 */
-      console.log(id[0]);
-      console.log(id[1]);
-
-      
       for(var i=0; i < id.length; i++) {
+      /* 초기화 */
        time.length=0;
        cpuProcessor.length=0;  cpuUser.length=0;  cpuContextSwitch.length=0; cpuRunQueue.length=0;  cpuLoadAvg.length=0;
        memoryUsedPercentage.length=0;  memoryBytes.length=0;  memoryBuffersPercentage.length=0; memoryBuffers.length=0;  memoryCached.length=0; memoryCachedPercentage.length=0;  
        memoryShared.length=0;  memorySharedPercentage.length=0; memorySwapPercentage.length=0;  memorySwap.length=0; memoryPagefault.length=0; 
+       diskTotalUsedPercentage.length=0;  diskTotalUsedBytes.length=0; 
+       for(var j=0; j < diskUsedPercentage.length; j++) {
+        diskUsedPercentage[j].value.length=0; 
+        diskUsedBytes[j].value.length=0; diskIoPercentage[j].value.length=0; diskIoCount[j].value.length=0;
+        diskIoBytes[j].value.length=0; diskQueue[j].value.length=0; 
+       }  
+       networkTraffic[0].in.length=0; networkPps[0].in.length=0; nicDiscards[0].in.length=0;  nicErrors[0].in.length=0; 
+       networkTraffic[1].out.length=0; networkPps[1].out.length=0; nicDiscards[1].out.length=0;  nicErrors[1].out.length=0; 
 
+       /* 데이터 세분화 */
        data.forEach(d => {
-        this.setState({totalData:d})
         d.forEach(c => {
-          
-          if(c.cpuProcessor !== undefined && id[i] === c.deviceId) {  // cpu memory
+          if(c.cpuProcessor !== undefined && id[i] === c.deviceId) {  // CPU MEMORY
             cpuProcessor.push(c.cpuProcessor); cpuUser.push(c.cpuUser); cpuContextSwitch.push(c.cpuContextswitch);  cpuRunQueue.push(c.cpuIrq); cpuLoadAvg.push(c.cpuLoadavg);
             memoryUsedPercentage.push(c.usedMemoryPercentage); memoryBytes.push(c.usedMemory);  memoryBuffersPercentage.push(c.memoryBuffersPercentage); 
             memoryBuffers.push(c.memoryBuffers); memoryCached.push(c.memoryCached); memoryCachedPercentage.push(c.memoryCachedPercentage); 
             memoryShared.push(c.memoryShared); memorySharedPercentage.push(c.memorySharedPercentage); memorySwapPercentage.push(c.usedSwapPercentage);
             memorySwap.push(c.usedSwap); memoryPagefault.push(c.usedSwapPercentage); 
           }
-          if(c.ioQueueDepth !== undefined && id[i] === c.deviceId) {  // disk
-            diskUsedPercentage.push(c.usedPercentage); diskUsedBytes.push(c.usedBytes);  diskIoPercentage.push(c.ioTimePercentage); 
-            diskIoCount.push(c.ioTotalCnt); diskIoBytes.push(c.ioTotalBps);  diskQueue.push(c.ioQueueDepth); 
+          if(c.ioQueueDepth !== undefined && id[i] === c.deviceId  ) {  // DISK
+            if(c.partitionLabel === '/dev' ) {
+              diskUsedPercentage[0].value.push(c.usedPercentage); diskUsedBytes[0].value.push(c.usedBytes);  diskIoPercentage[0].value.push(c.ioTimePercentage); 
+              diskIoCount[0].value.push(c.ioTotalCnt); diskIoBytes[0].value.push(c.ioTotalBps);  diskQueue[0].value.push(c.ioQueueDepth); 
+            }
+            if(c.partitionLabel === '/boot') {
+              diskUsedPercentage[1].value.push(c.usedPercentage); diskUsedBytes[1].value.push(c.usedBytes);  diskIoPercentage[1].value.push(c.ioTimePercentage); 
+              diskIoCount[1].value.push(c.ioTotalCnt); diskIoBytes[1].value.push(c.ioTotalBps);  diskQueue[1].value.push(c.ioQueueDepth); 
+            }
+            if(c.partitionLabel === '/') {
+              diskUsedPercentage[2].value.push(c.usedPercentage); diskUsedBytes[2].value.push(c.usedBytes);  diskIoPercentage[2].value.push(c.ioTimePercentage); 
+              diskIoCount[2].value.push(c.ioTotalCnt); diskIoBytes[2].value.push(c.ioTotalBps);  diskQueue[2].value.push(c.ioQueueDepth); 
+            }
           }
-          if(c.ioQueueDepth === undefined && id[i] === c.deviceId ) {  // disk Total
+          if(c.ioTotalBps === undefined && id[i] === c.deviceId && c.usedPercentage !== undefined) {  // DISK TOTAL
             diskTotalUsedPercentage.push(c.usedPercentage); diskTotalUsedBytes.push(c.usedBytes); 
           }
-          if(c.inBytesPerSec !== undefined && id[i] === c.deviceId) {
-            // network
+          if(c.inBytesPerSec !== undefined && id[i] === c.deviceId) { // NETWORK  
+            nicDiscards[0].in.push(c.inDiscardPkts); nicDiscards[1].out.push(c.outDiscardPkts);
+            nicErrors[0].in.push(c.inErrorPkts); nicErrors[1].out.push(c.outErrorPkts);
+            networkTraffic[0].in.push(c.inBytesPerSec); networkTraffic[1].out.push(c.outBytesPerSec);
+            networkPps[0].in.push(c.inPktsPerSec); networkPps[1].out.push(c.outPktsPerSec);
           }
+
+          /* 각 데이터마다 시간 조절 */
           if(c.cpuProcessor !== undefined && id[i] === c.deviceId) {
             c.generateTime= c.generateTime.replace("T"," ");
             Moment(c.generateTime, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:00");
             time.push(Moment(c.generateTime, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:00"));
-          } else if(c.totalBytes === undefined && id[i] === c.deviceId && memoryUsedPercentage === undefined ) {
+          } else if(c.inBytesPerSec !== undefined && id[i] === c.deviceId && memoryUsedPercentage.length === 0 ) {
             c.generateTime= c.generateTime.replace("T"," ");
             Moment(c.generateTime, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:00");
             time.push(Moment(c.generateTime, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:00"));
-          } else if(c.inBytesPerSec !== undefined && id[i] === c.deviceId && diskUsedPercentage === undefined) {
+          } else if(c.totalBytes === undefined && id[i] === c.deviceId && nicDiscards[0].in.length === 0) {
             c.generateTime= c.generateTime.replace("T"," ");
             Moment(c.generateTime, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:00");
             time.push(Moment(c.generateTime, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:00"));
-          }
+          } 
         })
       })
       
@@ -424,7 +446,8 @@ calenderFirstChange = (date) => {
         if(h.id === 16) { graphHwName.push(h.name); } if(h.id === 17) { graphHwName.push(h.name); } if(h.id === 18) { graphHwName.push(h.name); }
         if(h.id === 19) { graphHwName.push(h.name); } if(h.id === 20) { graphHwName.push(h.name); } if(h.id === 21) { graphHwName.push(h.name); }
         if(h.id === 22) { graphHwName.push(h.name); } if(h.id === 23) { graphHwName.push(h.name); } if(h.id === 24) { graphHwName.push(h.name); }
-        if(h.id === 25) { graphHwName.push(h.name); } if(h.id === 26) { graphHwName.push(h.name); }
+        if(h.id === 25) { graphHwName.push(h.name); } if(h.id === 26) { graphHwName.push(h.name); } if(h.id === 27) { graphHwName.push(h.name); }
+        if(h.id === 28) { graphHwName.push(h.name); } if(h.id === 29) { graphHwName.push(h.name); } if(h.id === 30) { graphHwName.push(h.name); }
       })
       /* 하드웨어 이름 출력 */ 
       deviceSearchName.forEach(d => {
@@ -432,29 +455,34 @@ calenderFirstChange = (date) => {
       })
       /* 시간 간격 조절 */
       const timeInterval = [];
-      console.log(time);
       console.log(time.length);
       if(time.length <= 24) { timeInterval.push(2)} 
       else if(time.length > 24 && time.length <= 48) { timeInterval.push(4) }
       else if(time.length > 48 && time.length <= 100) { timeInterval.push(8) } 
       else { timeInterval.push(100)}
+      this.setState({ timeChart: time})
 
       ReactHighcharts.Highcharts.setOptions({
-        chart: { type:  'line', height:300, width:1400, },   
-        xAxis: { categories: time, tickInterval:timeInterval[0] ,labels: {align:'center'}}, 
-        yAxis: { title: { text: '' },min:0 }, 
-        plotOptions: { line: { marker: { enabled: false } }},
-        title: { text:null, margin:40, align:'left',style:{'fontSize':'12','fontWeight':'bold'}},
-        legend: { labelFormat:null, align: 'right', verticalAlign: 'top', layout: 'vertical', x: 0, y: 100, },
+        chart: { type:  'line', height:300, width:1560,  styledMode: true},   
+        xAxis: { categories: time, tickInterval:2,labels: {align:'center'},crosshair: {width: 2}}, 
+        yAxis: { title: { text: '' },min:0,  }, 
+        plotOptions: { line: { marker: { enabled: false }}, series:{ color : 'rgb(0, 169, 255)'} }, // sky blue 00CCFF
+        title: { text:null, margin:40, align:'left',style:{fontSize:'12',fontWeight:'none'}},
+        legend: { align: 'right', verticalAlign: 'top', layout: 'vertical', x: 0, y: 100, },
+        tooltip : {
+          shared:true,
+        }
       })
-
+      
+      
       if(graphHwName.includes("CPU Processor (%)")) {
         const array = [];  // HW 이름
         hwSearchName.forEach(h => { if(h.id === 1) {  array.push(h.name); }})
         const obj= {};
         obj.key="chart_1"
         obj.yAxis = { max:100, tickInterval:20  } 
-        obj.series = [{data: cpuProcessor  }]
+        const test = [0, 0, 0,0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 0, 0, 0, 0, 0, 0]
+        obj.series = [{data: test  }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.legend={ labelFormat : deviceName[i]} 
         configArray.push(obj);
@@ -616,13 +644,131 @@ calenderFirstChange = (date) => {
         obj.legend={ labelFormat : deviceName[i]} 
         configArray.push(obj);
       }
+      if(graphHwName.includes("Disk Total Used (%)")) {
+        const obj= {};
+        const array = [];  
+        hwSearchName.forEach(h => { if(h.id === 18) {  array.push(h.name); }})
+        obj.key="chart_18"
+        obj.yAxis = { max:100, tickInterval:20  }
+        obj.series = [{data: diskTotalUsedPercentage   }]
+        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
+        obj.legend={ labelFormat : deviceName[i]} 
+        configArray.push(obj);
+      }
+      if(graphHwName.includes("Disk Total Used Bytes")) {
+        const obj= {};
+        const array = [];  
+        hwSearchName.forEach(h => { if(h.id === 19) {  array.push(h.name); }})
+        obj.key="chart_19"
+        obj.series = [{data: diskTotalUsedBytes    }]
+        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
+        obj.legend={ labelFormat : deviceName[i]} 
+        configArray.push(obj);
+      }
+      if(graphHwName.includes("Disk Used (%)")) {
+        const obj= {};
+        const array = [];  
+        hwSearchName.forEach(h => { if(h.id === 20) {  array.push(h.name); }})
+        obj.key="chart_20"
+        obj.yAxis = { max:100, tickInterval:20  }
+        obj.series = [{data: diskUsedPercentage[0].value, name: '/dev'},{ data: diskUsedPercentage[1].value, name:'/boot' ,color:'rgb(255, 184, 64)'},{ data: diskUsedPercentage[2].value, name:'/',color:'red'}]
+        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
+        obj.data=diskUsedPercentage;
+        configArray.push(obj);
+      }
+      if(graphHwName.includes("Disk Used Bytes")) {
+        const obj= {};
+        const array = [];  
+        hwSearchName.forEach(h => { if(h.id === 21) {  array.push(h.name); }})
+        obj.key="chart_21"
+        obj.series = [{data: diskUsedBytes[0].value, name: '/dev'},{ data: diskUsedBytes[1].value, name:'/boot',color:'rgb(255, 184, 64)'},{ data: diskUsedBytes[2].value, name:'/',color:'red'}]
+        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
+        configArray.push(obj);
+      }
+      if(graphHwName.includes("Disk I/O (%)")) {
+        const obj= {};
+        const array = [];  
+        hwSearchName.forEach(h => { if(h.id === 22) {  array.push(h.name); }})
+        obj.key="chart_22"
+        obj.yAxis = { max:100, tickInterval:20  }
+        obj.series = [{data: diskIoPercentage[0].value, name: '/dev'},{ data: diskIoPercentage[1].value, name:'/boot',color:'rgb(255, 184, 64)'},{ data: diskIoPercentage[2].value, name:'/',color:'red'}]
+        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
+        configArray.push(obj);
+      }
+      if(graphHwName.includes("Disk I/O Count")) {
+        const obj= {};
+        const array = [];  
+        hwSearchName.forEach(h => { if(h.id === 23) {  array.push(h.name); }})
+        obj.key="chart_23"
+        obj.series = [{data: diskIoCount[0].value, name: '/dev'},{ data: diskIoCount[1].value, name:'/boot',color:'rgb(255, 184, 64)'},{ data: diskIoCount[2].value, name:'/',color:'red'}]
+        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
+        configArray.push(obj);
+      }
+      if(graphHwName.includes("Disk I/O Bytes")) {
+        const obj= {};
+        const array = [];  
+        hwSearchName.forEach(h => { if(h.id === 24) {  array.push(h.name); }})
+        obj.key="chart_24"
+        obj.series = [{data: diskIoBytes[0].value, name: '/dev'},{ data: diskIoBytes[1].value, name:'/boot',color:'rgb(255, 184, 64)'},{ data: diskIoBytes[2].value, name:'/',color:'red'}]
+        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
+        configArray.push(obj);
+      }
+      if(graphHwName.includes("Disk Queue")) {
+        const obj= {};
+        const array = [];  
+        hwSearchName.forEach(h => { if(h.id === 25) {  array.push(h.name); }})
+        obj.key="chart_25"
+        obj.series = [{data: diskQueue[0].value, name: '/dev'},{ data: diskQueue[1].value, name:'/boot',color:'rgb(255, 184, 64)'},{ data: diskQueue[2].value, name:'/',color:'red'}]
+        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'', }
+        configArray.push(obj);
+      }
+      if(graphHwName.includes("Network Traffic")) {
+        const obj= {};
+        const array = [];  
+        hwSearchName.forEach(h => { if(h.id === 26) {  array.push(h.name); }})
+        obj.key="chart_26"
+        obj.series = [{data: networkTraffic[0].in, name: 'RX'},{ data: networkTraffic[1].out, name:'TX', color:'rgb(255, 184, 64)'}]
+        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'', }
+        configArray.push(obj);
+      }
+      if(graphHwName.includes("Network PPS")) {
+        const obj= {};
+        const array = [];  
+        hwSearchName.forEach(h => { if(h.id === 27) {  array.push(h.name); }})
+        obj.key="chart_27"
+        obj.yAxis = { max:100, tickInterval:20  }
+        obj.series = [{data: networkPps[0].in, name: 'RX'},{ data: networkPps[1].out, name:'TX', color:'rgb(255, 184, 64)'}]
+        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'', }
+        configArray.push(obj);
+      }
+      if(graphHwName.includes("NIC Discards")) {
+        const obj= {};
+        const array = [];  
+        hwSearchName.forEach(h => { if(h.id === 28) {  array.push(h.name); }})
+        obj.key="chart_28"
+        obj.yAxis = { max:100, tickInterval:20  }
+        obj.series = [{data: nicDiscards[0].in, name: 'RX'},{ data: nicDiscards[1].out, name:'TX', color:'rgb(255, 184, 64)'}]
+        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'', }
+        configArray.push(obj);
+      } 
+      if(graphHwName.includes("NIC Errors")) {
+        const obj= {};
+        const array = [];  
+        hwSearchName.forEach(h => { if(h.id === 29) {  array.push(h.name); }})
+        obj.key="chart_29"
+        obj.yAxis = { max:100, tickInterval:20  }
+        obj.series = [{data: nicErrors[0].in, name: 'RX'},{ data: nicErrors[1].out, name:'TX', color:'rgb(255, 184, 64)'}]
+        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'', }
+        configArray.push(obj);
+      } 
       
 
       console.log(configArray);
     }
       this.setState({
         graphCheck:true,
-        config:configArray
+        config:configArray,
+        loader:false
       })
      
     })
@@ -635,55 +781,140 @@ calenderFirstChange = (date) => {
    console.log(c);
    console.log(i);
 
-   if(e.target.value === 'line') {
-     c.chart = {type: 'line'};
-   } else if(e.target.value === 'bar') {
-     c.chart={type: 'column'};
-   }
-  }
+  //  if(e.target.value === 'line') {
+  //    c.chart = {type: 'line'};
+  //  } else if(e.target.value === 'bar') {
+  //    c.chart={type: 'column'};
+  //  }
+  console.log(this.state.config);
+  console.log([...this.state.config]);
+  console.log(this.state.hwSearchName);
+  // this.setState({hwSearchName:[...this.state.hwSearchName]}) // 렌더링 됨
+  const test = this.state.testt.value;
+  // this.setState({config:[c]})
+  // this.setState({[e.target.name] : e.target.value})
+  // this.setState({config:[...this.state.config]})  
+  // this.setState({calendarCheckFirst:true})
+}
 
 
 
 
  /* 최대치 기준 */
  maxStandred = (e,c) => {
-  console.log(e);
-  console.log(e.target);
-
+  var seriesData = [];
+  c.series.forEach(d => {
+    seriesData.push(d.data)
+  })
   if(e.target.checked == true) {
-  }
-   console.log(e.target.checked);
-   console.log(c);
-   this.setState({inputMaxCheck:e.target.checked})
- 
-  const { processor } =this.state;
-  const max = Math.max.apply(null,processor);
-  const min = Math.min.apply(null,processor);
-  const maxStandred =  max / 10;
-  const minStandred = min / 5;
-  c.yAxis={min:min , max:max, tickInterval:20}
+    var max = Math.max(...seriesData[0]);
+    c.yAxis={max:max}
+  } else {
+    c.yAxis={max:100,tickInterval:20}
+  } 
+  this.setState({inputMaxCheck:e.target.checked})
  }
 
- chartTotalCheck = () => {
-   const { chartTotalBoxCheck } = this.state;
+ chartTotalCheck = (e,i,c) => {
+   const { chartTotalBoxCheck,timeChart, chartColumnDefs } = this.state;
+   console.log(ReactHighcharts.Highcharts.getOptions());
+   console.log(c);
    if(chartTotalBoxCheck === false) {
-    this.setState({chartTotalBoxCheck : true})
-   } else {
+    var seriesData = [];
+    // console.log(timeChart);
+    const totalTime = timeChart;
+    if(!totalTime.includes('Max')) {
+      totalTime.push('Max')
+      totalTime.push('Min')
+      totalTime.push('Avg')
+    }
+    console.log(totalTime);
+
+ 
+    var data = [];
+    c.series.forEach(s => {
+       data.push(s.data)
+    })
+    if(c.legend !== undefined) {
+      data[0].push(Math.max(...data[0]))
+      data[0].push(Math.min(...data[0]))
+      const avg = data[0].reduce((a,b) => a+b, 0) / data[0].length;
+      data[0].push(avg.toFixed(0))
+    }
+    console.log(data);
+
+    const test= []
+    data.forEach(q => {
+      for(var k=0; k < q.length; k++) {
+        test.push(q[k])
+      }
+    })
+    console.log(test);
+
+    c.data.forEach(e => {
+      console.log(e);
+      console.log(e.value);
+      console.log(e.length);
+    })
+
+
+    c.series.forEach(d => {
+
+     for(var i=0; i<totalTime.length; i++) {
+       
+       console.log(c.series.length);
+       
+       if(c.series.length === 1) {
+        const obj = {};
+        obj.time = totalTime[i];
+        obj.value = d.data[i];
+        seriesData.push(obj);
+       } else if(c.series.length === 2) {
+
+       } else if(c.series.length === 3) {
+        // const obj = {}; 
+        // if(d.name === '/dev') {
+        //    obj.dev = test[i]
+        //  }
+       }
+     }
+   })
+   console.log(seriesData);
+  
+     const columnDefs = [
+       {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
+       c.legend !== undefined ? 
+        {headerName: c.legend.labelFormat ,valueFormatter: params => c.yAxis !== undefined ? params.data.value+'%' :params.data.value ,type: 'rightAligned', headerClass: "grid-cell-left"}
+        : 
+        {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },         
+        {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
+        {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
+     ]
+ 
+    this.setState({
+      chartTotalBoxCheck : true,
+      chartColumnDefs: columnDefs,
+      totalData: seriesData
+    })
+   } else if(chartTotalBoxCheck === true) {
     this.setState({chartTotalBoxCheck : false})
+
    }
+
  }
+
 
 
   render() {
     const { buttonIdsArray,clickedId,calendarCheckFirst,calendarCheckSecond,date,firstDateFormat,secondDateFormat,firstTimeFormat,secondTimeFormat,filterCheck,
       config,clickHwModel,hwColumnDefs,hwData,hwDefaultColDef,clickDeviceModel,deviceColumnDefs,deviceData,deviceDefaultColDef,buttonIdsDeviceArray,clickedDeviceId,
       autoGroupColumnDef,deviceSearchName,hwSearchName,graphCheck,inputIdsChart,inputIdsChartDefault,inputIdsChartCheck,inputIdsChartType,inputMaxCheck,chartTotalBoxCheck,
-      chartColumnDefs,totalData,chartDefaultColDef } =this.state;
+      chartColumnDefs,totalData,chartDefaultColDef,loader } =this.state;
+
 
     const firstDateFormatInput = Moment(firstDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
     const secondDateFormatInput = Moment(secondDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
 
-    console.log(config);
     
     return (
       <>
@@ -950,35 +1181,39 @@ calenderFirstChange = (date) => {
             <>
               {
                 config.map((c,i) => (
-                  <div className="reportChartParent" id={"chart_"+i}   key={i}   >
-                  <div className="reportChartArea"  >
+                 <div className="reportChartParent" key={c.key} >
+                  <div className="reportChartArea">
                     <div className="reportChartBox">
-                      <ReactHighcharts config={c}  key={i}    ref={this.imageRef}  />
+                      <ReactHighcharts config={c}  key={c.key}  />
                       <div className="reportChartMaxSelect">
                         <select 
-                          // name={"select_"+i} 
+                          name={"name"+i} 
                           key={c.key}
                           id={`${c.key}`}
                           className="reportChartSelect"
-                          onChange={e => this.inputChartLineBar(e,c,i)} >
+                          onChange={(e) => this.inputChartLineBar(e,c,i)} >
                             <option value="line">Line</option>
                             <option value="bar">Bar</option>
                         </select>
-
-                        <label className="reportChartLabel">최대치 기준</label>
-                        <input type="checkbox" checked={inputMaxCheck} name={"checkbox_"+i} onChange={(e)=> this.maxStandred(e,c)} className="reportChartInput" />
+                        {
+                          c.title.text.includes("(%)") && (
+                            <>
+                            <label className="reportChartLabel">최대치 기준</label>
+                            <input type="checkbox"  name={"checkbox_"+i} onChange={(e)=> this.maxStandred(e,c)} className="reportChartInput" />
+                            </>
+                          )
+                        }
                       </div>
                     </div>
 
                   <div className="reportChartTotalArea">
-                    <button className="reportChartTotalBox" onClick={() => this.chartTotalCheck()}>
-                      <label className="reportChartTotalText">
+                    <button className="reportChartTotalBox"  onClick={(e) => this.chartTotalCheck(e,i,c)}>
+                      <label className="reportChartTotalText" name={"total_"+i}>
                         ▼ 차트 통계
                       </label>
                     </button>
                   {
                     chartTotalBoxCheck && (
-                      <>
                       <div className="reportChartTotalGrid">
                         <div className="ag-theme-alpine" style={{ width:'90vw', height:'40vh',marginLeft:'0.5vw'}}>
                             <AgGridReact
@@ -988,11 +1223,10 @@ calenderFirstChange = (date) => {
                             columnDefs={chartColumnDefs}  
                             defaultColDef={chartDefaultColDef}
                             rowData={totalData}
-                            onGridReady={params => { this.gridApiss = params.api;}}
+                            onGridReady={params => { this.gridApiChart = params.api;}}
                           />       
                         </div>
                       </div>
-                      </>
                     )
                   }
 
@@ -1008,7 +1242,9 @@ calenderFirstChange = (date) => {
         
       </div>
 
-      
+      {
+            loader && <Loader />
+      }
       </>
     );
   }

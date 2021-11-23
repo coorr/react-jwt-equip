@@ -24,58 +24,121 @@ import '../../css/reportResource.css'
 
 import _ from "lodash";
 
+const defaultChartOptions = {
+  chart: { type:  'line', height:300, width:1400, },   
+  xAxis: {  labels: {align:'center'}}, 
+  yAxis: { title: { text: '' },min:0 ,max:100, tickInterval:20  }, 
+  plotOptions: { line: { marker: { enabled: false } }},
+  title: { text:null, margin:40, align:'left',style:{'fontSize':'12','fontWeight':'bold'}},
+  legend: { labelFormat:null, align: 'right', verticalAlign: 'top', layout: 'vertical', x: 0, y: 100, },
+};
 
-
-class test extends Component {
+const data =[10,40,90]
+class test extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      data:  [{
+      data: [1,2,3],
+      chartOptions: {},
+      test:{value:"아아"},
+      chart:  [{
         chart: { type:  'line', height:300, width:1400, },   
         xAxis: { tickInterval: 2 ,labels: {align:'center'}}, 
         yAxis: { title: { text: '' },min:0 ,max:100, tickInterval:20  }, 
         plotOptions: { line: { marker: { enabled: false } }},
         title: { text:null, margin:40, align:'left',style:{'fontSize':'12','fontWeight':'bold'}},
         legend: { labelFormat:null, align: 'right', verticalAlign: 'top', layout: 'vertical', x: 0, y: 100, },
-        series: [{data: [1,2,3,4,5,6]}]
+        series: [{data: [1,2,3,4,5,6]}],
+        key: '1',
       },
-       { chart: { type:  'line', height:300, width:1400, },   
+       { 
+         chart: { type:  'line', height:300, width:1400, },   
         xAxis: { tickInterval: 2 ,labels: {align:'center'}}, 
         yAxis: { title: { text: '' },min:0 ,max:100, tickInterval:20  }, 
         plotOptions: { line: { marker: { enabled: false } }},
         title: { text:null, margin:40, align:'left',style:{'fontSize':'12','fontWeight':'bold'}},
         legend: { labelFormat:null, align: 'right', verticalAlign: 'top', layout: 'vertical', x: 0, y: 100, },
-        series: [{data: [1,2,3,4,5,6]}]  } ]
+        series: [{data: [1,2,3,4,5,6]}]  , 
+        key: '2',
+      }]
     }
   }
-  
-  change = () => {
-    const { data } = this.state;
 
-    console.log(data[0]);
+  componentDidMount() {
+    const chartOptions = {};
+    chartOptions.cpuProcessorOptions = {};
+    chartOptions.cpuProcessorOptions.option = _.cloneDeep(defaultChartOptions);
+    chartOptions.cpuProcessorOptions.option.key="chart_0"
+    chartOptions.cpuProcessorOptions.option.series = [{data: data  }]
+    chartOptions.cpuProcessorOptions.option.title={text : '<span style="font-weight: bold; font-size:18px;">CPU Processor (%)</span> / '}
+    // chartOptions.cpuProcessorOptions.option.legend={ labelFormat : deviceName[i]} ;
 
-    data[0].chart.type='column'
-    console.log(data);
-    this.setState({})
+    chartOptions.cpuUsedOptions = {};
+        chartOptions.cpuUsedOptions.option = _.cloneDeep(defaultChartOptions);
+        chartOptions.cpuUsedOptions.option.key="chart_1"
+        chartOptions.cpuUsedOptions.option.series = [{data: data  }]
+        chartOptions.cpuUsedOptions.option.title={text : '<span style="font-weight: bold; font-size:18px;">CPU Used (%)</span> / '}
+        // chartOptions.cpuUsedOptions.option.legend={ labelFormat : deviceName[i]} ;
+
+        this.setState({
+          chartOptions: chartOptions
+        })
   }
 
+
+  
+  change = (i,event,c,e) => {
+    // console.log(event);
+    let cloneChartOptions = _.cloneDeep(this.state.chartOptions);
+
+   console.log(cloneChartOptions);
+
+   _.map(cloneChartOptions, (chart, i) => {
+      console.log(chart);
+   });
+
+  //  if(e.target.value === 'line') {
+    cloneChartOptions.cpuProcessorOptions.option.chart.type = 'column';
+  //  } else if(e.target.value === 'bar') {
+    // cloneChartOptions.cpuProcessorOptions.option.chart.type = 'column';
+  //  }
+   console.log(this.state.test.value);
+  // console.log(this.state.test[0].value);
+   const testt = this.state.test.value;
+   this.setState({chartOptions : cloneChartOptions });
+
+
+  }
+
+
   render() {
+    const { data,name,chart,chartOptions } = this.state;
     return (
       <div style={{marginLeft:'100px', marginTop:'100px'}}>
-        {
-          this.state.data.map((c,i) => (
-                <div key={i} id={"chart_"+i}>
-                  <ReactHighcharts config={c} />
-                  {/* <button onClick={() => this.change()} >아아</button>   */}
-                </div>
+       {
+          _.map(chartOptions, (c, i) => (
+            <>
+                  <ReactHighcharts config={c.option}  key={i}  syncId="l2ChartEl"    />
+                  <div className="reportChartMaxSelect">
+                    {/* <select 
+                      // name={"select_"+i} 
+                      key={i}
+                      id={"select_"+i}
+                      className="reportChartSelect"
+                      onChange={this.change} >
+                        <option value="line">Line</option>
+                        <option value="bar">Bar</option>
+                    </select> */}
+                    <button onClick={this.change}>버튼</button>
+                  </div>
+            </>
           ))
-        }
-                          <button onClick={() => this.change()} >아아</button>  
-
+       }
         
       </div>
     );
   }
 }
 
+// class testd extends Component { }
 export default test;

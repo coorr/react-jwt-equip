@@ -90,6 +90,9 @@
 .reportDeviceSelect{ width: 100%; height: 20px;}
 
 /* Hight Chart */
+.highcharts-tooltip-box { fill: #222 !important; fill-opacity: 0.6 !important; stroke-width: 0 !important; }
+.highcharts-tooltip text { fill: white !important; text-shadow: 0 0 3px black !important; }
+.grid-cell-left { text-align: center; }
 
 /* .reportChartTotalArea{ border:1px solid red; } */
 .reportChartTotalBox{ border: 1px solid #ddd; margin-top: 1%; margin-left: 1%; background-color: white; border: 0; border-bottom: 1px solid black;}
