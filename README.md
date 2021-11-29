@@ -1,4 +1,4 @@
-## React JWT Authentication (without Redux) example
+<!-- ## React JWT Authentication (without Redux) example
 
 In this tutorial, we’re gonna build a React JWT Authentication example with LocalStorage, React Router, Axios and Bootstrap (without Redux). I will show you:
 
@@ -129,4 +129,4 @@ Serverless:
 Integration (run back-end & front-end on same server/port)
 > [Integrate React with Spring Boot](https://bezkoder.com/integrate-reactjs-spring-boot/)
 
-> [Integrate React with Node.js Express](https://bezkoder.com/integrate-react-express-same-server-port/)
+> [Integrate React with Node.js Express](https://bezkoder.com/integrate-react-express-same-server-port/) -->

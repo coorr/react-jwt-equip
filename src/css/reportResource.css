@@ -58,8 +58,8 @@
 .reportOutputButton{ background-color: white; color: #6693D7; border: 1px solid #6693D7;  border-radius: 0; margin-right: 0.5%; font-size: 0.9em;}
 .reportOutputButton:hover{ background-color: #3f7bd4; color: #fff; border: 1px solid #6693D7;  border-radius: 0; margin-right: 0.5%; font-size: 0.9em;}
 
-.reportChartParent{ width: 100%;  background-color: #E5E4EA; padding-left: 1.1rem; padding-top: 0.5rem;}
-.reportChartArea{ width: 97%; background-color: white;  padding: 1.1rem;   } 
+.reportChartParent{ width: 100%;  background-color: #E5E4EA; padding-left: 0.5rem; padding-top: 0.5rem;}
+.reportChartArea{ width: 98.5%; background-color: white;  padding: 1.1rem;   } 
 .reportChartBox{  display: flex;  }
 .highcharts-credits{display: none;}
 
