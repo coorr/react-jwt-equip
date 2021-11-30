@@ -19,13 +19,14 @@ const defaultChartOptions = {
 
 const data =[10,40,90]
 const data1= [2,5,100]
+
 class test extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      data: [1,2,3],
       chartOptions: {},
       test:{value:"아아"},
+      db : ["아아"],
     }
   }
 
@@ -50,64 +51,35 @@ class test extends PureComponent {
 
 
   
-  change = (e,c,i) => {
-    console.log(c);
+  change = (e,c,index) => {
     let cloneChartOptions = _.cloneDeep(this.state.chartOptions);
-
-  //  console.log(cloneChartOptions);
-
-  //  _.map(cloneChartOptions, (chart, i) => {
-  //     console.log(chart);
-  //  });
-
-  // if(e.option.chart.type === 'line') {
-    // cloneChartOptions.cpuProcessorOptions.option.chart.type = 'column';
-    c.option.chart.type='column';
-    console.log(c.option.chart.type);
-    // cloneChartOptions.cpuUsedOptions.option.chart.type='column'
-  // } else {
-  //   cloneChartOptions.cpuProcessorOptions.option.chart.type = 'line';
-  // }
-  // console.log(cloneChartOptions);
-
-  // this.setState({chartOptions : cloneChartOptions });
-  console.log(this.state.chartOptions);
-  console.log({...this.state.chartOptions});
-  console.log(cloneChartOptions);
-  const test = this.state.chartOptions;
-  test[i].option.chart.type = 'column'
-  const db =this.state.chartOptions;
-  console.log(test);
-  console.log(test[i]);
-  const tt = test[i];
-
-  this.setState({ chartOptions : test });
-
+    cloneChartOptions.cpuProcessorOptions.option.chart.type = 'column';
+    this.setState({ chartOptions : cloneChartOptions });
 }
   shouldComponentUpdate(nextProps, nextState) {
     if(this.state.chartOptions !== nextState.chartOptions) {
       return true
-    } else {
+    } 
       return false
-    }
   }
 
 
   render() {
-    const { data,name,chart,chartOptions } = this.state;
+    const {name,chart,chartOptions } = this.state;
     return (
       <div style={{marginLeft:'100px', marginTop:'100px'}}>
        {
-          _.map(chartOptions, (c, i) => (
-            <>
-              <ReactHighcharts config={c.option}  key={c.key}     />
-              <div className="reportChartMaxSelect">
-                  <button onClick={(e) => this.change(e,c,i)}>버튼</button>
-              </div>
-            </>
-          ))
+         _.map(chartOptions, (c, index) => {
+           return (
+            <div key={c.option.key}>
+            <ReactHighcharts config={c.option}  key={index}     />
+            <div className="reportChartMaxSelect">
+                <button onClick={(e) => this.change(e,c,index)}>버튼</button>
+            </div>
+          </div>
+           )
+         })
        }
-        
       </div>
     );
   }

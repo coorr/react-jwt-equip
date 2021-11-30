@@ -130,7 +130,6 @@ class ReportResoruce extends PureComponent {
       inputIdsChartCheck:null,
       inputIdsChartType:null,
       inputMaxCheck:false,
-      chartTotalBoxCheck:false,
 
       /* 달력 데이터  */
       calendarCheckSecond:false,
@@ -144,6 +143,8 @@ class ReportResoruce extends PureComponent {
       /* 차트 */
       config : [],
       timeChart:[],
+      totalKey:[],
+      unitCheck:false,
 
       /* 조회 데이터  */
       graphCheck:true,
@@ -320,6 +321,9 @@ calenderFirstChange = (date) => {
       sysNetwork.push(1);
     } 
     if(h.includes("Disk")) {
+
+
+      
       sysMemoey.push(1);
     } 
    })
@@ -991,6 +995,14 @@ inputChartBytes = (e,c,i) => {
     }
   })
   this.setState({config:[...this.state.config]})
+
+  if(this.state.totalKey !== null) {
+    this.setState({ totalKey: null ,  config:[...this.state.config]})
+    this.chartTotalCheckSecond(e,c,i);
+    
+  } else {
+    this.setState({config:[...this.state.config] })
+  }
 }
 
 /* disk && network 단위 변환 */
@@ -1035,28 +1047,20 @@ inputChartTime = (e,c,i) => {
     c.data=data;
     c.unit = e.target.value;
 
-    this.setState({config:[...this.state.config]})
+    
+    if(this.state.totalKey !== null) {
+      this.setState({ totalKey: null ,  config:[...this.state.config]})
+      this.chartTotalCheckSecond(e,c,i);
+      
+    } else {
+      this.setState({config:[...this.state.config] })
+    }
+    
 }
 
 
-// shouldComponentUpdate(nextProps, nextState) {
-//       if(this.state.config !== nextState.config) {
-//         return true
-//       }
-
-//       if(this.state.clickHwModel !== nextState.clickHwModel) {
-//         return true
-//       }
-
-//       if(this.state.clickDeviceModel !== nextState.clickDeviceModel) {
-//         return true
-//       }
-//   }
-
-
-
- /* 최대치 기준 */
- maxStandred = (e,c) => {
+/* 최대치 기준 */
+maxStandred = (e,c) => {
   var seriesData = [];
   c.series.forEach(d => {
     seriesData.push(d.data)
@@ -1071,10 +1075,10 @@ inputChartTime = (e,c,i) => {
  }
 
  /* 차트 통계 */
- chartTotalCheck = (e,i,c) => {
-   const { chartTotalBoxCheck,timeChart, chartColumnDefs } = this.state;
+ chartTotalCheckSecond = (e,c,i) => {
+   const { timeChart, chartColumnDefs, totalKey  } = this.state;
 
-   if(chartTotalBoxCheck === false) {
+   if(totalKey !== null    ) {
     var seriesData = [];
     const totalTime = [];
     timeChart.forEach(t => {
@@ -1095,13 +1099,11 @@ inputChartTime = (e,c,i) => {
 
     /* 최대값, 최소값 ,평균 */
     if(c.data === undefined && !totalTime.includes('Max')) {
-      console.log("11");
       data[0].push(Math.max(...data[0]))
       data[0].push(Math.min(...data[0]))
       const avg = data[0].reduce((a,b) => a+b, 0) / data[0].length;
       data[0].push(avg.toFixed(0))
     } else {
-      console.log("22");
       for(var w=0; w < c.series.length; w++) {
         data[w].push(Math.max(...data[w]))
         data[w].push(Math.min(...data[w]))
@@ -1149,12 +1151,133 @@ inputChartTime = (e,c,i) => {
   
   const columnDefs = c.series.length === 1  ?   ( [
       {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-      {headerName: c.legend.labelFormat ,valueFormatter: params => c.yAxis !== undefined ? params.data.value+'%' :params.data.value ,type: 'rightAligned', headerClass: "grid-cell-left"}
+      {headerName: c.legend.labelFormat ,valueFormatter: params => c.yAxis !== undefined ? params.data.value+'%' :params.data.value+' '+c.unit ,type: 'rightAligned', headerClass: "grid-cell-left"}
+      ]) : ([
+        {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
+        {headerName:'/' ,valueFormatter: params => c.unit !== undefined ? params.data.href+' '+c.unit : params.data.href,  type: 'rightAligned', headerClass: "grid-cell-left" },
+        {headerName:'/boot' ,valueFormatter: params =>c.unit !== undefined ? params.data.boot+' '+c.unit : params.data.boot,type: 'rightAligned', headerClass: "grid-cell-left" },
+        {headerName:'/dev' ,valueFormatter: params =>c.unit !== undefined ? params.data.dev+' '+c.unit : params.data.dev,  type: 'rightAligned', headerClass: "grid-cell-left" }
+        ]) 
+  const columnDefsNetwork = [
+      {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
+      {headerName:'RX' ,field:'in',  type: 'rightAligned', headerClass: "grid-cell-left" },
+      {headerName:'TX' ,field:'out',  type: 'rightAligned', headerClass: "grid-cell-left" },
+      {headerName:'Total' ,field:'total',  type: 'rightAligned', headerClass: "grid-cell-left" },
+    ]
+        
+    this.setState({
+      chartColumnDefs: c.series.length !== 2 ?  columnDefs : columnDefsNetwork,
+      totalData: seriesData,
+      totalKey:c.key
+    })
+    /* 데이터 초기화 */
+    for(var u=0; u< data.length; u++) {
+      data[u].length=dataLength
+    }
+   } 
+   
+   
+}
+
+ /* 최대치 기준 */
+ maxStandred = (e,c) => {
+  var seriesData = [];
+  c.series.forEach(d => {
+    seriesData.push(d.data)
+  })
+  if(e.target.checked == true) {
+    var max = Math.max(...seriesData[0]);
+    c.yAxis={max:max}
+  } else {
+    c.yAxis={max:100,tickInterval:20}
+  } 
+  this.setState({inputMaxCheck:e.target.checked})
+ }
+
+ /* 차트 통계 */
+ chartTotalCheck = (e,c,i) => {
+   const { timeChart, chartColumnDefs, totalKey  } = this.state;
+   console.log(c);
+
+   if(totalKey.length === 0  ) {
+    var seriesData = [];
+    const totalTime = [];
+    timeChart.forEach(t => {
+        totalTime.push(t);
+    })
+    if(!totalTime.includes('Max')) {
+      totalTime.push('Max')
+      totalTime.push('Min')
+      totalTime.push('Avg')
+    }
+ 
+    var data = [];
+    c.series.forEach(s => {
+       data.push(s.data)
+    })
+    const dataLength = [];
+    dataLength.push(data[0].length)
+
+    /* 최대값, 최소값 ,평균 */
+    if(c.data === undefined && !totalTime.includes('Max')) {
+      data[0].push(Math.max(...data[0]))
+      data[0].push(Math.min(...data[0]))
+      const avg = data[0].reduce((a,b) => a+b, 0) / data[0].length;
+      data[0].push(avg.toFixed(0))
+    } else {
+      for(var w=0; w < c.series.length; w++) {
+        data[w].push(Math.max(...data[w]))
+        data[w].push(Math.min(...data[w]))
+        const avg = data[w].reduce((a,b) => a+b, 0) / data[w].length;
+        data[w].push(avg.toFixed(0))
+      }
+    }
+
+    /* line 1개일 경우 */
+    c.series.forEach(d => {
+      for(var i=0; i<totalTime.length; i++) {
+        console.log(c.series.length);
+        if(c.series.length === 1) {
+         const obj = {};
+         obj.time = totalTime[i];
+         obj.value = d.data[i];
+         seriesData.push(obj);
+        } 
+      }
+    })
+    
+    /* line 2~3개일 경우 */
+    if(c.data !== undefined) {
+      c.data.forEach(e => {
+        for(var i=0; i< totalTime.length; i++) {
+          if(c.series.length === 2) {
+            const obj = {};
+            obj.time = totalTime[i];
+            obj.in = e.in[i];
+            obj.out = e.out[i];
+            obj.total = Number(e.in[i]) +Number( e.out[i])
+            seriesData.push(obj);
+          } else if(c.series.length === 3) {
+            const obj = {}; 
+            obj.time = totalTime[i];
+            obj.dev = e.value[i];
+            obj.boot = e.value1[i];
+            obj.href = e.value2[i];
+            seriesData.push(obj);
+          }
+        }
+      })
+    }
+  console.log(seriesData);
+  
+  const columnDefs = c.series.length === 1  ?   ( [
+      {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
+      {headerName: c.legend.labelFormat ,valueFormatter: params => c.yAxis !== undefined ? params.data.value+'%' :params.data.value+' '+c.unit ,type: 'rightAligned', headerClass: "grid-cell-left"}
       ]) : ([
       {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-      {headerName:'/' ,field:'href',  type: 'rightAligned', headerClass: "grid-cell-left" },
-      {headerName:'/boot' ,field:'boot',  type: 'rightAligned', headerClass: "grid-cell-left" },
-      {headerName:'/dev' ,field:'dev',  type: 'rightAligned', headerClass: "grid-cell-left" }
+      {headerName:'/' ,valueFormatter: params => c.unit !== undefined ? params.data.href+' '+c.unit : params.data.href,  type: 'rightAligned', headerClass: "grid-cell-left" },
+      {headerName:'/boot' ,valueFormatter: params =>c.unit !== undefined ? params.data.boot+' '+c.unit : params.data.boot,type: 'rightAligned', headerClass: "grid-cell-left" },
+      {headerName:'/dev' ,valueFormatter: params =>c.unit !== undefined ? params.data.dev+' '+c.unit : params.data.dev,  type: 'rightAligned', headerClass: "grid-cell-left" }
       ]) 
   const columnDefsNetwork = [
       {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
@@ -1164,17 +1287,21 @@ inputChartTime = (e,c,i) => {
     ]
         
     this.setState({
-      chartTotalBoxCheck : true,
       chartColumnDefs: c.series.length !== 2 ?  columnDefs : columnDefsNetwork,
       totalData: seriesData,
+      totalKey:totalKey.concat(c.key)
     })
     /* 데이터 초기화 */
     for(var u=0; u< data.length; u++) {
       data[u].length=dataLength
     }
-   } else if(chartTotalBoxCheck === true) {
-    this.setState({chartTotalBoxCheck : false})
+   } 
+  else if(totalKey !== null ) {
+    this.setState({totalKey: totalKey.filter(totalKey => totalKey !== c.key) })
    }
+   console.log(totalKey[i]);
+   console.log(c.key);
+   
 }
 
 
@@ -1183,13 +1310,15 @@ inputChartTime = (e,c,i) => {
   render() {
     const { buttonIdsArray,clickedId,calendarCheckFirst,calendarCheckSecond,date,firstDateFormat,secondDateFormat,firstTimeFormat,secondTimeFormat,filterCheck,
       config,clickHwModel,hwColumnDefs,hwData,hwDefaultColDef,clickDeviceModel,deviceColumnDefs,deviceData,deviceDefaultColDef,buttonIdsDeviceArray,clickedDeviceId,
-      autoGroupColumnDef,deviceSearchName,hwSearchName,graphCheck,inputIdsChart,inputIdsChartDefault,inputIdsChartCheck,inputIdsChartType,inputMaxCheck,chartTotalBoxCheck,
-      chartColumnDefs,totalData,chartDefaultColDef,loader } =this.state;
+      autoGroupColumnDef,deviceSearchName,hwSearchName,graphCheck,inputIdsChart,inputIdsChartDefault,inputIdsChartCheck,inputIdsChartType,inputMaxCheck,
+      chartColumnDefs,totalData,chartDefaultColDef,loader, totalKey } =this.state;
 
     const firstDateFormatInput = Moment(firstDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
     const secondDateFormatInput = Moment(secondDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
 
     console.log(config);
+    console.log(totalData);
+    console.log(totalKey);
 
     return (
       <>
@@ -1445,12 +1574,6 @@ inputChartTime = (e,c,i) => {
           </button>
         </div>
 
-        {/* <div className="reportOutputBox">
-          <Button className="reportOutputButton">PDF</Button>
-          <Button className="reportOutputButton">Excel-자원 개별</Button>
-          <Button className="reportOutputButton">Excel-자원 통합</Button>
-        </div> */}
-
         {
           graphCheck && (
             <>
@@ -1531,34 +1654,34 @@ inputChartTime = (e,c,i) => {
                     </div>
 
                   <div className="reportChartTotalArea">
-                    <button className="reportChartTotalBox"  onClick={(e) => this.chartTotalCheck(e,i,c)}>
-                      <label className="reportChartTotalText" name={"total_"+i}>
+                    <button className="reportChartTotalBox"   onClick={(e) => this.chartTotalCheck(e,c,i)}>
+                      <label className="reportChartTotalText" >
                         ▼ 차트 통계
                       </label>
                     </button>
-                  {
-                    chartTotalBoxCheck && (
-                      <div className="reportChartTotalGrid">
-                        <div className="ag-theme-alpine" style={{ width:'93vw', height:'40vh',marginLeft:'0.5vw'}}>
-                            <AgGridReact
-                            headerHeight='30'
-                            floatingFiltersHeight='23'
-                            rowHeight='25'
-                            columnDefs={chartColumnDefs}  
-                            defaultColDef={chartDefaultColDef}
-                            rowData={totalData}
-                            onGridReady={params => { this.gridApiChart = params.api;}}
-                          />       
+                    {
+                      c.key === totalKey[i] && (
+                        <div className="reportChartTotalGrid"  >
+                          <div className="ag-theme-alpine" style={{ width:'93vw', height:'40vh',marginLeft:'0.5vw'}}>
+                              <AgGridReact
+                              headerHeight='30'
+                              floatingFiltersHeight='23'
+                              rowHeight='25'
+                              columnDefs={chartColumnDefs}  
+                              defaultColDef={chartDefaultColDef}
+                              rowData={totalData}
+                              onGridReady={params => { this.gridApiChart = params.api;}}
+                            />       
+                          </div>
                         </div>
-                      </div>
-                    )
-                  }
-
+                        )
+                      }
                   </div>
                 </div>
               </div>
                 ))
               }
+              
             <div className="reportFooter"></div>
             </>
           )
