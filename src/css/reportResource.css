@@ -95,8 +95,9 @@
 .grid-cell-left { text-align: center; }
 
 /* .reportChartTotalArea{ border:1px solid red; } */
-.reportChartTotalBox{ border: 1px solid #ddd; margin-top: 1%; margin-left: 1%; background-color: white; border: 0; border-bottom: 1px solid black;}
+.reportChartTotalBox{  margin-top: 1%; margin-left: 1%; background-color: white; border: 0; border-bottom: 1px solid black;}
 .reportChartTotalText{font-size: 0.9em; font-weight: bold;}
+.reportChartTotalText:hover{font-size: 0.9em; font-weight: bold; color:rgb(116, 116, 116)}
 .reportChartTotalGrid{ margin-top: 1%; margin-left: 0.5%;}
 
 /* footer */

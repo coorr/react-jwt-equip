@@ -50,10 +50,12 @@ const hwDatas = [
 {id:26, group:"Network", network:"Network Traffic"},{id:27, group:"Network", network:"Network PPS"},
 {id:28, group:"Network", network:"NIC Discards"},{id:29, group:"Network", network:"NIC Errors"} ]
 
-const oneMonth = new Date(new Date().getTime() - 34128000000 );
+// 하루 초 86400 000
+const oneMonth = new Date(new Date().getTime() - 34992000000 );
 
 
-
+const seriesGrid = [{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]}];
+const seriesColumn = [{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]}];
 class ReportResoruce extends PureComponent {
   constructor(props) {
     super(props);
@@ -145,6 +147,8 @@ class ReportResoruce extends PureComponent {
       timeChart:[],
       totalKey:[],
       unitCheck:false,
+      totalName:'',
+      selectTotalCheck: false,
 
       /* 조회 데이터  */
       graphCheck:true,
@@ -486,7 +490,8 @@ calenderFirstChange = (date) => {
         const testData = [0, 0, 0,0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 0, 0, 0, 0, 0, 0]
         obj.series = [{data: testData  }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]} 
+        obj.legend={ labelFormat : deviceName[i]}
+        obj.totalName=[deviceName[i]] 
         configArray.push(obj);
       }
       if(graphHwName.includes("CPU Used (%)")) {
@@ -498,6 +503,7 @@ calenderFirstChange = (date) => {
         obj.series = [{data: cpuUser}]
         obj.title= {text :'<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+''}
         obj.legend={ labelFormat : deviceName[i]}
+        obj.totalName=[deviceName[i]]
         configArray.push(obj);
       }
       if(graphHwName.includes("CPU Context Switch")) {
@@ -508,6 +514,7 @@ calenderFirstChange = (date) => {
         obj.series = [{data: cpuContextSwitch}]
         obj.title= {text :'<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+''}
         obj.legend={ labelFormat : deviceName[i]}
+        obj.totalName=[deviceName[i]]
         configArray.push(obj);
       }
       if(graphHwName.includes("CPU Run Queue")) {
@@ -518,6 +525,7 @@ calenderFirstChange = (date) => {
         obj.series = [{data: cpuRunQueue}]
         obj.title= {text :'<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+''}
         obj.legend={ labelFormat : deviceName[i]}
+        obj.totalName=[deviceName[i]]
         configArray.push(obj);
       }
       if(graphHwName.includes("Load Avg")) {
@@ -528,6 +536,7 @@ calenderFirstChange = (date) => {
         obj.series = [{data: cpuLoadAvg}]
         obj.title= {text :'<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+''}
         obj.legend={ labelFormat : deviceName[i]}
+        obj.totalName=[deviceName[i]]
         configArray.push(obj);
       }
       if(graphHwName.includes("Memory Used (%)")) {
@@ -538,7 +547,8 @@ calenderFirstChange = (date) => {
         obj.yAxis = { max:100, tickInterval:20  } 
         obj.series = [{data: memoryUsedPercentage  }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]} 
+        obj.legend={ labelFormat : deviceName[i]}
+        obj.totalName=[deviceName[i]] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Memory Bytes")) {
@@ -554,7 +564,8 @@ calenderFirstChange = (date) => {
         obj.key="chart_8"
         obj.series = [{data:  unitData}]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]} 
+        obj.legend={ labelFormat : deviceName[i]}
+        obj.totalName=[deviceName[i]] 
         obj.bytes=memoryBytes;
         obj.unit=unit;
         configArray.push(obj);
@@ -567,7 +578,8 @@ calenderFirstChange = (date) => {
         obj.yAxis = { max:100, tickInterval:20  } 
         obj.series = [{data: memoryBuffersPercentage  }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]} 
+        obj.legend={ labelFormat : deviceName[i]}
+        obj.totalName=[deviceName[i]] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Memory Buffers Bytes")) {
@@ -583,7 +595,8 @@ calenderFirstChange = (date) => {
         obj.key="chart_10"
         obj.series = [{data: unitData    }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]} 
+        obj.legend={ labelFormat : deviceName[i]}
+        obj.totalName=[deviceName[i]] 
         obj.bytes=memoryBuffersPercentage;
         obj.unit=unit;
         configArray.push(obj);
@@ -596,7 +609,8 @@ calenderFirstChange = (date) => {
         obj.yAxis = { max:100, tickInterval:20  }
         obj.series = [{data: memoryCachedPercentage  }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]} 
+        obj.legend={ labelFormat : deviceName[i]}
+        obj.totalName=[deviceName[i]] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Memory Cached Bytes")) {
@@ -612,7 +626,8 @@ calenderFirstChange = (date) => {
         obj.key="chart_12"
         obj.series = [{data: unitData   }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]} 
+        obj.legend={ labelFormat : deviceName[i]}
+        obj.totalName=[deviceName[i]] 
         obj.bytes=memoryCached;
         obj.unit=unit;
         configArray.push(obj);
@@ -625,7 +640,8 @@ calenderFirstChange = (date) => {
         obj.yAxis = { max:100, tickInterval:20  } 
         obj.series = [{data: memorySharedPercentage  }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]} 
+        obj.legend={ labelFormat : deviceName[i]}
+        obj.totalName=[deviceName[i]] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Memory Shared Bytes")) {
@@ -641,7 +657,8 @@ calenderFirstChange = (date) => {
         obj.key="chart_14"
         obj.series = [{data: unitData }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]} 
+        obj.legend={ labelFormat : deviceName[i]}
+        obj.totalName=[deviceName[i]] 
         obj.bytes=memoryShared;
         obj.unit=unit;
         configArray.push(obj);
@@ -654,7 +671,8 @@ calenderFirstChange = (date) => {
         obj.yAxis = { max:100, tickInterval:20  }
         obj.series = [{data: memorySwapPercentage  }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]} 
+        obj.legend={ labelFormat : deviceName[i]}
+        obj.totalName=[deviceName[i]] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Memory Swap Bytes")) {
@@ -670,7 +688,8 @@ calenderFirstChange = (date) => {
         obj.key="chart_16"
         obj.series = [{data: unitData }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]} 
+        obj.legend={ labelFormat : deviceName[i]}
+        obj.totalName=[deviceName[i]] 
         obj.bytes=memorySwap;
         obj.unit=unit;
         configArray.push(obj);
@@ -683,7 +702,8 @@ calenderFirstChange = (date) => {
         obj.yAxis = { max:100, tickInterval:20  }
         obj.series = [{data: memoryPagefault  }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]} 
+        obj.legend={ labelFormat : deviceName[i]}
+        obj.totalName=[deviceName[i]] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Disk Total Used (%)")) {
@@ -694,7 +714,8 @@ calenderFirstChange = (date) => {
         obj.yAxis = { max:100, tickInterval:20  }
         obj.series = [{data: diskTotalUsedPercentage   }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]} 
+        obj.legend={ labelFormat : deviceName[i]}
+        obj.totalName=[deviceName[i]] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Disk Total Used Bytes")) {
@@ -711,7 +732,8 @@ calenderFirstChange = (date) => {
         obj.series = [{data: unitData    }]
         console.log(deviceName[i]);
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]} 
+        obj.legend={ labelFormat : deviceName[i]}
+        obj.totalName=[deviceName[i]] 
         obj.bytes=diskTotalUsedBytes;
         obj.unit=unit;
         configArray.push(obj);
@@ -725,6 +747,7 @@ calenderFirstChange = (date) => {
         obj.series = [{data: diskUsedPercentage[0].value, name: '/dev'},{ data: diskUsedPercentage[0].value1, name:'/boot' ,color:'rgb(255, 184, 64)'},{ data: diskUsedPercentage[0].value2, name:'/',color:'red'}]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.data=diskUsedPercentage;
+        obj.totalName=[deviceName[i]] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Disk Used Bytes")) {
@@ -748,6 +771,7 @@ calenderFirstChange = (date) => {
         obj.data=unitData;
         obj.bytes=diskUsedBytes;
         obj.unit=unit;
+        obj.totalName=[deviceName[i]] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Disk I/O (%)")) {
@@ -759,6 +783,7 @@ calenderFirstChange = (date) => {
         obj.series = [{data: diskIoPercentage[0].value, name: '/dev'},{ data: diskIoPercentage[0].value1, name:'/boot',color:'rgb(255, 184, 64)'},{ data: diskIoPercentage[0].value2, name:'/',color:'red'}]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.data=diskIoPercentage;
+        obj.totalName=[deviceName[i]] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Disk I/O Count")) {
@@ -769,6 +794,7 @@ calenderFirstChange = (date) => {
         obj.series = [{data: diskIoCount[0].value, name: '/dev'},{ data: diskIoCount[0].value1, name:'/boot',color:'rgb(255, 184, 64)'},{ data: diskIoCount[0].value2, name:'/',color:'red'}]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.data=diskIoCount;
+        obj.totalName=[deviceName[i]] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Disk I/O Bytes")) {
@@ -791,6 +817,7 @@ calenderFirstChange = (date) => {
         obj.data=unitData;
         obj.bytes=diskIoBytes;
         obj.unit=unit;
+        obj.totalName=[deviceName[i]]
         configArray.push(obj);
       }
       if(graphHwName.includes("Disk Queue")) {
@@ -801,13 +828,15 @@ calenderFirstChange = (date) => {
         obj.series = [{data: diskQueue[0].value, name: '/dev'},{ data: diskQueue[0].value1, name:'/boot',color:'rgb(255, 184, 64)'},{ data: diskQueue[0].value2, name:'/',color:'red'}]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'', }
         obj.data=diskQueue;
+        obj.totalName=[deviceName[i]]
         configArray.push(obj);
       }
       if(graphHwName.includes("Network Traffic")) {
         const unitData =  [{ in:[], out:[] }];
         for(var e=0; e< networkTraffic[0].in.length; e++) {
-          var q = Math.floor( Math.log(networkTraffic[0].in[e]) / Math.log(1024) );
-          var w = Math.floor( Math.log(networkTraffic[0].out[e]) / Math.log(1024) );
+          // 값이 0 일 때 나눌 수 없어 nan 뜨는 예외처리
+          if(networkTraffic[0].in[e] !== 0  ) { var q = Math.floor( Math.log(networkTraffic[0].in[e]) / Math.log(1024)); }
+          if(networkTraffic[0].out[e]  !== 0 ) { var w = Math.floor( Math.log(networkTraffic[0].out[e]) / Math.log(1024) ); }
           var unit = ['B', 'kB', 'MB', 'GB'][q];
           unitData[0].in.push(Number(( networkTraffic[0].in[e] / Math.pow(1024, q) ).toFixed(0)));
           unitData[0].out.push(Number(( networkTraffic[0].out[e] / Math.pow(1024, w) ).toFixed(0)));
@@ -821,13 +850,14 @@ calenderFirstChange = (date) => {
         obj.data = unitData;
         obj.bytes = networkTraffic;
         obj.unit=unit;
+        obj.totalName=[deviceName[i]]
         configArray.push(obj);
       }
       if(graphHwName.includes("Network PPS")) {
         const unitData =  [{ in:[], out:[] }];
         for(var e=0; e< networkPps[0].in.length; e++) {
-          var q = Math.floor( Math.log(networkPps[0].in[e]) / Math.log(1024) );
-          var w = Math.floor( Math.log(networkPps[0].out[e]) / Math.log(1024) );
+          if(networkPps[0].in[e] !== 0  ) { var q = Math.floor( Math.log(networkPps[0].in[e]) / Math.log(1024)); }
+          if(networkPps[0].out[e]  !== 0 ) { var w = Math.floor( Math.log(networkPps[0].out[e]) / Math.log(1024) ); }
           var unit = ['B', 'kB', 'MB', 'GB'][q];
           unitData[0].in.push(Number(( networkPps[0].in[e] / Math.pow(1024, q) ).toFixed(0)));
           unitData[0].out.push(Number(( networkPps[0].out[e] / Math.pow(1024, w) ).toFixed(0)));
@@ -842,13 +872,14 @@ calenderFirstChange = (date) => {
         obj.data = unitData;
         obj.bytes = networkPps;
         obj.unit=unit;
+        obj.totalName=[deviceName[i]]
         configArray.push(obj);
       }
       if(graphHwName.includes("NIC Discards")) {
         const unitData =  [{ in:[], out:[] }];
         for(var e=0; e< nicDiscards[0].in.length; e++) {
-          var q = Math.floor( Math.log(nicDiscards[0].in[e]) / Math.log(1024) );
-          var w = Math.floor( Math.log(nicDiscards[0].out[e]) / Math.log(1024) );
+          if(nicDiscards[0].in[e] !== 0  ) { var q = Math.floor( Math.log(nicDiscards[0].in[e]) / Math.log(1024)); }
+          if(nicDiscards[0].out[e]  !== 0 ) { var w = Math.floor( Math.log(nicDiscards[0].out[e]) / Math.log(1024) ); }
           var unit = ['B', 'kB', 'MB', 'GB'][q];
           unitData[0].in.push(Number(( nicDiscards[0].in[e] / Math.pow(1024, q) ).toFixed(0)));
           unitData[0].out.push(Number(( nicDiscards[0].out[e] / Math.pow(1024, w) ).toFixed(0)));
@@ -863,13 +894,14 @@ calenderFirstChange = (date) => {
         obj.data = unitData;
         obj.bytes = nicDiscards;
         obj.unit=unit;
+        obj.totalName=[deviceName[i]]
         configArray.push(obj);
       } 
       if(graphHwName.includes("NIC Errors")) {
         const unitData =  [{ in:[], out:[] }];
         for(var e=0; e< nicErrors[0].in.length; e++) {
-          var q = Math.floor( Math.log(nicErrors[0].in[e]) / Math.log(1024) );
-          var w = Math.floor( Math.log(nicErrors[0].out[e]) / Math.log(1024) );
+          if(nicErrors[0].in[e] !== 0  ) { var q = Math.floor( Math.log(nicErrors[0].in[e]) / Math.log(1024)); }
+          if(nicErrors[0].out[e]  !== 0 ) { var w = Math.floor( Math.log(nicErrors[0].out[e]) / Math.log(1024) ); }
           var unit = ['B', 'kB', 'MB', 'GB'][q];
           unitData[0].in.push(Number(( nicErrors[0].in[e] / Math.pow(1024, q) ).toFixed(0)));
           unitData[0].out.push(Number(( nicErrors[0].out[e] / Math.pow(1024, w) ).toFixed(0)));
@@ -884,6 +916,7 @@ calenderFirstChange = (date) => {
         obj.data = unitData;
         obj.bytes = nicErrors;
         obj.unit=unit;
+        obj.totalName=[deviceName[i]]
         configArray.push(obj);
       } 
       
@@ -1007,6 +1040,7 @@ inputChartBytes = (e,c,i) => {
 
 /* disk && network 단위 변환 */
 inputChartTime = (e,c,i) => {
+  const { totalKey } = this.state;
   const changeBytes = [];
   const data = [];
   const value = [];
@@ -1047,138 +1081,20 @@ inputChartTime = (e,c,i) => {
     c.data=data;
     c.unit = e.target.value;
 
-    
-    if(this.state.totalKey !== null) {
-      this.setState({ totalKey: null ,  config:[...this.state.config]})
+    console.log(c);
+    console.log(totalKey);  // 23,24
+    if(totalKey.includes(c.key)) {
+      this.state.totalData= [];
       this.chartTotalCheckSecond(e,c,i);
+      // this.setState({config:[...this.state.config]  })
+      
+      
       
     } else {
       this.setState({config:[...this.state.config] })
     }
     
 }
-
-
-/* 최대치 기준 */
-maxStandred = (e,c) => {
-  var seriesData = [];
-  c.series.forEach(d => {
-    seriesData.push(d.data)
-  })
-  if(e.target.checked == true) {
-    var max = Math.max(...seriesData[0]);
-    c.yAxis={max:max}
-  } else {
-    c.yAxis={max:100,tickInterval:20}
-  } 
-  this.setState({inputMaxCheck:e.target.checked})
- }
-
- /* 차트 통계 */
- chartTotalCheckSecond = (e,c,i) => {
-   const { timeChart, chartColumnDefs, totalKey  } = this.state;
-
-   if(totalKey !== null    ) {
-    var seriesData = [];
-    const totalTime = [];
-    timeChart.forEach(t => {
-        totalTime.push(t);
-    })
-    if(!totalTime.includes('Max')) {
-      totalTime.push('Max')
-      totalTime.push('Min')
-      totalTime.push('Avg')
-    }
- 
-    var data = [];
-    c.series.forEach(s => {
-       data.push(s.data)
-    })
-    const dataLength = [];
-    dataLength.push(data[0].length)
-
-    /* 최대값, 최소값 ,평균 */
-    if(c.data === undefined && !totalTime.includes('Max')) {
-      data[0].push(Math.max(...data[0]))
-      data[0].push(Math.min(...data[0]))
-      const avg = data[0].reduce((a,b) => a+b, 0) / data[0].length;
-      data[0].push(avg.toFixed(0))
-    } else {
-      for(var w=0; w < c.series.length; w++) {
-        data[w].push(Math.max(...data[w]))
-        data[w].push(Math.min(...data[w]))
-        const avg = data[w].reduce((a,b) => a+b, 0) / data[w].length;
-        data[w].push(avg.toFixed(0))
-      }
-    }
-
-    /* line 1개일 경우 */
-    c.series.forEach(d => {
-      for(var i=0; i<totalTime.length; i++) {
-        console.log(c.series.length);
-        if(c.series.length === 1) {
-         const obj = {};
-         obj.time = totalTime[i];
-         obj.value = d.data[i];
-         seriesData.push(obj);
-        } 
-      }
-    })
-    
-    /* line 2~3개일 경우 */
-    if(c.data !== undefined) {
-      c.data.forEach(e => {
-        for(var i=0; i< totalTime.length; i++) {
-          if(c.series.length === 2) {
-            const obj = {};
-            obj.time = totalTime[i];
-            obj.in = e.in[i];
-            obj.out = e.out[i];
-            obj.total = Number(e.in[i]) +Number( e.out[i])
-            seriesData.push(obj);
-          } else if(c.series.length === 3) {
-            const obj = {}; 
-            obj.time = totalTime[i];
-            obj.dev = e.value[i];
-            obj.boot = e.value1[i];
-            obj.href = e.value2[i];
-            seriesData.push(obj);
-          }
-        }
-      })
-    }
-  console.log(seriesData);
-  
-  const columnDefs = c.series.length === 1  ?   ( [
-      {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-      {headerName: c.legend.labelFormat ,valueFormatter: params => c.yAxis !== undefined ? params.data.value+'%' :params.data.value+' '+c.unit ,type: 'rightAligned', headerClass: "grid-cell-left"}
-      ]) : ([
-        {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-        {headerName:'/' ,valueFormatter: params => c.unit !== undefined ? params.data.href+' '+c.unit : params.data.href,  type: 'rightAligned', headerClass: "grid-cell-left" },
-        {headerName:'/boot' ,valueFormatter: params =>c.unit !== undefined ? params.data.boot+' '+c.unit : params.data.boot,type: 'rightAligned', headerClass: "grid-cell-left" },
-        {headerName:'/dev' ,valueFormatter: params =>c.unit !== undefined ? params.data.dev+' '+c.unit : params.data.dev,  type: 'rightAligned', headerClass: "grid-cell-left" }
-        ]) 
-  const columnDefsNetwork = [
-      {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-      {headerName:'RX' ,field:'in',  type: 'rightAligned', headerClass: "grid-cell-left" },
-      {headerName:'TX' ,field:'out',  type: 'rightAligned', headerClass: "grid-cell-left" },
-      {headerName:'Total' ,field:'total',  type: 'rightAligned', headerClass: "grid-cell-left" },
-    ]
-        
-    this.setState({
-      chartColumnDefs: c.series.length !== 2 ?  columnDefs : columnDefsNetwork,
-      totalData: seriesData,
-      totalKey:c.key
-    })
-    /* 데이터 초기화 */
-    for(var u=0; u< data.length; u++) {
-      data[u].length=dataLength
-    }
-   } 
-   
-   
-}
-
  /* 최대치 기준 */
  maxStandred = (e,c) => {
   var seriesData = [];
@@ -1196,10 +1112,12 @@ maxStandred = (e,c) => {
 
  /* 차트 통계 */
  chartTotalCheck = (e,c,i) => {
-   const { timeChart, chartColumnDefs, totalKey  } = this.state;
+   const { timeChart, chartColumnDefs, totalKey, totalData, totalName  } = this.state;
    console.log(c);
+   console.log(totalKey);
+   console.log(totalKey.length);
 
-   if(totalKey.length === 0  ) {
+   if(totalKey.length >= 0 && !totalKey.includes(c.key)) {
     var seriesData = [];
     const totalTime = [];
     timeChart.forEach(t => {
@@ -1219,7 +1137,7 @@ maxStandred = (e,c) => {
     dataLength.push(data[0].length)
 
     /* 최대값, 최소값 ,평균 */
-    if(c.data === undefined && !totalTime.includes('Max')) {
+    if(c.data === undefined ) {
       data[0].push(Math.max(...data[0]))
       data[0].push(Math.min(...data[0]))
       const avg = data[0].reduce((a,b) => a+b, 0) / data[0].length;
@@ -1237,17 +1155,18 @@ maxStandred = (e,c) => {
     c.series.forEach(d => {
       for(var i=0; i<totalTime.length; i++) {
         console.log(c.series.length);
-        if(c.series.length === 1) {
+        if(c.series.length === 1 ) {
          const obj = {};
          obj.time = totalTime[i];
          obj.value = d.data[i];
-         seriesData.push(obj);
+         seriesGrid[totalKey.length].value.push(obj)
         } 
       }
     })
     
     /* line 2~3개일 경우 */
     if(c.data !== undefined) {
+      console.log(c.data);
       c.data.forEach(e => {
         for(var i=0; i< totalTime.length; i++) {
           if(c.series.length === 2) {
@@ -1256,54 +1175,205 @@ maxStandred = (e,c) => {
             obj.in = e.in[i];
             obj.out = e.out[i];
             obj.total = Number(e.in[i]) +Number( e.out[i])
-            seriesData.push(obj);
+            seriesGrid[totalKey.length].value.push(obj)
           } else if(c.series.length === 3) {
             const obj = {}; 
             obj.time = totalTime[i];
             obj.dev = e.value[i];
             obj.boot = e.value1[i];
             obj.href = e.value2[i];
-            seriesData.push(obj);
+            seriesGrid[totalKey.length].value.push(obj)
           }
         }
       })
     }
-  console.log(seriesData);
-  
-  const columnDefs = c.series.length === 1  ?   ( [
+  const columnDefs = c.series.length === 1  ?   ([
       {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-      {headerName: c.legend.labelFormat ,valueFormatter: params => c.yAxis !== undefined ? params.data.value+'%' :params.data.value+' '+c.unit ,type: 'rightAligned', headerClass: "grid-cell-left"}
+      {headerName: c.legend.labelFormat ,type: 'rightAligned', headerClass: "grid-cell-left",
+      valueFormatter: params =>  {
+        if(c.yAxis !== undefined) {
+          return params.data.value+'%' 
+        } else if(c.unit !== undefined) {
+          return params.data.value+c.unit
+        } else {
+          return params.data.value
+        }
+      }}
       ]) : ([
       {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-      {headerName:'/' ,valueFormatter: params => c.unit !== undefined ? params.data.href+' '+c.unit : params.data.href,  type: 'rightAligned', headerClass: "grid-cell-left" },
-      {headerName:'/boot' ,valueFormatter: params =>c.unit !== undefined ? params.data.boot+' '+c.unit : params.data.boot,type: 'rightAligned', headerClass: "grid-cell-left" },
-      {headerName:'/dev' ,valueFormatter: params =>c.unit !== undefined ? params.data.dev+' '+c.unit : params.data.dev,  type: 'rightAligned', headerClass: "grid-cell-left" }
+      {headerName:'/' ,valueFormatter: params => this.diskValueFormatter(c,params),  type: 'rightAligned', headerClass: "grid-cell-left" },
+      {headerName:'/boot' ,valueFormatter: params =>c.unit !== undefined ? params.data.boot+' '+c.unit : params.data.boot+' '+'%',type: 'rightAligned', headerClass: "grid-cell-left" },
+      {headerName:'/dev' ,valueFormatter: params =>c.unit !== undefined ? params.data.dev+' '+c.unit : params.data.dev+' '+'%',  type: 'rightAligned', headerClass: "grid-cell-left" }
       ]) 
   const columnDefsNetwork = [
       {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-      {headerName:'RX' ,field:'in',  type: 'rightAligned', headerClass: "grid-cell-left" },
-      {headerName:'TX' ,field:'out',  type: 'rightAligned', headerClass: "grid-cell-left" },
-      {headerName:'Total' ,field:'total',  type: 'rightAligned', headerClass: "grid-cell-left" },
+      {headerName:'RX' ,valueFormatter: params => c.unit !== undefined ? params.data.in+' '+c.unit : params.data.in,  type: 'rightAligned', headerClass: "grid-cell-left" },
+      {headerName:'TX' ,valueFormatter: params => c.unit !== undefined ? params.data.out+' '+c.unit : params.data.out,  type: 'rightAligned', headerClass: "grid-cell-left" },
+      {headerName:'Total' ,valueFormatter: params => c.unit !== undefined ? params.data.total+' '+c.unit : params.data.total,  type: 'rightAligned', headerClass: "grid-cell-left" },
     ]
         
+  if(c.series.length !== 2) {
+    seriesColumn[totalKey.length].column.push(columnDefs);
+  } else {
+    seriesColumn[totalKey.length].column.push(columnDefsNetwork)
+  }
     this.setState({
-      chartColumnDefs: c.series.length !== 2 ?  columnDefs : columnDefsNetwork,
-      totalData: seriesData,
-      totalKey:totalKey.concat(c.key)
+      chartColumnDefs: seriesColumn,
+      totalData: seriesGrid,
+      totalKey:totalKey.concat(c.key),
+      totalName:c.totalName
     })
     /* 데이터 초기화 */
     for(var u=0; u< data.length; u++) {
       data[u].length=dataLength
     }
    } 
-  else if(totalKey !== null ) {
-    this.setState({totalKey: totalKey.filter(totalKey => totalKey !== c.key) })
-   }
-   console.log(totalKey[i]);
-   console.log(c.key);
-   
+    else if(totalKey.includes(c.key)) {
+      this.setState({totalKey: totalKey.filter(totalKey => totalKey !== c.key) })  // 값이 같은 것만 삭제
+      seriesGrid[totalKey.length-1].value.length=0;
+      seriesColumn[totalKey.length-1].column.length=0;
+     }
 }
 
+ /* 단위 변화 차트 통계 */
+ chartTotalCheckSecond = (e,c,i) => {
+  const { timeChart, totalKey,totalData} = this.state;
+  console.log(totalData);
+   console.log(c);
+
+   if(totalKey.length >= 0 && totalKey.includes(c.key)) {
+    seriesGrid[totalKey.length-1].value.length=0;
+    seriesColumn[totalKey.length-1].column.length=0;
+    // totalData.length =0;
+
+    const totalTime = [];
+    timeChart.forEach(t => {
+        totalTime.push(t);
+    })
+    if(!totalTime.includes('Max')) {
+      totalTime.push('Max')
+      totalTime.push('Min')
+      totalTime.push('Avg')
+    }
+ 
+    var data = [];
+    c.series.forEach(s => {
+       data.push(s.data)
+    })
+    const dataLength = [];
+    dataLength.push(data[0].length)
+
+    /* 최대값, 최소값 ,평균 */
+    if(c.data === undefined ) {
+      data[0].push(Math.max(...data[0]))
+      data[0].push(Math.min(...data[0]))
+      const avg = data[0].reduce((a,b) => a+b, 0) / data[0].length;
+      data[0].push(avg.toFixed(0))
+    } else {
+      for(var w=0; w < c.series.length; w++) {
+        data[w].push(Math.max(...data[w]))
+        data[w].push(Math.min(...data[w]))
+        const avg = data[w].reduce((a,b) => a+b, 0) / data[w].length;
+        data[w].push(avg.toFixed(0))
+      }
+    }
+
+    /* line 1개일 경우 */
+    c.series.forEach(d => {
+      for(var i=0; i<totalTime.length; i++) {
+        console.log(c.series.length);
+        if(c.series.length === 1 ) {
+         const obj = {};
+         obj.time = totalTime[i];
+         obj.value = d.data[i];
+         seriesGrid[totalKey.length-1].value.push(obj)
+        } 
+      }
+    })
+    
+    /* line 2~3개일 경우 */
+    if(c.data !== undefined) {
+      console.log(c.data);
+      c.data.forEach(e => {
+        for(var i=0; i< totalTime.length; i++) {
+          if(c.series.length === 2) {
+            const obj = {};
+            obj.time = totalTime[i];
+            obj.in = e.in[i];
+            obj.out = e.out[i];
+            obj.total = Number(e.in[i]) +Number( e.out[i])
+            seriesGrid[totalKey.length-1].value.push(obj)
+          } else if(c.series.length === 3) {
+            const obj = {}; 
+            obj.time = totalTime[i];
+            obj.dev = e.value[i];
+            obj.boot = e.value1[i];
+            obj.href = e.value2[i];
+            seriesGrid[totalKey.length-1].value.push(obj)
+          }
+        }
+      })
+    }
+    // console.log("asdasdasd", this.state.totalData);
+  const columnDefss = c.series.length === 1  ?   ([
+      {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
+      {headerName: c.legend.labelFormat ,type: 'rightAligned', headerClass: "grid-cell-left",
+      valueFormatter: params =>  {
+        if(c.yAxis !== undefined) {
+          return params.data.value+'%' 
+        } else if(c.unit !== undefined) {
+          return params.data.value+c.unit
+        } else {
+          return params.data.value
+        }
+      }}
+      ]) : ([
+      {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
+      // {headerName:'/' ,valueFormatter: params => this.diskValueFormatter(c,params),  type: 'rightAligned', headerClass: "grid-cell-left" },
+      // {headerName:'/boot' ,valueFormatter: params =>c.unit !== undefined ? params.data.boot+' '+c.unit : params.data.boot+' '+'%',type: 'rightAligned', headerClass: "grid-cell-left" },
+      // {headerName:'/dev' ,valueFormatter: params =>c.unit !== undefined ? params.data.dev+' '+c.unit : params.data.dev+' '+'%',  type: 'rightAligned', headerClass: "grid-cell-left" }
+      ]) 
+  const columnDefsNetworks = [
+      {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
+      {headerName:'RX' , field:'in', type: 'rightAligned', headerClass: "grid-cell-left" },
+      {headerName:'TX' ,valueFormatter: params => c.unit !== undefined ? params.data.out+' '+c.unit : params.data.out,  type: 'rightAligned', headerClass: "grid-cell-left" },
+      {headerName:'Total' ,valueFormatter: params => c.unit !== undefined ? params.data.total+' '+c.unit : params.data.total,  type: 'rightAligned', headerClass: "grid-cell-left" },
+    ]
+        
+  if(c.series.length !== 2) {
+    seriesColumn[totalKey.length-1].column.push(columnDefss);
+  } else {
+    seriesColumn[totalKey.length-1].column.push(columnDefsNetworks)
+  }
+  console.log(seriesGrid);
+  console.log(seriesColumn);
+    this.setState({
+      chartColumnDefs: seriesColumn,
+      totalData: seriesGrid,
+      totalKey:totalKey,
+      totalName:c.totalName,
+      config:[...this.state.config]
+    })
+    /* 데이터 초기화 */
+    for(var u=0; u< data.length; u++) {
+      data[u].length=dataLength
+    }
+   } 
+    // else if(totalKey.includes(c.key)) {
+      // this.setState({totalKey: totalKey.filter(totalKey => totalKey !== c.key) })  // 값이 같은 것만 삭제
+      
+    //  }
+}
+
+diskValueFormatter = (c,params) => {
+   if(c.unit !== undefined) {
+    return params.data.href+' '+c.unit
+  } else if(c.yAxis !== undefined) {
+    return params.data.href+' '+'%'
+  } else {
+    return params.data.href
+  }
+}
 
 
 
@@ -1311,14 +1381,21 @@ maxStandred = (e,c) => {
     const { buttonIdsArray,clickedId,calendarCheckFirst,calendarCheckSecond,date,firstDateFormat,secondDateFormat,firstTimeFormat,secondTimeFormat,filterCheck,
       config,clickHwModel,hwColumnDefs,hwData,hwDefaultColDef,clickDeviceModel,deviceColumnDefs,deviceData,deviceDefaultColDef,buttonIdsDeviceArray,clickedDeviceId,
       autoGroupColumnDef,deviceSearchName,hwSearchName,graphCheck,inputIdsChart,inputIdsChartDefault,inputIdsChartCheck,inputIdsChartType,inputMaxCheck,
-      chartColumnDefs,totalData,chartDefaultColDef,loader, totalKey } =this.state;
+      chartColumnDefs,totalData,chartDefaultColDef,loader, totalKey, totalName } =this.state;
 
     const firstDateFormatInput = Moment(firstDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
     const secondDateFormatInput = Moment(secondDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
 
     console.log(config);
     console.log(totalData);
+    console.log(totalData.length);
     console.log(totalKey);
+    console.log(totalKey.length);
+    console.log(chartColumnDefs);
+    console.log(chartColumnDefs.length);
+    console.log(totalName);
+
+    totalKey.forEach(t => console.log(t))
 
     return (
       <>
@@ -1660,21 +1737,25 @@ maxStandred = (e,c) => {
                       </label>
                     </button>
                     {
-                      c.key === totalKey[i] && (
-                        <div className="reportChartTotalGrid"  >
-                          <div className="ag-theme-alpine" style={{ width:'93vw', height:'40vh',marginLeft:'0.5vw'}}>
-                              <AgGridReact
-                              headerHeight='30'
-                              floatingFiltersHeight='23'
-                              rowHeight='25'
-                              columnDefs={chartColumnDefs}  
-                              defaultColDef={chartDefaultColDef}
-                              rowData={totalData}
-                              onGridReady={params => { this.gridApiChart = params.api;}}
-                            />       
+                      totalKey.map((t,a) => 
+                        (
+                        c.key === t && c.totalName[0] === totalName[0] && ( 
+                          <div className="reportChartTotalGrid" key={t}  >
+                            <div className="ag-theme-alpine" style={{ width:'93vw', height:'40vh',marginLeft:'0.5vw'}}>
+                                <AgGridReact
+                                headerHeight='30'
+                                floatingFiltersHeight='23'
+                                rowHeight='25'
+                                columnDefs={chartColumnDefs[a].column[0]}  
+                                defaultColDef={chartDefaultColDef}
+                                rowData={totalData[a].value}
+                                onGridReady={params => { this.gridApiChart = params.api;}}
+                              />       
+                            </div>
                           </div>
-                        </div>
-                        )
+                          )
+                      ))
+                     
                       }
                   </div>
                 </div>
