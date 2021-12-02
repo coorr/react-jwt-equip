@@ -149,6 +149,7 @@ class ReportResoruce extends PureComponent {
       unitCheck:false,
       totalName:'',
       selectTotalCheck: false,
+      partitionLabel:null,
 
       /* 조회 데이터  */
       graphCheck:true,
@@ -366,16 +367,20 @@ calenderFirstChange = (date) => {
       const memoryPagefault=[];
       const diskTotalUsedPercentage =[];
       const diskTotalUsedBytes =[];
-      const diskUsedPercentage =[{ value:[] ,value1:[], value2:[] }];
-      const diskUsedBytes =[{ value:[] ,value1:[], value2:[] }];
-      const diskIoPercentage =[{ value:[] ,value1:[], value2:[] }];
-      const diskIoCount =[{ value:[] ,value1:[], value2:[] }];
-      const diskIoBytes =[{ value:[] ,value1:[], value2:[] }];
-      const diskQueue =[{ value:[] ,value1:[], value2:[] }];
+
+      // const diskUsedPercentage =[{d0:[], d1:[] ,d2:[], d3:[], d4:[], d5:[], d6:[], d7:[], d8:[]},];
+      const diskUsedPercentage =[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
+      const diskUsedBytes =[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
+      const diskIoPercentage =[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
+      const diskIoCount =[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
+      const diskIoBytes =[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
+      const diskQueue =[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
       const networkTraffic = [{ in:[], out:[] }];
       const networkPps = [{ in:[], out:[] }];
       const nicDiscards = [{ in:[], out:[] }];
       const nicErrors = [{ in:[], out:[] }];
+      const partitionLabel = [];
+      const obj = {value:[],value1:[]};
       
 
       for(var i=0; i < id.length; i++) {
@@ -385,12 +390,10 @@ calenderFirstChange = (date) => {
        memoryUsedPercentage.length=0;  memoryBytes.length=0;  memoryBuffersPercentage.length=0; memoryBuffers.length=0;  memoryCached.length=0; memoryCachedPercentage.length=0;  
        memoryShared.length=0;  memorySharedPercentage.length=0; memorySwapPercentage.length=0;  memorySwap.length=0; memoryPagefault.length=0; 
        diskTotalUsedPercentage.length=0;  diskTotalUsedBytes.length=0; 
-       diskUsedPercentage[0].value.length=0; diskUsedPercentage[0].value1.length=0;  diskUsedPercentage[0].value2.length=0;
-       diskUsedBytes[0].value.length=0; diskUsedBytes[0].value1.length=0;  diskUsedBytes[0].value2.length=0;  
-       diskIoPercentage[0].value.length=0; diskIoPercentage[0].value1.length=0;  diskIoPercentage[0].value2.length=0;  
-       diskIoCount[0].value.length=0; diskIoCount[0].value1.length=0;  diskIoCount[0].value2.length=0;  
-       diskIoBytes[0].value.length=0; diskIoBytes[0].value1.length=0;  diskIoBytes[0].value2.length=0;  
-       diskQueue[0].value.length=0; diskQueue[0].value1.length=0;  diskQueue[0].value2.length=0;   
+       for(var m=0; m < partitionLabel.length; m++) {
+        diskUsedPercentage[m].length=0; diskUsedBytes[m].length=0; diskIoPercentage[m].length=0;  
+        diskIoCount[m].length=0; diskIoBytes[m].length=0; diskQueue[m].length=0;  
+       }
        networkTraffic[0].in.length=0; networkPps[0].in.length=0; nicDiscards[0].in.length=0;  nicErrors[0].in.length=0; 
        networkTraffic[0].out.length=0; networkPps[0].out.length=0; nicDiscards[0].out.length=0;  nicErrors[0].out.length=0; 
 
@@ -405,17 +408,14 @@ calenderFirstChange = (date) => {
             memorySwap.push(c.usedSwap); memoryPagefault.push(c.usedSwapPercentage); 
           }
           if(c.ioQueueDepth !== undefined && id[i] === c.deviceId  ) {  // DISK
-            if(c.partitionLabel === '/dev' ) {
-              diskUsedPercentage[0].value.push(c.usedPercentage); diskUsedBytes[0].value.push(c.usedBytes);  diskIoPercentage[0].value.push(c.ioTimePercentage); 
-              diskIoCount[0].value.push(c.ioTotalCnt); diskIoBytes[0].value.push(c.ioTotalBps);  diskQueue[0].value.push(c.ioQueueDepth); 
+            if(!partitionLabel.includes(c.partitionLabel) ) {
+              partitionLabel.push(c.partitionLabel)
             }
-            if(c.partitionLabel === '/boot') {
-              diskUsedPercentage[0].value1.push(c.usedPercentage); diskUsedBytes[0].value1.push(c.usedBytes);  diskIoPercentage[0].value1.push(c.ioTimePercentage); 
-              diskIoCount[0].value1.push(c.ioTotalCnt); diskIoBytes[0].value1.push(c.ioTotalBps);  diskQueue[0].value1.push(c.ioQueueDepth); 
-            }
-            if(c.partitionLabel === '/') {
-              diskUsedPercentage[0].value2.push(c.usedPercentage); diskUsedBytes[0].value2.push(c.usedBytes);  diskIoPercentage[0].value2.push(c.ioTimePercentage); 
-              diskIoCount[0].value2.push(c.ioTotalCnt); diskIoBytes[0].value2.push(c.ioTotalBps);  diskQueue[0].value2.push(c.ioQueueDepth); 
+            for(var x=0; x<partitionLabel.length; x++) { // 파티션 길이만큼 데이터거 저장 됨
+              if(partitionLabel[x] === c.partitionLabel) {
+                diskUsedPercentage[x].push(c.usedPercentage); diskUsedBytes[x].push(c.usedBytes); diskIoPercentage[x].push(c.ioTimePercentage)
+                diskIoCount[x].push(c.ioTotalCnt); diskIoBytes[x].push(c.ioTotalBps); diskQueue[x].push(c.ioQueueDepth)
+              }
             }
           }
           if(c.ioTotalBps === undefined && id[i] === c.deviceId && c.usedPercentage !== undefined) {  // DISK TOTAL
@@ -444,7 +444,7 @@ calenderFirstChange = (date) => {
           } 
         })
       })
-      
+      this.setState({ partitionLabel : partitionLabel})
       /* 장비 이름 출력 */
       hwSearchName.forEach(h => {
         if(h.id === 1)  { graphHwName.push(h.name); } if(h.id === 2)  { graphHwName.push(h.name); } if(h.id === 3)  { graphHwName.push(h.name); } 
@@ -478,9 +478,9 @@ calenderFirstChange = (date) => {
         plotOptions: { line: { marker: { enabled: false }}, series:{ color : 'rgb(0, 169, 255)'} }, // sky blue 00CCFF
         title: { text:null, margin:40, align:'left',style:{fontSize:'12',fontWeight:'none'}},
         legend: { align: 'right', verticalAlign: 'top', layout: 'vertical', x: 0, y: 100, },
-        tooltip : { shared:true, }
+        tooltip : { shared:true, },
       })
-      
+
       if(graphHwName.includes("CPU Processor (%)")) {
         const array = [];  // HW 이름
         hwSearchName.forEach(h => { if(h.id === 1) {  array.push(h.name); }})
@@ -585,7 +585,7 @@ calenderFirstChange = (date) => {
       if(graphHwName.includes("Memory Buffers Bytes")) {
         const unitData = [];
         for(var e=0; e< memoryBuffersPercentage.length; e++) {
-          var q = Math.floor( Math.log(memoryBuffersPercentage[e]) / Math.log(1024) );
+          if(memoryBuffersPercentage[0]  !== 0  ) { var q = Math.floor( Math.log(memoryBuffersPercentage[0] ) / Math.log(1024)); }
           var unit = ['B', 'kB', 'MB', 'GB'][q];
           unitData.push(Number(( memoryBuffersPercentage[e] / Math.pow(1024, q) ).toFixed(0)));
         }
@@ -744,32 +744,54 @@ calenderFirstChange = (date) => {
         hwSearchName.forEach(h => { if(h.id === 20) {  array.push(h.name); }})
         obj.key="chart_20"
         obj.yAxis = { max:100, tickInterval:20  }
-        obj.series = [{data: diskUsedPercentage[0].value, name: '/dev'},{ data: diskUsedPercentage[0].value1, name:'/boot' ,color:'rgb(255, 184, 64)'},{ data: diskUsedPercentage[0].value2, name:'/',color:'red'}]
+        const diskData = [];
+        for(var z=0; z<partitionLabel.length; z++) {
+          const obj2={};
+          obj2.data=diskUsedPercentage[z];
+          if(z === 1)      { obj2.color= 'rgb(255,184,64)'; } 
+          else if(z === 2) { obj2.color = 'red' }
+          obj2.name = partitionLabel[z];
+          diskData.push(obj2);
+        }
+        obj.series = diskData
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.data=diskUsedPercentage;
         obj.totalName=[deviceName[i]] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Disk Used Bytes")) {
-        const unitData =  [{ value:[] ,value1:[], value2:[] }];
-        for(var e=0; e< diskUsedBytes[0].value.length; e++) {
-          var q = Math.floor( Math.log(diskUsedBytes[0].value[e]) / Math.log(1024) );
-          var w = Math.floor( Math.log(diskUsedBytes[0].value1[e]) / Math.log(1024) );
-          var r = Math.floor( Math.log(diskUsedBytes[0].value2[e]) / Math.log(1024) );
-          var unit = ['B', 'kB', 'MB', 'GB'][q];
-          unitData[0].value.push(Number(( diskUsedBytes[0].value[e] / Math.pow(1024, q) ).toFixed(0)));
-          unitData[0].value1.push(Number(( diskUsedBytes[0].value1[e] / Math.pow(1024, w) ).toFixed(0)));
-          unitData[0].value2.push(Number(( diskUsedBytes[0].value2[e] / Math.pow(1024, r) ).toFixed(0)));
-        }
-        
         const obj= {};
         const array = [];  
+        const diskData = [];
+        const unitData = [];
+        
         hwSearchName.forEach(h => { if(h.id === 21) {  array.push(h.name); }})
+        for(var z=0; z<partitionLabel.length; z++) {
+          const obj2={};
+          obj2.data=diskUsedBytes[z];
+          diskData.push(obj2);
+        }
+        for(var l=0; l<partitionLabel.length; l++) {
+          const udata =[];
+          for(var e=0; e< diskData[0].data.length; e++) {
+            var q= Math.floor(Math.log(diskData[l].data[e]) / Math.log(1024));    
+            var unit = ['B', 'kB', 'MB', 'GB'][q];
+            udata.push(Number((diskData[l].data[e]/ Math.pow(1024, q)).toFixed(0)))
+          }
+          const obj3={};
+          obj3.data = udata
+          obj3.name = partitionLabel[l]
+          obj3.length = l;
+          if(l === 1)      { obj3.color= 'rgb(255,184,64)'; } 
+          else if(l === 2) { obj3.color = 'red' }
+          unitData.push(obj3)
+        }
+        console.log(unitData);
+        obj.series = unitData
         obj.key="chart_21"
-        obj.series = [{data: unitData[0].value, name: '/dev'},{ data: unitData[0].value1, name:'/boot',color:'rgb(255, 184, 64)'},{ data: unitData[0].value2, name:'/',color:'red'}]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.data=unitData;
-        obj.bytes=diskUsedBytes;
+        obj.bytes=diskData;
         obj.unit=unit;
         obj.totalName=[deviceName[i]] 
         configArray.push(obj);
@@ -780,7 +802,16 @@ calenderFirstChange = (date) => {
         hwSearchName.forEach(h => { if(h.id === 22) {  array.push(h.name); }})
         obj.key="chart_22"
         obj.yAxis = { max:100, tickInterval:20  }
-        obj.series = [{data: diskIoPercentage[0].value, name: '/dev'},{ data: diskIoPercentage[0].value1, name:'/boot',color:'rgb(255, 184, 64)'},{ data: diskIoPercentage[0].value2, name:'/',color:'red'}]
+        const diskData = [];
+        for(var z=0; z<partitionLabel.length; z++) {
+          const obj2={};
+          obj2.data=diskIoPercentage[z];
+          if(z === 1)      { obj2.color= 'rgb(255,184,64)'; } 
+          else if(z === 2) { obj2.color = 'red' }
+          obj2.name = partitionLabel[z];
+          diskData.push(obj2);
+        }
+        obj.series = diskData
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.data=diskIoPercentage;
         obj.totalName=[deviceName[i]] 
@@ -791,31 +822,53 @@ calenderFirstChange = (date) => {
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 23) {  array.push(h.name); }})
         obj.key="chart_23"
-        obj.series = [{data: diskIoCount[0].value, name: '/dev'},{ data: diskIoCount[0].value1, name:'/boot',color:'rgb(255, 184, 64)'},{ data: diskIoCount[0].value2, name:'/',color:'red'}]
+        const diskData = [];
+        for(var z=0; z<partitionLabel.length; z++) {
+          const obj2={};
+          obj2.data=diskIoCount[z];
+          if(z === 1)      { obj2.color= 'rgb(255,184,64)'; } 
+          else if(z === 2) { obj2.color = 'red' }
+          obj2.name = partitionLabel[z];
+          diskData.push(obj2);
+        }
+        obj.series = diskData
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.data=diskIoCount;
         obj.totalName=[deviceName[i]] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Disk I/O Bytes")) {
-        const unitData =  [{ value:[] ,value1:[], value2:[] }];
-        for(var e=0; e< diskIoBytes[0].value.length; e++) {
-          var q = Math.floor( Math.log(diskIoBytes[0].value[e]) / Math.log(1024) );
-          var w = Math.floor( Math.log(diskIoBytes[0].value1[e]) / Math.log(1024) );
-          var r = Math.floor( Math.log(diskIoBytes[0].value2[e]) / Math.log(1024) );
-          var unit = ['B', 'kB', 'MB', 'GB'][q];
-          unitData[0].value.push(Number(( diskIoBytes[0].value[e] / Math.pow(1024, q) ).toFixed(0)));
-          unitData[0].value1.push(Number(( diskIoBytes[0].value1[e] / Math.pow(1024, w) ).toFixed(0)));
-          unitData[0].value2.push(Number(( diskIoBytes[0].value2[e] / Math.pow(1024, r) ).toFixed(0)));
-        }
         const obj= {};
         const array = [];  
+        const diskData = [];
+        const unitData = [];
         hwSearchName.forEach(h => { if(h.id === 24) {  array.push(h.name); }})
+
+        for(var z=0; z<partitionLabel.length; z++) {
+          const obj2={};
+          obj2.data=diskIoBytes[z];
+          diskData.push(obj2);
+        }
+        for(var l=0; l<partitionLabel.length; l++) {
+          const udata =[];
+          for(var e=0; e< diskData[0].data.length; e++) {
+            var q= Math.floor(Math.log(diskData[l].data[e]) / Math.log(1024));    
+            var unit = ['B', 'kB', 'MB', 'GB'][q];
+            udata.push(Number((diskData[l].data[e]/ Math.pow(1024, q)).toFixed(0)))
+          }
+          const obj3={};
+          obj3.data = udata
+          obj3.name = partitionLabel[l]
+          if(l === 1)      { obj3.color= 'rgb(255,184,64)'; } 
+          else if(l === 2) { obj3.color = 'red' }
+          unitData.push(obj3)
+        }
+        console.log(unitData);
+        obj.series = unitData
         obj.key="chart_24"
-        obj.series = [{data: unitData[0].value, name: '/dev'},{ data: unitData[0].value1, name:'/boot',color:'rgb(255, 184, 64)'},{ data: unitData[0].value2, name:'/',color:'red'}]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.data=unitData;
-        obj.bytes=diskIoBytes;
+        obj.bytes=diskData;
         obj.unit=unit;
         obj.totalName=[deviceName[i]]
         configArray.push(obj);
@@ -824,8 +877,17 @@ calenderFirstChange = (date) => {
         const obj= {};
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 25) {  array.push(h.name); }})
+        const diskData = [];
+        for(var z=0; z<partitionLabel.length; z++) {
+          const obj2={};
+          obj2.data=diskQueue[z];
+          if(z === 1)      { obj2.color= 'rgb(255,184,64)'; } 
+          else if(z === 2) { obj2.color = 'red' }
+          obj2.name = partitionLabel[z];
+          diskData.push(obj2);
+        }
+        obj.series = diskData
         obj.key="chart_25"
-        obj.series = [{data: diskQueue[0].value, name: '/dev'},{ data: diskQueue[0].value1, name:'/boot',color:'rgb(255, 184, 64)'},{ data: diskQueue[0].value2, name:'/',color:'red'}]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'', }
         obj.data=diskQueue;
         obj.totalName=[deviceName[i]]
@@ -945,6 +1007,7 @@ calenderFirstChange = (date) => {
 
 /* bytes 단위 변환 */
 inputChartBytes = (e,c,i) => {
+  console.log(c);
   const changeBytes = [];
   const bytes = [];
   const data = [];
@@ -953,30 +1016,56 @@ inputChartBytes = (e,c,i) => {
   const value2 = [];
   
   c.bytes.forEach(f => {
+    console.log(f);
+    console.log(f.length);
+    console.log(c.bytes.length);
+    console.log(c.series.length);
       if(c.series.length === 1) {
         bytes.push(f)
       } else if(c.series.length === 3) {
-          for(var y=0; y<f.value.length; y++) {
+        console.log(f.data);
+          for(var y=0; y<f.data.length; y++) {
             if(e.target.value === 'bps') {
-              value.push(Number((f.value[y] *  8).toFixed(0)))
-              value1.push(Number((f.value1[y] * 8).toFixed(0)))
-              value2.push(Number((f.value2[y] * 8).toFixed(0)))
-            } else if(e.target.value === 'B') {
-              value.push(f.value[y])
-              value1.push(f.value1[y])
-              value2.push(f.value2[y])
+              if(value.length < f.data.length) {
+                value.push(Number((f.data[y] *  8).toFixed(0)))
+              } else if(value1.length < f.data.length) {
+                value1.push(Number((f.data[y] * 8).toFixed(0)))
+              } else if(value2.length < f.data.length) {
+                value2.push(Number((f.data[y] * 8).toFixed(0)))
+              }
+            }  
+            else if(e.target.value === 'B') {
+              if(value.length < f.data.length) {
+                value.push(f.data[y])
+              } else if(value1.length < f.data.length) {
+                value1.push(f.data[y])
+              } else if(value2.length < f.data.length) {
+                value2.push(f.data[y])
+              }
             } else if(e.target.value === 'KB') {
-              value.push(Number((f.value[y] / 1024).toFixed(0)))
-              value1.push(Number((f.value1[y] / 1024).toFixed(0)))
-              value2.push(Number((f.value2[y] / 1024).toFixed(0)))     
+              if(value.length < f.data.length) {
+                value.push(Number((f.data[y] /  1024).toFixed(0)))
+              } else if(value1.length < f.data.length) {
+                value1.push(Number((f.data[y] / 1024).toFixed(0)))
+              } else if(value2.length < f.data.length) {
+                value2.push(Number((f.data[y] / 1024).toFixed(0)))
+              }    
             } else if(e.target.value === 'MB') {
-              value.push(Number((f.value[y] / 1024 / 1024).toFixed(0)))
-              value1.push(Number((f.value1[y] / 1024 / 1024).toFixed(0)))
-              value2.push(Number((f.value2[y] / 1024 / 1024).toFixed(0)))         
+              if(value.length < f.data.length) {
+                value.push(Number((f.data[y] /  1024 / 1024).toFixed(0)))
+              } else if(value1.length < f.data.length) {
+                value1.push(Number((f.data[y] / 1024 / 1024).toFixed(0)))
+              } else if(value2.length < f.data.length) {
+                value2.push(Number((f.data[y] / 1024 / 1024).toFixed(0)))
+              }        
             } else if(e.target.value === 'GB') {
-              value.push(Number((f.value[y] / 1024 / 1024 / 1024).toFixed(0)))
-              value1.push(Number((f.value1[y] / 1024 / 1024 / 1024).toFixed(0)))
-              value2.push(Number((f.value2[y] / 1024 / 1024 / 1024) .toFixed(0))) 
+              if(value.length < f.data.length) {
+                value.push(Number((f.data[y] /  1024 / 1024 / 1024).toFixed(0)))
+              } else if(value1.length < f.data.length) {
+                value1.push(Number((f.data[y] / 1024 / 1024 / 1024).toFixed(0)))
+              } else if(value2.length < f.data.length) {
+                value2.push(Number((f.data[y] / 1024 / 1024 / 1024).toFixed(0)))
+              } 
             }
           }
       }
@@ -998,7 +1087,7 @@ inputChartBytes = (e,c,i) => {
     obj2.color = 'red';
     changeBytes.push(obj,obj1,obj2)
 
-    /* 단위 조절 후 data 초기화 */
+    /* 단위 변경 후 data 초기화 */
     objData.value = value;
     objData.value1 = value1;
     objData.value2 = value2;
@@ -1007,8 +1096,9 @@ inputChartBytes = (e,c,i) => {
     c.series = changeBytes;
     c.data=data;
   }
-
   c.unit = e.target.value;
+
+  /* cpu 단위 변환  */ 
   c.series.forEach(d => {
     if(c.series.length === 1) {
      for(var i=0; i<d.data.length; i++) {
@@ -1027,11 +1117,10 @@ inputChartBytes = (e,c,i) => {
        d.data=changeBytes;
     }
   })
-  this.setState({config:[...this.state.config]})
 
-  if(this.state.totalKey !== null) {
-    this.setState({ totalKey: null ,  config:[...this.state.config]})
+  if(this.state.totalKey.includes(c.key)) {
     this.chartTotalCheckSecond(e,c,i);
+    this.setState({config:[...this.state.config] })
     
   } else {
     this.setState({config:[...this.state.config] })
@@ -1040,6 +1129,7 @@ inputChartBytes = (e,c,i) => {
 
 /* disk && network 단위 변환 */
 inputChartTime = (e,c,i) => {
+  console.log(c);
   const { totalKey } = this.state;
   const changeBytes = [];
   const data = [];
@@ -1084,11 +1174,8 @@ inputChartTime = (e,c,i) => {
     console.log(c);
     console.log(totalKey);  // 23,24
     if(totalKey.includes(c.key)) {
-      this.state.totalData= [];
       this.chartTotalCheckSecond(e,c,i);
-      // this.setState({config:[...this.state.config]  })
-      
-      
+      this.setState({config:[...this.state.config] })
       
     } else {
       this.setState({config:[...this.state.config] })
@@ -1112,7 +1199,7 @@ inputChartTime = (e,c,i) => {
 
  /* 차트 통계 */
  chartTotalCheck = (e,c,i) => {
-   const { timeChart, chartColumnDefs, totalKey, totalData, totalName  } = this.state;
+   const { timeChart, chartColumnDefs, totalKey, totalData, totalName,partitionLabel  } = this.state;
    console.log(c);
    console.log(totalKey);
    console.log(totalKey.length);
@@ -1150,20 +1237,58 @@ inputChartTime = (e,c,i) => {
         data[w].push(avg.toFixed(0))
       }
     }
+    c.series.forEach(a => {
+      console.log(a);
+      const data = [{d0:[],d1:[],d2:[],d3:[],d4:[],d5:[],d6:[],d7:[] }];
+      for(var m=0; m< totalTime.length; m++) {
+        data[0].d0.push(a.data[m])
+      }
+      console.log(data);
+
+      // [{value:[]},{value:[]},{value:[]},value:[],value:[]]
+    })
 
     /* line 1개일 경우 */
     c.series.forEach(d => {
-      for(var i=0; i<totalTime.length; i++) {
         console.log(c.series.length);
         if(c.series.length === 1 ) {
-         const obj = {};
-         obj.time = totalTime[i];
-         obj.value = d.data[i];
-         seriesGrid[totalKey.length].value.push(obj)
+          for(var i=0; i < totalTime.length; i++) {
+            const obj = {};
+            obj.time = totalTime[i];
+            obj.value = d.data[i];
+            seriesGrid[totalKey.length].value.push(obj)
+          }
         } 
+       else if(c.series.length === 3) {
+          
+        // const gridData = [];
+        // // d.name === partitionLabel[0] 
+        // // 1. 비교를 한다음
+        // // 2. 27개의 값을 배열을 담고 
+        // // 3. 그 배열을 객체에 담는다
+        // // 이걸 for문을 돌려서 진행하면 끝
+        // console.log(d);
+        
+        //   for(var a=0; a<totalTime.length; a++) { 
+        //     const obj = {};
+        //     obj.time = totalTime[a];
+            
+        //     if(d.name === partitionLabel[d.length]) {
+        //       gridData.push(d.data[a])
+        //     }
+            
+        //     obj.name=gridData;
+
+        //     console.log(obj);
+        //   }
+          
+        // console.log(gridData);
+          // obj.name = gridData;
       }
     })
-    
+
+
+    console.log(seriesGrid);
     /* line 2~3개일 경우 */
     if(c.data !== undefined) {
       console.log(c.data);
@@ -1176,14 +1301,7 @@ inputChartTime = (e,c,i) => {
             obj.out = e.out[i];
             obj.total = Number(e.in[i]) +Number( e.out[i])
             seriesGrid[totalKey.length].value.push(obj)
-          } else if(c.series.length === 3) {
-            const obj = {}; 
-            obj.time = totalTime[i];
-            obj.dev = e.value[i];
-            obj.boot = e.value1[i];
-            obj.href = e.value2[i];
-            seriesGrid[totalKey.length].value.push(obj)
-          }
+          } 
         }
       })
     }
@@ -1240,6 +1358,7 @@ inputChartTime = (e,c,i) => {
   const { timeChart, totalKey,totalData} = this.state;
   console.log(totalData);
    console.log(c);
+   console.log(totalKey);
 
    if(totalKey.length >= 0 && totalKey.includes(c.key)) {
     seriesGrid[totalKey.length-1].value.length=0;
@@ -1320,22 +1439,22 @@ inputChartTime = (e,c,i) => {
       {headerName: c.legend.labelFormat ,type: 'rightAligned', headerClass: "grid-cell-left",
       valueFormatter: params =>  {
         if(c.yAxis !== undefined) {
-          return params.data.value+'%' 
+          return params.data.value+' '+'%' 
         } else if(c.unit !== undefined) {
-          return params.data.value+c.unit
+          return params.data.value+' '+c.unit
         } else {
           return params.data.value
         }
       }}
       ]) : ([
       {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-      // {headerName:'/' ,valueFormatter: params => this.diskValueFormatter(c,params),  type: 'rightAligned', headerClass: "grid-cell-left" },
-      // {headerName:'/boot' ,valueFormatter: params =>c.unit !== undefined ? params.data.boot+' '+c.unit : params.data.boot+' '+'%',type: 'rightAligned', headerClass: "grid-cell-left" },
-      // {headerName:'/dev' ,valueFormatter: params =>c.unit !== undefined ? params.data.dev+' '+c.unit : params.data.dev+' '+'%',  type: 'rightAligned', headerClass: "grid-cell-left" }
+      {headerName:'/' ,valueFormatter: params => this.diskValueFormatter(c,params),  type: 'rightAligned', headerClass: "grid-cell-left" },
+      {headerName:'/boot' ,valueFormatter: params =>c.unit !== undefined ? params.data.boot+' '+c.unit : params.data.boot+' '+'%',type: 'rightAligned', headerClass: "grid-cell-left" },
+      {headerName:'/dev' ,valueFormatter: params =>c.unit !== undefined ? params.data.dev+' '+c.unit : params.data.dev+' '+'%',  type: 'rightAligned', headerClass: "grid-cell-left" }
       ]) 
   const columnDefsNetworks = [
       {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-      {headerName:'RX' , field:'in', type: 'rightAligned', headerClass: "grid-cell-left" },
+      {headerName:'RX' , valueFormatter: params => c.unit !== undefined ? params.data.in+' '+c.unit : params.data.in, type: 'rightAligned', headerClass: "grid-cell-left" },
       {headerName:'TX' ,valueFormatter: params => c.unit !== undefined ? params.data.out+' '+c.unit : params.data.out,  type: 'rightAligned', headerClass: "grid-cell-left" },
       {headerName:'Total' ,valueFormatter: params => c.unit !== undefined ? params.data.total+' '+c.unit : params.data.total,  type: 'rightAligned', headerClass: "grid-cell-left" },
     ]
@@ -1345,24 +1464,17 @@ inputChartTime = (e,c,i) => {
   } else {
     seriesColumn[totalKey.length-1].column.push(columnDefsNetworks)
   }
-  console.log(seriesGrid);
-  console.log(seriesColumn);
+
     this.setState({
       chartColumnDefs: seriesColumn,
-      totalData: seriesGrid,
-      totalKey:totalKey,
-      totalName:c.totalName,
-      config:[...this.state.config]
+      totalKey:totalKey
     })
+    this.gridApiChart.setRowData(seriesGrid[totalKey.length-1].value)
     /* 데이터 초기화 */
     for(var u=0; u< data.length; u++) {
       data[u].length=dataLength
     }
    } 
-    // else if(totalKey.includes(c.key)) {
-      // this.setState({totalKey: totalKey.filter(totalKey => totalKey !== c.key) })  // 값이 같은 것만 삭제
-      
-    //  }
 }
 
 diskValueFormatter = (c,params) => {
@@ -1386,16 +1498,16 @@ diskValueFormatter = (c,params) => {
     const firstDateFormatInput = Moment(firstDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
     const secondDateFormatInput = Moment(secondDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
 
-    console.log(config);
-    console.log(totalData);
-    console.log(totalData.length);
-    console.log(totalKey);
-    console.log(totalKey.length);
-    console.log(chartColumnDefs);
-    console.log(chartColumnDefs.length);
-    console.log(totalName);
+    // console.log(config);
+    // console.log(totalData);
+    // console.log(totalData.length);
+    // console.log(totalKey);
+    // console.log(totalKey.length);
+    // console.log(chartColumnDefs);
+    // console.log(chartColumnDefs.length);
+    // console.log(totalName);
 
-    totalKey.forEach(t => console.log(t))
+    // totalKey.forEach(t => console.log(t))
 
     return (
       <>
