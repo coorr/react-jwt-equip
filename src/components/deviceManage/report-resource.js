@@ -54,8 +54,10 @@ const hwDatas = [
 const oneMonth = new Date(new Date().getTime() - 34992000000 );
 
 
-const seriesGrid = [{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]}];
-const seriesColumn = [{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]}];
+const seriesGrid = [{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]}
+,{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]},{value:[]}];
+const seriesColumn = [{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]}
+,{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]},{column:[]}];
 class ReportResoruce extends PureComponent {
   constructor(props) {
     super(props);
@@ -147,7 +149,7 @@ class ReportResoruce extends PureComponent {
       timeChart:[],
       totalKey:[],
       unitCheck:false,
-      totalName:'',
+      totalName:[],
       selectTotalCheck: false,
       partitionLabel:null,
 
@@ -485,70 +487,70 @@ calenderFirstChange = (date) => {
         const array = [];  // HW 이름
         hwSearchName.forEach(h => { if(h.id === 1) {  array.push(h.name); }})
         const obj= {};
-        obj.key="chart_1"
+        obj.key="chart_1_"+i
         obj.yAxis = { max:100, tickInterval:20  } 
         const testData = [0, 0, 0,0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 0, 0, 0, 0, 0, 0]
         obj.series = [{data: testData  }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=[deviceName[i]] 
+        obj.totalName=deviceName[i] 
         configArray.push(obj);
       }
       if(graphHwName.includes("CPU Used (%)")) {
         const array = [];
         hwSearchName.forEach(h => { if(h.id === 2) { array.push(h.name); }})
         const obj = {};
-        obj.key="chart_2"
+        obj.key="chart_2_"+i
         obj.yAxis = { max:100, tickInterval:20  } 
         obj.series = [{data: cpuUser}]
         obj.title= {text :'<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+''}
         obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=[deviceName[i]]
+        obj.totalName=deviceName[i]
         configArray.push(obj);
       }
       if(graphHwName.includes("CPU Context Switch")) {
         const array = [];
         hwSearchName.forEach(h => { if(h.id === 3) { array.push(h.name); }})
         const obj = {};
-        obj.key="chart_3"
+        obj.key="chart_3_"+i
         obj.series = [{data: cpuContextSwitch}]
         obj.title= {text :'<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+''}
         obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=[deviceName[i]]
+        obj.totalName=deviceName[i]
         configArray.push(obj);
       }
       if(graphHwName.includes("CPU Run Queue")) {
         const array = [];
         hwSearchName.forEach(h => { if(h.id === 4) { array.push(h.name); }})
         const obj = {};
-        obj.key="chart_4"
+        obj.key="chart_4_"+i
         obj.series = [{data: cpuRunQueue}]
         obj.title= {text :'<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+''}
         obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=[deviceName[i]]
+        obj.totalName=deviceName[i]
         configArray.push(obj);
       }
       if(graphHwName.includes("Load Avg")) {
         const array = [];
         hwSearchName.forEach(h => { if(h.id === 6) { array.push(h.name); }})
         const obj = {};
-        obj.key="chart_6"
+        obj.key="chart_6_"+i
         obj.series = [{data: cpuLoadAvg}]
         obj.title= {text :'<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+''}
         obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=[deviceName[i]]
+        obj.totalName=deviceName[i]
         configArray.push(obj);
       }
       if(graphHwName.includes("Memory Used (%)")) {
         const obj= {};
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 7) {  array.push(h.name); }})
-        obj.key="chart_7"
+        obj.key="chart_7_"+i
         obj.yAxis = { max:100, tickInterval:20  } 
         obj.series = [{data: memoryUsedPercentage  }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=[deviceName[i]] 
+        obj.totalName=deviceName[i]
         configArray.push(obj);
       }
       if(graphHwName.includes("Memory Bytes")) {
@@ -561,11 +563,11 @@ calenderFirstChange = (date) => {
         const obj= {};
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 8) {  array.push(h.name); }})
-        obj.key="chart_8"
+        obj.key="chart_8_"+i
         obj.series = [{data:  unitData}]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=[deviceName[i]] 
+        obj.totalName=deviceName[i]
         obj.bytes=memoryBytes;
         obj.unit=unit;
         configArray.push(obj);
@@ -574,12 +576,12 @@ calenderFirstChange = (date) => {
         const obj= {};
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 9) {  array.push(h.name); }})
-        obj.key="chart_9"
+        obj.key="chart_9_"+i
         obj.yAxis = { max:100, tickInterval:20  } 
         obj.series = [{data: memoryBuffersPercentage  }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=[deviceName[i]] 
+        obj.totalName=deviceName[i]
         configArray.push(obj);
       }
       if(graphHwName.includes("Memory Buffers Bytes")) {
@@ -592,11 +594,11 @@ calenderFirstChange = (date) => {
         const obj= {};
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 10) {  array.push(h.name); }})
-        obj.key="chart_10"
+        obj.key="chart_10_"+i
         obj.series = [{data: unitData    }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=[deviceName[i]] 
+        obj.totalName=deviceName[i] 
         obj.bytes=memoryBuffersPercentage;
         obj.unit=unit;
         configArray.push(obj);
@@ -605,12 +607,12 @@ calenderFirstChange = (date) => {
         const obj= {};
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 11) {  array.push(h.name); }})
-        obj.key="chart_11"
+        obj.key="chart_11_"+i
         obj.yAxis = { max:100, tickInterval:20  }
         obj.series = [{data: memoryCachedPercentage  }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=[deviceName[i]] 
+        obj.totalName=deviceName[i] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Memory Cached Bytes")) {
@@ -623,11 +625,11 @@ calenderFirstChange = (date) => {
         const obj= {};
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 12) {  array.push(h.name); }})
-        obj.key="chart_12"
+        obj.key="chart_12_"+i
         obj.series = [{data: unitData   }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=[deviceName[i]] 
+        obj.totalName=deviceName[i] 
         obj.bytes=memoryCached;
         obj.unit=unit;
         configArray.push(obj);
@@ -636,12 +638,12 @@ calenderFirstChange = (date) => {
         const obj= {};
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 13) {  array.push(h.name); }})
-        obj.key="chart_13"
+        obj.key="chart_13_"+i
         obj.yAxis = { max:100, tickInterval:20  } 
         obj.series = [{data: memorySharedPercentage  }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=[deviceName[i]] 
+        obj.totalName=deviceName[i]
         configArray.push(obj);
       }
       if(graphHwName.includes("Memory Shared Bytes")) {
@@ -654,11 +656,11 @@ calenderFirstChange = (date) => {
         const obj= {};
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 14) {  array.push(h.name); }})
-        obj.key="chart_14"
+        obj.key="chart_14_"+i
         obj.series = [{data: unitData }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=[deviceName[i]] 
+        obj.totalName=deviceName[i] 
         obj.bytes=memoryShared;
         obj.unit=unit;
         configArray.push(obj);
@@ -667,12 +669,12 @@ calenderFirstChange = (date) => {
         const obj= {};
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 15) {  array.push(h.name); }})
-        obj.key="chart_15"
+        obj.key="chart_15_"+i
         obj.yAxis = { max:100, tickInterval:20  }
         obj.series = [{data: memorySwapPercentage  }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=[deviceName[i]] 
+        obj.totalName=deviceName[i] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Memory Swap Bytes")) {
@@ -685,11 +687,11 @@ calenderFirstChange = (date) => {
         const obj= {};
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 16) {  array.push(h.name); }})
-        obj.key="chart_16"
+        obj.key="chart_16_"+i
         obj.series = [{data: unitData }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=[deviceName[i]] 
+        obj.totalName=deviceName[i] 
         obj.bytes=memorySwap;
         obj.unit=unit;
         configArray.push(obj);
@@ -698,24 +700,24 @@ calenderFirstChange = (date) => {
         const obj= {};
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 17) {  array.push(h.name); }})
-        obj.key="chart_17"
+        obj.key="chart_17_"+i
         obj.yAxis = { max:100, tickInterval:20  }
         obj.series = [{data: memoryPagefault  }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=[deviceName[i]] 
+        obj.totalName=deviceName[i]
         configArray.push(obj);
       }
       if(graphHwName.includes("Disk Total Used (%)")) {
         const obj= {};
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 18) {  array.push(h.name); }})
-        obj.key="chart_18"
+        obj.key="chart_18_"+i
         obj.yAxis = { max:100, tickInterval:20  }
         obj.series = [{data: diskTotalUsedPercentage   }]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=[deviceName[i]] 
+        obj.totalName=deviceName[i] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Disk Total Used Bytes")) {
@@ -728,12 +730,12 @@ calenderFirstChange = (date) => {
         const obj= {};
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 19) {  array.push(h.name); }})
-        obj.key="chart_19"
+        obj.key="chart_19_"+i
         obj.series = [{data: unitData    }]
         console.log(deviceName[i]);
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
         obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=[deviceName[i]] 
+        obj.totalName=deviceName[i]
         obj.bytes=diskTotalUsedBytes;
         obj.unit=unit;
         configArray.push(obj);
@@ -741,10 +743,13 @@ calenderFirstChange = (date) => {
       if(graphHwName.includes("Disk Used (%)")) {
         const obj= {};
         const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 20) {  array.push(h.name); }})
-        obj.key="chart_20"
-        obj.yAxis = { max:100, tickInterval:20  }
         const diskData = [];
+        const gridData = [];  // 단위가 변환된 데이터
+        const diskGridData = []; 
+        hwSearchName.forEach(h => { if(h.id === 20) {  array.push(h.name); }})
+        
+        obj.yAxis = { max:100, tickInterval:20  }
+        
         for(var z=0; z<partitionLabel.length; z++) {
           const obj2={};
           obj2.data=diskUsedPercentage[z];
@@ -752,11 +757,29 @@ calenderFirstChange = (date) => {
           else if(z === 2) { obj2.color = 'red' }
           obj2.name = partitionLabel[z];
           diskData.push(obj2);
+          gridData.push(diskUsedPercentage[z])
+        }
+        for(var x=0; x<partitionLabel.length; x++) {
+          if(diskGridData.length === 0) {
+            const obj = {};
+            obj[partitionLabel[x]] = gridData[x]
+            obj[partitionLabel[x+1]] = gridData[x+1]
+            obj[partitionLabel[x+2]] = gridData[x+2]
+            obj[partitionLabel[x+3]] = gridData[x+3]
+            obj[partitionLabel[x+4]] = gridData[x+4]
+            obj[partitionLabel[x+5]] = gridData[x+5]
+            obj[partitionLabel[x+6]] = gridData[x+6]
+            obj[partitionLabel[x+7]] = gridData[x+7]
+            obj[partitionLabel[x+8]] = gridData[x+8]
+            obj[partitionLabel[x+9]] = gridData[x+9]
+            diskGridData.push(obj)
+          }
         }
         obj.series = diskData
+        obj.key="chart_20_"+i
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.data=diskUsedPercentage;
-        obj.totalName=[deviceName[i]] 
+        obj.data=diskGridData;
+        obj.totalName=deviceName[i]
         configArray.push(obj);
       }
       if(graphHwName.includes("Disk Used Bytes")) {
@@ -764,7 +787,9 @@ calenderFirstChange = (date) => {
         const array = [];  
         const diskData = [];
         const unitData = [];
-        
+        const gridData = [];  // 단위가 변환된 데이터
+        const diskGridData = []; 
+
         hwSearchName.forEach(h => { if(h.id === 21) {  array.push(h.name); }})
         for(var z=0; z<partitionLabel.length; z++) {
           const obj2={};
@@ -785,23 +810,40 @@ calenderFirstChange = (date) => {
           if(l === 1)      { obj3.color= 'rgb(255,184,64)'; } 
           else if(l === 2) { obj3.color = 'red' }
           unitData.push(obj3)
+          gridData.push(udata)
         }
-        console.log(unitData);
+        for(var x=0; x<partitionLabel.length; x++) {
+          if(diskGridData.length === 0) {
+            const obj = {};
+            obj[partitionLabel[x]] = gridData[x]
+            obj[partitionLabel[x+1]] = gridData[x+1]
+            obj[partitionLabel[x+2]] = gridData[x+2]
+            obj[partitionLabel[x+3]] = gridData[x+3]
+            obj[partitionLabel[x+4]] = gridData[x+4]
+            obj[partitionLabel[x+5]] = gridData[x+5]
+            obj[partitionLabel[x+6]] = gridData[x+6]
+            obj[partitionLabel[x+7]] = gridData[x+7]
+            obj[partitionLabel[x+8]] = gridData[x+8]
+            obj[partitionLabel[x+9]] = gridData[x+9]
+            diskGridData.push(obj)
+          }
+        }
         obj.series = unitData
-        obj.key="chart_21"
+        obj.key="chart_21_"+i
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.data=unitData;
-        obj.bytes=diskData;
+        obj.data=diskGridData;  // [ { /dev: [array24] ,/boot: [array24] , /: [array24] ,  }]
+        obj.bytes=diskData;  // [ { data : [array24], { data : [array24], { data : [array24], }]
         obj.unit=unit;
-        obj.totalName=[deviceName[i]] 
+        obj.totalName=deviceName[i] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Disk I/O (%)")) {
         const obj= {};
         const array = [];  
+        const gridData = [];  // 단위가 변환된 데이터
+        const diskGridData = []; 
         hwSearchName.forEach(h => { if(h.id === 22) {  array.push(h.name); }})
-        obj.key="chart_22"
-        obj.yAxis = { max:100, tickInterval:20  }
+        
         const diskData = [];
         for(var z=0; z<partitionLabel.length; z++) {
           const obj2={};
@@ -810,19 +852,39 @@ calenderFirstChange = (date) => {
           else if(z === 2) { obj2.color = 'red' }
           obj2.name = partitionLabel[z];
           diskData.push(obj2);
+          gridData.push(diskIoPercentage[z])
+        }
+        for(var x=0; x<partitionLabel.length; x++) {
+          if(diskGridData.length === 0) {
+            const obj = {};
+            obj[partitionLabel[x]] = gridData[x]
+            obj[partitionLabel[x+1]] = gridData[x+1]
+            obj[partitionLabel[x+2]] = gridData[x+2]
+            obj[partitionLabel[x+3]] = gridData[x+3]
+            obj[partitionLabel[x+4]] = gridData[x+4]
+            obj[partitionLabel[x+5]] = gridData[x+5]
+            obj[partitionLabel[x+6]] = gridData[x+6]
+            obj[partitionLabel[x+7]] = gridData[x+7]
+            obj[partitionLabel[x+8]] = gridData[x+8]
+            obj[partitionLabel[x+9]] = gridData[x+9]
+            diskGridData.push(obj)
+          }
         }
         obj.series = diskData
+        obj.key="chart_22_"+i
+        obj.yAxis = { max:100, tickInterval:20  }
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.data=diskIoPercentage;
-        obj.totalName=[deviceName[i]] 
+        obj.data=diskGridData;
+        obj.totalName=deviceName[i] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Disk I/O Count")) {
         const obj= {};
-        const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 23) {  array.push(h.name); }})
-        obj.key="chart_23"
+        const array = []; 
         const diskData = [];
+        const gridData = [];  // 단위가 변환된 데이터
+        const diskGridData = [];  
+        hwSearchName.forEach(h => { if(h.id === 23) {  array.push(h.name); }})
         for(var z=0; z<partitionLabel.length; z++) {
           const obj2={};
           obj2.data=diskIoCount[z];
@@ -830,11 +892,29 @@ calenderFirstChange = (date) => {
           else if(z === 2) { obj2.color = 'red' }
           obj2.name = partitionLabel[z];
           diskData.push(obj2);
+          gridData.push(diskIoCount[z])
+        }
+        for(var x=0; x<partitionLabel.length; x++) {
+          if(diskGridData.length === 0) {
+            const obj = {};
+            obj[partitionLabel[x]] = gridData[x]
+            obj[partitionLabel[x+1]] = gridData[x+1]
+            obj[partitionLabel[x+2]] = gridData[x+2]
+            obj[partitionLabel[x+3]] = gridData[x+3]
+            obj[partitionLabel[x+4]] = gridData[x+4]
+            obj[partitionLabel[x+5]] = gridData[x+5]
+            obj[partitionLabel[x+6]] = gridData[x+6]
+            obj[partitionLabel[x+7]] = gridData[x+7]
+            obj[partitionLabel[x+8]] = gridData[x+8]
+            obj[partitionLabel[x+9]] = gridData[x+9]
+            diskGridData.push(obj)
+          }
         }
         obj.series = diskData
+        obj.key="chart_23_"+i
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.data=diskIoCount;
-        obj.totalName=[deviceName[i]] 
+        obj.data=diskGridData;
+        obj.totalName=deviceName[i] 
         configArray.push(obj);
       }
       if(graphHwName.includes("Disk I/O Bytes")) {
@@ -842,6 +922,8 @@ calenderFirstChange = (date) => {
         const array = [];  
         const diskData = [];
         const unitData = [];
+        const gridData = [];  // 단위가 변환된 데이터
+        const diskGridData = []; 
         hwSearchName.forEach(h => { if(h.id === 24) {  array.push(h.name); }})
 
         for(var z=0; z<partitionLabel.length; z++) {
@@ -862,22 +944,40 @@ calenderFirstChange = (date) => {
           if(l === 1)      { obj3.color= 'rgb(255,184,64)'; } 
           else if(l === 2) { obj3.color = 'red' }
           unitData.push(obj3)
+          gridData.push(udata)
         }
-        console.log(unitData);
+        for(var x=0; x<partitionLabel.length; x++) {
+          if(diskGridData.length === 0) {
+            const obj = {};
+            obj[partitionLabel[x]] = gridData[x]
+            obj[partitionLabel[x+1]] = gridData[x+1]
+            obj[partitionLabel[x+2]] = gridData[x+2]
+            obj[partitionLabel[x+3]] = gridData[x+3]
+            obj[partitionLabel[x+4]] = gridData[x+4]
+            obj[partitionLabel[x+5]] = gridData[x+5]
+            obj[partitionLabel[x+6]] = gridData[x+6]
+            obj[partitionLabel[x+7]] = gridData[x+7]
+            obj[partitionLabel[x+8]] = gridData[x+8]
+            obj[partitionLabel[x+9]] = gridData[x+9]
+            diskGridData.push(obj)
+          }
+        }
         obj.series = unitData
-        obj.key="chart_24"
+        obj.key="chart_24_"+i
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.data=unitData;
-        obj.bytes=diskData;
+        obj.data=diskGridData;
+        obj.bytes=diskGridData;
         obj.unit=unit;
-        obj.totalName=[deviceName[i]]
+        obj.totalName=deviceName[i]
         configArray.push(obj);
       }
       if(graphHwName.includes("Disk Queue")) {
         const obj= {};
         const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 25) {  array.push(h.name); }})
         const diskData = [];
+        const gridData = [];  // 단위가 변환된 데이터
+        const diskGridData = [];  
+        hwSearchName.forEach(h => { if(h.id === 25) {  array.push(h.name); }})
         for(var z=0; z<partitionLabel.length; z++) {
           const obj2={};
           obj2.data=diskQueue[z];
@@ -885,12 +985,29 @@ calenderFirstChange = (date) => {
           else if(z === 2) { obj2.color = 'red' }
           obj2.name = partitionLabel[z];
           diskData.push(obj2);
+          gridData.push(diskQueue[z])
+        }
+        for(var x=0; x<partitionLabel.length; x++) {
+          if(diskGridData.length === 0) {
+            const obj = {};
+            obj[partitionLabel[x]] = gridData[x]
+            obj[partitionLabel[x+1]] = gridData[x+1]
+            obj[partitionLabel[x+2]] = gridData[x+2]
+            obj[partitionLabel[x+3]] = gridData[x+3]
+            obj[partitionLabel[x+4]] = gridData[x+4]
+            obj[partitionLabel[x+5]] = gridData[x+5]
+            obj[partitionLabel[x+6]] = gridData[x+6]
+            obj[partitionLabel[x+7]] = gridData[x+7]
+            obj[partitionLabel[x+8]] = gridData[x+8]
+            obj[partitionLabel[x+9]] = gridData[x+9]
+            diskGridData.push(obj)
+          }
         }
         obj.series = diskData
-        obj.key="chart_25"
+        obj.key="chart_25_"+i
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'', }
-        obj.data=diskQueue;
-        obj.totalName=[deviceName[i]]
+        obj.data=diskGridData;
+        obj.totalName=deviceName[i]
         configArray.push(obj);
       }
       if(graphHwName.includes("Network Traffic")) {
@@ -906,13 +1023,13 @@ calenderFirstChange = (date) => {
         const obj= {};
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 26) {  array.push(h.name); }})
-        obj.key="chart_26"
+        obj.key="chart_26_"+i
         obj.series = [{data: unitData[0].in, name: 'RX'},{ data: unitData[0].out, name:'TX', color:'rgb(255, 184, 64)'}]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'', }
         obj.data = unitData;
         obj.bytes = networkTraffic;
         obj.unit=unit;
-        obj.totalName=[deviceName[i]]
+        obj.totalName=deviceName[i]
         configArray.push(obj);
       }
       if(graphHwName.includes("Network PPS")) {
@@ -927,14 +1044,14 @@ calenderFirstChange = (date) => {
         const obj= {};
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 27) {  array.push(h.name); }})
-        obj.key="chart_27"
+        obj.key="chart_27_"+i
         obj.yAxis = { max:100, tickInterval:20  }
         obj.series = [{data: unitData[0].in, name: 'RX'},{ data: unitData[0].out, name:'TX', color:'rgb(255, 184, 64)'}]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'', }
         obj.data = unitData;
         obj.bytes = networkPps;
         obj.unit=unit;
-        obj.totalName=[deviceName[i]]
+        obj.totalName=deviceName[i]
         configArray.push(obj);
       }
       if(graphHwName.includes("NIC Discards")) {
@@ -949,14 +1066,14 @@ calenderFirstChange = (date) => {
         const obj= {};
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 28) {  array.push(h.name); }})
-        obj.key="chart_28"
+        obj.key="chart_28_"+i
         obj.yAxis = { max:100, tickInterval:20  }
         obj.series = [{data: unitData[0].in, name: 'RX'},{ data: unitData[0].out, name:'TX', color:'rgb(255, 184, 64)'}]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'', }
         obj.data = unitData;
         obj.bytes = nicDiscards;
         obj.unit=unit;
-        obj.totalName=[deviceName[i]]
+        obj.totalName=deviceName[i]
         configArray.push(obj);
       } 
       if(graphHwName.includes("NIC Errors")) {
@@ -971,14 +1088,14 @@ calenderFirstChange = (date) => {
         const obj= {};
         const array = [];  
         hwSearchName.forEach(h => { if(h.id === 29) {  array.push(h.name); }})
-        obj.key="chart_29"
+        obj.key="chart_29_"+i
         obj.yAxis = { max:100, tickInterval:20  }
         obj.series = [{data: unitData[0].in, name: 'RX'},{ data: unitData[0].out, name:'TX', color:'rgb(255, 184, 64)'}]
         obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'', }
         obj.data = unitData;
         obj.bytes = nicErrors;
         obj.unit=unit;
-        obj.totalName=[deviceName[i]]
+        obj.totalName=deviceName[i]
         configArray.push(obj);
       } 
       
@@ -1007,94 +1124,78 @@ calenderFirstChange = (date) => {
 
 /* bytes 단위 변환 */
 inputChartBytes = (e,c,i) => {
+  const { partitionLabel } = this.state; 
   console.log(c);
   const changeBytes = [];
   const bytes = [];
-  const data = [];
-  const value = [];
-  const value1 = [];
-  const value2 = [];
+  const changeData = [];
+  const changeGridData = []; // 파티션의 길이를 넓히기 위한 변수
   
-  c.bytes.forEach(f => {
+  c.bytes.forEach((f,i) => {
     console.log(f);
-    console.log(f.length);
-    console.log(c.bytes.length);
-    console.log(c.series.length);
       if(c.series.length === 1) {
         bytes.push(f)
       } else if(c.series.length === 3) {
-        console.log(f.data);
-          for(var y=0; y<f.data.length; y++) {
-            if(e.target.value === 'bps') {
-              if(value.length < f.data.length) {
-                value.push(Number((f.data[y] *  8).toFixed(0)))
-              } else if(value1.length < f.data.length) {
-                value1.push(Number((f.data[y] * 8).toFixed(0)))
-              } else if(value2.length < f.data.length) {
-                value2.push(Number((f.data[y] * 8).toFixed(0)))
-              }
-            }  
-            else if(e.target.value === 'B') {
-              if(value.length < f.data.length) {
-                value.push(f.data[y])
-              } else if(value1.length < f.data.length) {
-                value1.push(f.data[y])
-              } else if(value2.length < f.data.length) {
-                value2.push(f.data[y])
-              }
-            } else if(e.target.value === 'KB') {
-              if(value.length < f.data.length) {
-                value.push(Number((f.data[y] /  1024).toFixed(0)))
-              } else if(value1.length < f.data.length) {
-                value1.push(Number((f.data[y] / 1024).toFixed(0)))
-              } else if(value2.length < f.data.length) {
-                value2.push(Number((f.data[y] / 1024).toFixed(0)))
-              }    
-            } else if(e.target.value === 'MB') {
-              if(value.length < f.data.length) {
-                value.push(Number((f.data[y] /  1024 / 1024).toFixed(0)))
-              } else if(value1.length < f.data.length) {
-                value1.push(Number((f.data[y] / 1024 / 1024).toFixed(0)))
-              } else if(value2.length < f.data.length) {
-                value2.push(Number((f.data[y] / 1024 / 1024).toFixed(0)))
-              }        
-            } else if(e.target.value === 'GB') {
-              if(value.length < f.data.length) {
-                value.push(Number((f.data[y] /  1024 / 1024 / 1024).toFixed(0)))
-              } else if(value1.length < f.data.length) {
-                value1.push(Number((f.data[y] / 1024 / 1024 / 1024).toFixed(0)))
-              } else if(value2.length < f.data.length) {
-                value2.push(Number((f.data[y] / 1024 / 1024 / 1024).toFixed(0)))
-              } 
-            }
-          }
+        const obj={};
+        if(e.target.value === 'bps') {
+          const datas = [];
+          for(var y=0; y< f.data.length; y++) { datas.push(Number((f.data[y] * 8).toFixed(0))); }
+          obj.data = datas;
+          changeData.push(obj)
+          changeGridData.push(datas)
+        } else if(e.target.value === 'B') {
+          const datas = [];
+          for(var y=0; y< f.data.length; y++) { datas.push(f.data[y]); }
+          obj.data = datas;
+          changeData.push(obj)
+          changeGridData.push(datas)
+        } else if(e.target.value === 'KB') {
+          const datas = [];
+          for(var y=0; y< f.data.length; y++) { datas.push(Number((f.data[y] / 1024).toFixed(0)));  }
+          obj.data = datas;
+          changeData.push(obj)
+          changeGridData.push(datas)
+        } else if(e.target.value === 'MB') {
+          const datas = [];
+          for(var y=0; y< f.data.length; y++) {datas.push(Number((f.data[y] / 1024/ 1024).toFixed(0))); }
+          obj.data = datas;
+          changeData.push(obj)
+          changeGridData.push(datas)
+        } else if(e.target.value === 'GB') {
+          const datas = [];
+          for(var y=0; y< f.data.length; y++) { datas.push(Number((f.data[y] / 1024/ 1024/ 1024).toFixed(0))); }
+          obj.data = datas;
+          changeData.push(obj)
+          changeGridData.push(datas)
+        }
+        obj.name = partitionLabel[i]
+        if(i === 1)   { obj.color= 'rgb(255,184,64)'; } 
+        else if(i === 2) { obj.color = 'red' }
       }
   })
   
   if(c.series.length === 3) {
-    const obj ={};
-    const obj1= {};
-    const obj2 = {};
-    const objData = {};
-    
-    obj.data = value;
-    obj.name = '/dev';
-    obj1.data = value1;
-    obj1.name = '/boot';
-    obj1.color = 'rgb(255, 184, 64)';
-    obj2.data = value2;
-    obj2.name = '/';
-    obj2.color = 'red';
-    changeBytes.push(obj,obj1,obj2)
+    c.series = changeData;
 
     /* 단위 변경 후 data 초기화 */
-    objData.value = value;
-    objData.value1 = value1;
-    objData.value2 = value2;
-    data.push(objData)
-
-    c.series = changeBytes;
-    c.data=data;
+    const diskGridData = [];
+    for(var x=0; x<partitionLabel.length; x++) {
+      if(diskGridData.length === 0) {
+        const obj = {};
+        obj[partitionLabel[x]] = changeGridData[x]
+        obj[partitionLabel[x+1]] = changeGridData[x+1]
+        obj[partitionLabel[x+2]] = changeGridData[x+2]
+        obj[partitionLabel[x+3]] = changeGridData[x+3]
+        obj[partitionLabel[x+4]] = changeGridData[x+4]
+        obj[partitionLabel[x+5]] = changeGridData[x+5]
+        obj[partitionLabel[x+6]] = changeGridData[x+6]
+        obj[partitionLabel[x+7]] = changeGridData[x+7]
+        obj[partitionLabel[x+8]] = changeGridData[x+8]
+        obj[partitionLabel[x+9]] = changeGridData[x+9]
+        diskGridData.push(obj)
+      }
+    }
+    c.data = diskGridData;
   }
   c.unit = e.target.value;
 
@@ -1199,10 +1300,9 @@ inputChartTime = (e,c,i) => {
 
  /* 차트 통계 */
  chartTotalCheck = (e,c,i) => {
-   const { timeChart, chartColumnDefs, totalKey, totalData, totalName,partitionLabel  } = this.state;
+   const { timeChart, totalKey, totalName,partitionLabel  } = this.state;
    console.log(c);
    console.log(totalKey);
-   console.log(totalKey.length);
 
    if(totalKey.length >= 0 && !totalKey.includes(c.key)) {
     var seriesData = [];
@@ -1220,6 +1320,7 @@ inputChartTime = (e,c,i) => {
     c.series.forEach(s => {
        data.push(s.data)
     })
+    console.log(data);
     const dataLength = [];
     dataLength.push(data[0].length)
 
@@ -1231,26 +1332,16 @@ inputChartTime = (e,c,i) => {
       data[0].push(avg.toFixed(0))
     } else {
       for(var w=0; w < c.series.length; w++) {
+        console.log( Math.max(...data[w]));
         data[w].push(Math.max(...data[w]))
         data[w].push(Math.min(...data[w]))
         const avg = data[w].reduce((a,b) => a+b, 0) / data[w].length;
         data[w].push(avg.toFixed(0))
       }
     }
-    c.series.forEach(a => {
-      console.log(a);
-      const data = [{d0:[],d1:[],d2:[],d3:[],d4:[],d5:[],d6:[],d7:[] }];
-      for(var m=0; m< totalTime.length; m++) {
-        data[0].d0.push(a.data[m])
-      }
-      console.log(data);
-
-      // [{value:[]},{value:[]},{value:[]},value:[],value:[]]
-    })
-
+    console.log(c);
     /* line 1개일 경우 */
     c.series.forEach(d => {
-        console.log(c.series.length);
         if(c.series.length === 1 ) {
           for(var i=0; i < totalTime.length; i++) {
             const obj = {};
@@ -1259,32 +1350,6 @@ inputChartTime = (e,c,i) => {
             seriesGrid[totalKey.length].value.push(obj)
           }
         } 
-       else if(c.series.length === 3) {
-          
-        // const gridData = [];
-        // // d.name === partitionLabel[0] 
-        // // 1. 비교를 한다음
-        // // 2. 27개의 값을 배열을 담고 
-        // // 3. 그 배열을 객체에 담는다
-        // // 이걸 for문을 돌려서 진행하면 끝
-        // console.log(d);
-        
-        //   for(var a=0; a<totalTime.length; a++) { 
-        //     const obj = {};
-        //     obj.time = totalTime[a];
-            
-        //     if(d.name === partitionLabel[d.length]) {
-        //       gridData.push(d.data[a])
-        //     }
-            
-        //     obj.name=gridData;
-
-        //     console.log(obj);
-        //   }
-          
-        // console.log(gridData);
-          // obj.name = gridData;
-      }
     })
 
 
@@ -1301,28 +1366,50 @@ inputChartTime = (e,c,i) => {
             obj.out = e.out[i];
             obj.total = Number(e.in[i]) +Number( e.out[i])
             seriesGrid[totalKey.length].value.push(obj)
-          } 
+          }  else if(c.series.length === 3) {
+            const obj = {};
+            obj.time = totalTime[i];
+            for(var x=0; x< partitionLabel.length; x++) {
+              obj[partitionLabel[x]]= e[partitionLabel[x]][i]
+            }
+            seriesGrid[totalKey.length].value.push(obj)
+          }
         }
       })
     }
+   
+  const diskTotalData=[]
+  diskTotalData.push({headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' }},)
+  partitionLabel.map((i,p) => {
+    diskTotalData.push({
+      headerName:partitionLabel[p] ,
+      valueFormatter: params => {
+        if(c.unit !== undefined) {
+       return  params.data[partitionLabel[p]]+' '+c.unit
+      } else if(c.yAxis !== undefined) {
+        return params.data[partitionLabel[p]]+' '+'%'
+      } else {
+        return params.data[partitionLabel[p]]
+      }
+    },
+      type: 'rightAligned', 
+      headerClass: "grid-cell-left" 
+    })
+  })
   const columnDefs = c.series.length === 1  ?   ([
-      {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-      {headerName: c.legend.labelFormat ,type: 'rightAligned', headerClass: "grid-cell-left",
-      valueFormatter: params =>  {
-        if(c.yAxis !== undefined) {
-          return params.data.value+'%' 
-        } else if(c.unit !== undefined) {
-          return params.data.value+c.unit
-        } else {
-          return params.data.value
-        }
-      }}
-      ]) : ([
-      {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-      {headerName:'/' ,valueFormatter: params => this.diskValueFormatter(c,params),  type: 'rightAligned', headerClass: "grid-cell-left" },
-      {headerName:'/boot' ,valueFormatter: params =>c.unit !== undefined ? params.data.boot+' '+c.unit : params.data.boot+' '+'%',type: 'rightAligned', headerClass: "grid-cell-left" },
-      {headerName:'/dev' ,valueFormatter: params =>c.unit !== undefined ? params.data.dev+' '+c.unit : params.data.dev+' '+'%',  type: 'rightAligned', headerClass: "grid-cell-left" }
-      ]) 
+    {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
+    {headerName: c.legend.labelFormat ,type: 'rightAligned', headerClass: "grid-cell-left",
+    valueFormatter: params =>  {
+      if(c.yAxis !== undefined) {
+        return params.data.value+'%' 
+      } else if(c.unit !== undefined) {
+        return params.data.value+c.unit
+      } else {
+        return params.data.value
+      }
+    }}
+    ]) :  ( diskTotalData )
+
   const columnDefsNetwork = [
       {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
       {headerName:'RX' ,valueFormatter: params => c.unit !== undefined ? params.data.in+' '+c.unit : params.data.in,  type: 'rightAligned', headerClass: "grid-cell-left" },
@@ -1339,7 +1426,7 @@ inputChartTime = (e,c,i) => {
       chartColumnDefs: seriesColumn,
       totalData: seriesGrid,
       totalKey:totalKey.concat(c.key),
-      totalName:c.totalName
+      totalName: totalName.concat(c.totalName)
     })
     /* 데이터 초기화 */
     for(var u=0; u< data.length; u++) {
@@ -1347,134 +1434,150 @@ inputChartTime = (e,c,i) => {
     }
    } 
     else if(totalKey.includes(c.key)) {
-      this.setState({totalKey: totalKey.filter(totalKey => totalKey !== c.key) })  // 값이 같은 것만 삭제
+      this.setState({
+        totalKey: totalKey.filter(totalKey => totalKey !== c.key) ,
+        totalName: totalName.filter(totalName => totalName !== c.totalName) 
+      })  
       seriesGrid[totalKey.length-1].value.length=0;
       seriesColumn[totalKey.length-1].column.length=0;
      }
+    
 }
 
  /* 단위 변화 차트 통계 */
  chartTotalCheckSecond = (e,c,i) => {
-  const { timeChart, totalKey,totalData} = this.state;
-  console.log(totalData);
+  const { timeChart, chartColumnDefs, totalKey, totalData, totalName,partitionLabel  } = this.state;
+  console.log(c);
+
+  if(totalKey.length >= 0 && totalKey.includes(c.key)) {
+   seriesGrid[totalKey.length-1].value.length=0;
+   seriesColumn[totalKey.length-1].column.length=0;
+   const totalTime = [];
+   timeChart.forEach(t => {
+       totalTime.push(t);
+   })
+   if(!totalTime.includes('Max')) {
+     totalTime.push('Max')
+     totalTime.push('Min')
+     totalTime.push('Avg')
+   }
+
+   var data = [];
+   c.series.forEach(s => {
+      data.push(s.data)
+   })
+   console.log(data);
+   const dataLength = [];
+   dataLength.push(data[0].length)
+
+   /* 최대값, 최소값 ,평균 */
+   if(c.data === undefined ) {
+     data[0].push(Math.max(...data[0]))
+     data[0].push(Math.min(...data[0]))
+     const avg = data[0].reduce((a,b) => a+b, 0) / data[0].length;
+     data[0].push(avg.toFixed(0))
+   } else {
+     for(var w=0; w < c.series.length; w++) {
+       console.log( Math.max(...data[w]));
+       data[w].push(Math.max(...data[w]))
+       data[w].push(Math.min(...data[w]))
+       const avg = data[w].reduce((a,b) => a+b, 0) / data[w].length;
+       data[w].push(avg.toFixed(0))
+     }
+   }
    console.log(c);
-   console.log(totalKey);
+   /* line 1개일 경우 */
+   c.series.forEach(d => {
+       if(c.series.length === 1 ) {
+         for(var i=0; i < totalTime.length; i++) {
+           const obj = {};
+           obj.time = totalTime[i];
+           obj.value = d.data[i];
+           seriesGrid[totalKey.length-1].value.push(obj)
+         }
+       } 
+   })
 
-   if(totalKey.length >= 0 && totalKey.includes(c.key)) {
-    seriesGrid[totalKey.length-1].value.length=0;
-    seriesColumn[totalKey.length-1].column.length=0;
-    // totalData.length =0;
 
-    const totalTime = [];
-    timeChart.forEach(t => {
-        totalTime.push(t);
-    })
-    if(!totalTime.includes('Max')) {
-      totalTime.push('Max')
-      totalTime.push('Min')
-      totalTime.push('Avg')
-    }
- 
-    var data = [];
-    c.series.forEach(s => {
-       data.push(s.data)
-    })
-    const dataLength = [];
-    dataLength.push(data[0].length)
-
-    /* 최대값, 최소값 ,평균 */
-    if(c.data === undefined ) {
-      data[0].push(Math.max(...data[0]))
-      data[0].push(Math.min(...data[0]))
-      const avg = data[0].reduce((a,b) => a+b, 0) / data[0].length;
-      data[0].push(avg.toFixed(0))
+   console.log(seriesGrid);
+   /* line 2~3개일 경우 */
+   if(c.data !== undefined) {
+     console.log(c.data);
+     c.data.forEach(e => {
+       for(var i=0; i< totalTime.length; i++) {
+         if(c.series.length === 2) {
+           const obj = {};
+           obj.time = totalTime[i];
+           obj.in = e.in[i];
+           obj.out = e.out[i];
+           obj.total = Number(e.in[i]) +Number( e.out[i])
+           seriesGrid[totalKey.length-1].value.push(obj)
+         }  else if(c.series.length === 3) {
+           const obj = {};
+           obj.time = totalTime[i];
+           for(var x=0; x< partitionLabel.length; x++) {
+             obj[partitionLabel[x]]= e[partitionLabel[x]][i]
+           }
+           seriesGrid[totalKey.length-1].value.push(obj)
+           console.log(obj);
+         }
+       }
+     })
+   }
+  
+const diskTotalData=[]
+diskTotalData.push({headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' }},)
+partitionLabel.map((i,p) => {
+  diskTotalData.push({
+    headerName:partitionLabel[p] ,
+    valueFormatter: params => {
+      if(c.unit !== undefined) {
+      return  params.data[partitionLabel[p]]+' '+c.unit
+    } else if(c.yAxis !== undefined) {
+      return params.data[partitionLabel[p]]+' '+'%'
     } else {
-      for(var w=0; w < c.series.length; w++) {
-        data[w].push(Math.max(...data[w]))
-        data[w].push(Math.min(...data[w]))
-        const avg = data[w].reduce((a,b) => a+b, 0) / data[w].length;
-        data[w].push(avg.toFixed(0))
-      }
+      return params.data[partitionLabel[p]]
     }
+  },
+    type: 'rightAligned', 
+    headerClass: "grid-cell-left" })
+})
+ const columnDefs = c.series.length === 1  ?   ([
+     {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
+     {headerName: c.legend.labelFormat ,type: 'rightAligned', headerClass: "grid-cell-left",
+     valueFormatter: params =>  {
+       if(c.yAxis !== undefined) {
+         return params.data.value+' '+'%' 
+       } else if(c.unit !== undefined) {
+         return params.data.value+' '+c.unit
+       } else {
+         return params.data.value
+       }
+     }}
+     ]) :  ( diskTotalData )
 
-    /* line 1개일 경우 */
-    c.series.forEach(d => {
-      for(var i=0; i<totalTime.length; i++) {
-        console.log(c.series.length);
-        if(c.series.length === 1 ) {
-         const obj = {};
-         obj.time = totalTime[i];
-         obj.value = d.data[i];
-         seriesGrid[totalKey.length-1].value.push(obj)
-        } 
-      }
-    })
-    
-    /* line 2~3개일 경우 */
-    if(c.data !== undefined) {
-      console.log(c.data);
-      c.data.forEach(e => {
-        for(var i=0; i< totalTime.length; i++) {
-          if(c.series.length === 2) {
-            const obj = {};
-            obj.time = totalTime[i];
-            obj.in = e.in[i];
-            obj.out = e.out[i];
-            obj.total = Number(e.in[i]) +Number( e.out[i])
-            seriesGrid[totalKey.length-1].value.push(obj)
-          } else if(c.series.length === 3) {
-            const obj = {}; 
-            obj.time = totalTime[i];
-            obj.dev = e.value[i];
-            obj.boot = e.value1[i];
-            obj.href = e.value2[i];
-            seriesGrid[totalKey.length-1].value.push(obj)
-          }
-        }
-      })
-    }
-    // console.log("asdasdasd", this.state.totalData);
-  const columnDefss = c.series.length === 1  ?   ([
-      {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-      {headerName: c.legend.labelFormat ,type: 'rightAligned', headerClass: "grid-cell-left",
-      valueFormatter: params =>  {
-        if(c.yAxis !== undefined) {
-          return params.data.value+' '+'%' 
-        } else if(c.unit !== undefined) {
-          return params.data.value+' '+c.unit
-        } else {
-          return params.data.value
-        }
-      }}
-      ]) : ([
-      {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-      {headerName:'/' ,valueFormatter: params => this.diskValueFormatter(c,params),  type: 'rightAligned', headerClass: "grid-cell-left" },
-      {headerName:'/boot' ,valueFormatter: params =>c.unit !== undefined ? params.data.boot+' '+c.unit : params.data.boot+' '+'%',type: 'rightAligned', headerClass: "grid-cell-left" },
-      {headerName:'/dev' ,valueFormatter: params =>c.unit !== undefined ? params.data.dev+' '+c.unit : params.data.dev+' '+'%',  type: 'rightAligned', headerClass: "grid-cell-left" }
-      ]) 
-  const columnDefsNetworks = [
-      {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-      {headerName:'RX' , valueFormatter: params => c.unit !== undefined ? params.data.in+' '+c.unit : params.data.in, type: 'rightAligned', headerClass: "grid-cell-left" },
-      {headerName:'TX' ,valueFormatter: params => c.unit !== undefined ? params.data.out+' '+c.unit : params.data.out,  type: 'rightAligned', headerClass: "grid-cell-left" },
-      {headerName:'Total' ,valueFormatter: params => c.unit !== undefined ? params.data.total+' '+c.unit : params.data.total,  type: 'rightAligned', headerClass: "grid-cell-left" },
-    ]
-        
-  if(c.series.length !== 2) {
-    seriesColumn[totalKey.length-1].column.push(columnDefss);
-  } else {
-    seriesColumn[totalKey.length-1].column.push(columnDefsNetworks)
-  }
-
-    this.setState({
-      chartColumnDefs: seriesColumn,
-      totalKey:totalKey
-    })
-    this.gridApiChart.setRowData(seriesGrid[totalKey.length-1].value)
-    /* 데이터 초기화 */
-    for(var u=0; u< data.length; u++) {
-      data[u].length=dataLength
-    }
-   } 
+ const columnDefsNetwork = [
+     {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
+     {headerName:'RX' ,valueFormatter: params => c.unit !== undefined ? params.data.in+' '+c.unit : params.data.in,  type: 'rightAligned', headerClass: "grid-cell-left" },
+     {headerName:'TX' ,valueFormatter: params => c.unit !== undefined ? params.data.out+' '+c.unit : params.data.out,  type: 'rightAligned', headerClass: "grid-cell-left" },
+     {headerName:'Total' ,valueFormatter: params => c.unit !== undefined ? params.data.total+' '+c.unit : params.data.total,  type: 'rightAligned', headerClass: "grid-cell-left" },
+   ]
+       
+ if(c.series.length !== 2) {
+   seriesColumn[totalKey.length-1].column.push(columnDefs);
+ } else {
+   seriesColumn[totalKey.length-1].column.push(columnDefsNetwork)
+ }
+ this.setState({
+  chartColumnDefs: seriesColumn,
+  totalKey:totalKey
+})
+this.gridApiChart.setRowData(seriesGrid[totalKey.length-1].value)
+   /* 데이터 초기화 */
+   for(var u=0; u< data.length; u++) {
+     data[u].length=dataLength
+   }
+  } 
 }
 
 diskValueFormatter = (c,params) => {
@@ -1501,11 +1604,11 @@ diskValueFormatter = (c,params) => {
     // console.log(config);
     // console.log(totalData);
     // console.log(totalData.length);
-    // console.log(totalKey);
+    console.log(totalKey);
     // console.log(totalKey.length);
     // console.log(chartColumnDefs);
     // console.log(chartColumnDefs.length);
-    // console.log(totalName);
+    console.log(totalName);
 
     // totalKey.forEach(t => console.log(t))
 
@@ -1650,15 +1753,7 @@ diskValueFormatter = (c,params) => {
                                     columnDefs={deviceColumnDefs} 
                                     defaultColDef={deviceDefaultColDef}
                                     rowSelection='multiple'
-                                    onGridReady={params => {this.gridApis = params.api; 
-                                      this.gridApis.forEachLeafNode( (node) => {
-                                      // searchName.forEach(s => {
-                                      //   if (node.data.id === s.id) {
-                                      //     node.setSelected(true);
-                                      // }
-                                      // })
-                                      
-                                  });}} 
+                                    onGridReady={params => {this.gridApis = params.api; }} 
                                   />        
                               </div>
                       </Modal.Body>
@@ -1851,7 +1946,7 @@ diskValueFormatter = (c,params) => {
                     {
                       totalKey.map((t,a) => 
                         (
-                        c.key === t && c.totalName[0] === totalName[0] && ( 
+                        c.key === t && totalName.includes(c.totalName) && ( 
                           <div className="reportChartTotalGrid" key={t}  >
                             <div className="ag-theme-alpine" style={{ width:'93vw', height:'40vh',marginLeft:'0.5vw'}}>
                                 <AgGridReact
@@ -1866,8 +1961,7 @@ diskValueFormatter = (c,params) => {
                             </div>
                           </div>
                           )
-                      ))
-                     
+                        ))
                       }
                   </div>
                 </div>

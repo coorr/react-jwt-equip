@@ -195,6 +195,9 @@ class AnalysisIndex extends Component {
             selectKey: key
         });
     }
+    onClick = () => {
+      
+    }
 
     render() {
         const { selectKey, showSpinner, currentDate, l2ChartOptions } = this.state;
@@ -217,6 +220,7 @@ class AnalysisIndex extends Component {
                     {
                         _.map(l2ChartOptions, (obj, i) => (
                             <Card className="m-1" key={i}>
+                              <button onClick={()=> this.onClick()} >aaa</button>
                                 <CardHeader><b>{obj.name}</b></CardHeader>
                                 <CardBody>
                                     <ChartComponent options={obj.option} syncId="l2ChartEl" />
