@@ -157,7 +157,6 @@ export default class historyRecord extends Component {
             u.role= r.name;
           })
         })
-        // console.log(res.data);
         this.setState({user:res.data})
       })
     }
@@ -198,11 +197,11 @@ export default class historyRecord extends Component {
 
   /* 작업 구분 개별 */
   activeEach = (item) => {
-  const {historyActiveList,historyActiveData} = this.state;
-  var newArray = [...historyActiveData, item.value]
-  const changeCheck = historyActiveList.map((check,idx) => {
-   if(idx === item.id - 1) check = !check;
-   return check;
+    const {historyActiveList,historyActiveData} = this.state;
+    var newArray = [...historyActiveData, item.value]
+    const changeCheck = historyActiveList.map((check,idx) => {
+    if(idx === item.id - 1) check = !check;
+    return check;
   });
   
   if(historyActiveData.includes(item.value)) {
@@ -477,8 +476,8 @@ infiniteData = (data) => {
                                                   node.setSelected(true);
                                               }
                                               })
-                                              
-                                           });}} 
+                                           });}
+                                          } 
                                           />        
                                       </div>
                               </Modal.Body>

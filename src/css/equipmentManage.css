@@ -15,7 +15,7 @@ label{margin-top: 0;}
 /* ADMIN 페이지 */
 .FilterContainer{width: 100%; height: 100%;background-color: #E5E4EA;}
 /* high 공간 */
-.topFilterArea{width: 99.5%; height: 24%; background-color: #fff; border: 1px solid #c2cfd6;margin: 0 auto; }
+.topFilterArea{width: 99.5%; background-color: #fff; border: 1px solid #c2cfd6;margin: 0 auto; }
 .topFilterBox{width: 99.5%; height: 80%; border: 1px solid #c2cfd6;margin:0.2% 0 0 0.2%;   }
 .selectFilterSpace{width: 100%; height: 33.3%; border-bottom: 1px solid #c2cfd6; display: flex;}
 .selectBox{width: 7%; height: 100%; border-right: 1px solid #c2cfd6; background-color: #F5F3F4;}
