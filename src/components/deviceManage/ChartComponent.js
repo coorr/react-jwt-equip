@@ -42,7 +42,7 @@ const defaultOptions = {
       },
     },
     series: {
-      color: "rgb(0, 169, 255)",
+      // color: "rgb(0, 169, 255)",
     },
   },
   legend: {
@@ -65,6 +65,8 @@ class ChartComponent extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    console.log(prevProps.option);
+    console.log(this.props.option);
     if (this.props.option !== prevProps.option) {
       this.chart.update(this.props.option);
     }
