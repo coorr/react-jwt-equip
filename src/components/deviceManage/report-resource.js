@@ -1318,7 +1318,7 @@ inputChartTime = (e,c,i) => {
     const dataLength = [];
     dataLength.push(data[0].length)
 
-    /* 최대값, 최소값 ,평균 */
+    /* 최대값, 최소값, 평균 */
     if(c.data === undefined ) {
       data[0].push(Math.max(...data[0]))
       data[0].push(Math.min(...data[0]))
@@ -1430,10 +1430,14 @@ inputChartTime = (e,c,i) => {
     }
    } 
     else if(totalKey.includes(c.key)) {
+      console.log(totalKey.length);
+      console.log(seriesColumn.length);
+
       this.setState({
         totalKey: totalKey.filter(totalKey => totalKey !== c.key) ,
         totalName: totalName.filter(totalName => totalName !== c.totalName) 
       })  
+      console.log(totalKey.length);
       seriesGrid.splice(totalKey.length-1, 1)
       seriesColumn.splice(totalKey.length-1, 1)
      }

@@ -109,13 +109,23 @@ const modalOptions = {
       suppressCount: true,
       checkbox:true,
    }
-  }
+  },
+  chartDefaultColDef: {
+    sortable:true,  
+    resizable:true,  
+    floatingFilter: true,
+    filter:'agTextColumnFilter', 
+    flex:1,
+  },
 };
 
 const firstDateFormatInput = Moment('2020-10-31', "YYYY-MM-DD").format("YYYY-MM-DD");
 const secondDateFormatInput = Moment('2020-10-31', "YYYY-MM-DD").format("YYYY-MM-DD");
 const firstTimeFormat = '00';
 const secondTimeFormat = '23';
+
+const seriesGrid = [];
+const seriesColumn = [];
 
 class test extends Component {
   constructor(props) {
@@ -129,7 +139,10 @@ class test extends Component {
       selectedResourceName: [],
       selectedDevice: [], 
       selectedDeviceName: [],
-      chartData: {}
+      chartData: {},
+      totalKey: [],
+      totalData : [],
+      chartColumnDefs: [],
     };
   }
 
@@ -270,6 +283,8 @@ class test extends Component {
         let categoryAry = [];
         let valueAry = [];
         let originValueAry = [];
+        let partitionName = [];
+        let partitionData = [];
 
         if(obj.resourceName === 'CPU Processor (%)') {
           _.forEach(data[obj.resourceKey], (iobj) => {
@@ -288,6 +303,7 @@ class test extends Component {
           chartObj.deviceName = dobj.equipment;
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'CPU Used (%)') {
           const cpuGuest = [];
@@ -319,6 +335,7 @@ class test extends Component {
           chartObj.deviceName = dobj.equipment;
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'CPU Context Switch') {
           _.forEach(data[obj.resourceKey], (iobj) => {
@@ -336,6 +353,7 @@ class test extends Component {
           chartObj.resourceName = obj.resourceName;
           chartObj.deviceName = dobj.equipment;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'CPU Run Queue') {
           _.forEach(data[obj.resourceKey], (iobj) => {
@@ -353,6 +371,7 @@ class test extends Component {
           chartObj.resourceName = obj.resourceName;
           chartObj.deviceName = dobj.equipment;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Load Avg') {
           _.forEach(data[obj.resourceKey], (iobj) => {
@@ -370,6 +389,7 @@ class test extends Component {
           chartObj.resourceName = obj.resourceName;
           chartObj.deviceName = dobj.equipment;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Used (%)') {
           _.forEach(data[obj.resourceKey], (iobj) => {
@@ -389,6 +409,7 @@ class test extends Component {
           chartOptions.yAxis = {max:100, tickInterval:20 }
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Bytes') {
           let byteVal = 'bps';
@@ -413,6 +434,7 @@ class test extends Component {
           chartObj.byteVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Buffers (%)') {
           _.forEach(data[obj.resourceKey], (iobj) => {
@@ -432,6 +454,7 @@ class test extends Component {
           chartOptions.yAxis = {max:100, tickInterval:20 }
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Buffers Bytes') {
           let byteVal = 'bps';
@@ -456,6 +479,7 @@ class test extends Component {
           chartObj.byteVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Cached (%)') {
           _.forEach(data[obj.resourceKey], (iobj) => {
@@ -475,6 +499,7 @@ class test extends Component {
           chartOptions.yAxis = {max:100, tickInterval:20 }
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Cached Bytes') {
           let byteVal = 'bps';
@@ -499,6 +524,7 @@ class test extends Component {
           chartObj.byteVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Shared (%)') {
           _.forEach(data[obj.resourceKey], (iobj) => {
@@ -518,6 +544,7 @@ class test extends Component {
           chartOptions.yAxis = {max:100, tickInterval:20 }
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Shared Bytes') {
           let byteVal = 'bps';
@@ -542,6 +569,7 @@ class test extends Component {
           chartObj.byteVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Swap (%)') {
           _.forEach(data[obj.resourceKey], (iobj) => {
@@ -561,6 +589,7 @@ class test extends Component {
           chartOptions.yAxis = {max:100, tickInterval:20 }
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Swap Bytes') {
           let byteVal = 'bps';
@@ -585,6 +614,7 @@ class test extends Component {
           chartObj.byteVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Pagefault') {
           _.forEach(data[obj.resourceKey], (iobj) => {
@@ -602,6 +632,7 @@ class test extends Component {
           chartObj.resourceName = obj.resourceName;
           chartObj.deviceName = dobj.equipment;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Disk Total Used (%)') {
           _.forEach(data[obj.resourceKey], (iobj) => {
@@ -621,6 +652,7 @@ class test extends Component {
           chartOptions.yAxis = {max:100, tickInterval:20 }
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Disk Total Used Bytes') {
           let byteVal = 'bps';
@@ -645,19 +677,32 @@ class test extends Component {
           chartObj.byteVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Disk Used (%)') {
           let diskPartitionAry = _.groupBy(data[obj.resourceKey], 'partitionLabel');
-
           chartOptions.series = [];
-          
+          console.log(diskPartitionAry);
           _.forEach(diskPartitionAry, (pobj, key) => {
             let partitionVal = [];
             _.forEach(pobj, (disk) => {
               if(disk.deviceId === dobj.id) {
                 partitionVal.push(disk.usedPercentage); 
               }
+              if(!partitionName.includes(key)) {
+                partitionName.push(key);
+              }
+              // _.forEach(partitionName, (pobj,pkey) => {
+              //   const partiObj = {};
+              //   partiObj[pobj] = disk.usedPercentage;
+              //   console.log(partiObj);
+              // })
+
+              
+              
+
             });
+            console.log(partitionVal);
             const obj = {};
             obj.data = partitionVal;
             obj.name = key;
@@ -667,7 +712,14 @@ class test extends Component {
               obj.color = 'red';
             }
             chartOptions.series.push(obj);
+
+            const parObj = {};
+            console.log(key);
+            parObj[key] = partitionVal;
+            console.log(parObj);
+            partitionData.push(parObj)
           });
+          console.log(partitionData);
 
           _.forEach(data[obj.resourceKey], (iobj) => {
             if(!categoryAry.includes(_.replace(iobj.generateTime, 'T',' '))) {
@@ -683,6 +735,9 @@ class test extends Component {
           chartObj.deviceName = data[obj.resourceKey][0].deviceName;
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
+          chartObj.partition = partitionName;
+          chartObj.key = "chart_"+key+'_'+dkey;
+          chartObj.diskGridData = diskPartitionAry;
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Disk Used Bytes') {
           let byteVal = 'bps';
@@ -726,6 +781,7 @@ class test extends Component {
           chartObj.byteVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Disk I/O (%)') {
           let diskPartitionAry = _.groupBy(data[obj.resourceKey], 'partitionLabel');
@@ -764,6 +820,7 @@ class test extends Component {
           chartObj.deviceName = data[obj.resourceKey][0].deviceName;
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Disk I/O Count') {
           let diskPartitionAry = _.groupBy(data[obj.resourceKey], 'partitionLabel');
@@ -800,6 +857,7 @@ class test extends Component {
           chartObj.resourceName = obj.resourceName;
           chartObj.deviceName = data[obj.resourceKey][0].deviceName;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Disk I/O Bytes') {
           let byteVal = 'bps';
@@ -813,11 +871,12 @@ class test extends Component {
             let originVal = [];
             _.forEach(pobj, (disk) => {
               if(disk.deviceId === dobj.id) {
-                partitionVal.push(this.autoDiskConvertByte(disk.ioTotalBps).value);
+                partitionVal.push(this.autoConvertByte(disk.ioTotalBps).value);
                 originVal.push(disk.ioTotalBps);              
               }
             });
-            byteVal = this.autoDiskConvertByte(pobj[0].ioTotalBps).unit;
+            byteVal = this.autoConvertByte(pobj[0].ioTotalBps).unit;
+            console.log(byteVal);
             const obj = {};
             obj.data = partitionVal;
             obj.name = key;
@@ -844,6 +903,7 @@ class test extends Component {
           chartObj.byteDiskVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Network Traffic') {
           let byteVal = 'bps';
@@ -859,13 +919,13 @@ class test extends Component {
 
               _.forEach(pobj, (network) => {
                 if(network.deviceId === dobj.id) {
-                  partitionRx.push(this.autoNetworkConvertByte(network.inBytesPerSec).value);
-                  partitionTx.push(this.autoNetworkConvertByte(network.outBytesPerSec).value);
+                  partitionRx.push(this.autoConvertByte(network.inBytesPerSec).value);
+                  partitionTx.push(this.autoConvertByte(network.outBytesPerSec).value);
                   originRxVal.push(network.inBytesPerSec);    
                   originTxVal.push(network.outBytesPerSec);          
                 }
               });
-              byteVal = this.autoNetworkConvertByte(pobj[0].inBytesPerSec).unit;
+              byteVal = this.autoConvertByte(pobj[0].inBytesPerSec).unit;
               
               chartOptions.series.push({data: partitionRx, name: 'RX' } , {data: partitionTx, name: 'TX' , color: 'rgb(255, 184, 64)'});
               originValueAry.push({data: originRxVal}, {data: originTxVal});
@@ -886,6 +946,7 @@ class test extends Component {
           chartObj.byteNetworkVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Network PPS') {
           let byteVal = 'bps';
@@ -901,13 +962,13 @@ class test extends Component {
 
               _.forEach(pobj, (network) => {
                 if(network.deviceId === dobj.id) {
-                  partitionRx.push(this.autoNetworkConvertByte(network.inPktsPerSec).value);
-                  partitionTx.push(this.autoNetworkConvertByte(network.outPktsPerSec).value);
+                  partitionRx.push(this.autoConvertByte(network.inPktsPerSec).value);
+                  partitionTx.push(this.autoConvertByte(network.outPktsPerSec).value);
                   originRxVal.push(network.inPktsPerSec);    
                   originTxVal.push(network.outPktsPerSec);          
                 }
               });
-              byteVal = this.autoNetworkConvertByte(pobj[0].inPktsPerSec).unit;
+              byteVal = this.autoConvertByte(pobj[0].inPktsPerSec).unit;
             
               chartOptions.series.push({data: partitionRx, name: 'RX' } , {data: partitionTx, name: 'TX' , color: 'rgb(255, 184, 64)'});
               originValueAry.push({data: originRxVal}, {data: originTxVal});
@@ -928,6 +989,7 @@ class test extends Component {
           chartObj.byteNetworkVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'NIC Discards') {
           let byteVal = 'pps';
@@ -943,13 +1005,13 @@ class test extends Component {
 
               _.forEach(pobj, (network) => {
                 if(network.deviceId === dobj.id) {
-                  partitionRx.push(this.autoNetworkSecondConvertByte(network.inPktsPerSec).value);
-                  partitionTx.push(this.autoNetworkSecondConvertByte(network.outPktsPerSec).value);
+                  partitionRx.push(this.autoConvertByte(network.inPktsPerSec).value);
+                  partitionTx.push(this.autoConvertByte(network.outPktsPerSec).value);
                   originRxVal.push(network.inPktsPerSec);    
                   originTxVal.push(network.outPktsPerSec);          
                 }
               });
-              byteVal = this.autoNetworkSecondConvertByte(pobj[0].inPktsPerSec).unit;
+              byteVal = this.autoConvertByte(pobj[0].inPktsPerSec).unit;
             
               chartOptions.series.push({data: partitionRx, name: 'RX' } , {data: partitionTx, name: 'TX' , color: 'rgb(255, 184, 64)'});
               originValueAry.push({data: originRxVal}, {data: originTxVal});
@@ -970,6 +1032,7 @@ class test extends Component {
           chartObj.byteNetworkSecondVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'NIC Errors') {
           let byteVal = 'pps';
@@ -987,13 +1050,13 @@ class test extends Component {
                 console.log(network);
                 if(network.deviceId === dobj.id) {
                   console.log(network.inErrorPkts);
-                  partitionRx.push(this.autoNetworkSecondConvertByte(network.inBytesPerSec).value);
-                  partitionTx.push(this.autoNetworkSecondConvertByte(network.outBytesPerSec).value);
+                  partitionRx.push(this.autoConvertByte(network.inBytesPerSec).value);
+                  partitionTx.push(this.autoConvertByte(network.outBytesPerSec).value);
                   originRxVal.push(network.inBytesPerSec);    
                   originTxVal.push(network.outBytesPerSec);          
                 }
               });
-              byteVal = this.autoNetworkSecondConvertByte(pobj[0].inBytesPerSec).unit;
+              byteVal = this.autoConvertByte(pobj[0].inBytesPerSec).unit;
             
               chartOptions.series.push({data: partitionRx, name: 'RX' } , {data: partitionTx, name: 'TX' , color: 'rgb(255, 184, 64)'});
               originValueAry.push({data: originRxVal}, {data: originTxVal});
@@ -1014,6 +1077,7 @@ class test extends Component {
           chartObj.byteNetworkSecondVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } 
        })
@@ -1064,7 +1128,6 @@ changeByteType = (e, obj, i) => {
     _.forEach(chartOptions[i].originValueAry, (val, j) => {
       let partitionVal = [];
       _.forEach(val.data, (disk) => {
-        console.log(e.target.value);
         partitionVal.push(this.changeByteVal(e.target.value, disk).value);
       });
       valueAry.push({data: partitionVal, name: chartOptions[i].option.series[j].name});
@@ -1081,115 +1144,201 @@ changeByteType = (e, obj, i) => {
 }
 
   /* 단위 자동 변경 */
-  autoConvertByte(size, decimals = 2) {
-    // console.log(obj);
-    let result = {};
+autoConvertByte(size, decimals = 2) {
+  const { selecteResource } = this.state;
+  let result = {};
 
-    if (size === 0) return '0';
+  if (size === 0) return '0';
+  const dm = decimals < 0 ? 0 : decimals;
+  
+  _.forEach(selecteResource , (obj) => {
+    if(obj.resourceName === 'NIC Discards' || obj.resourceName === 'NIC Errors') {
+      const k = 2048;
+      const sizes = ['Kpps', 'Mpps', 'Gpps', 'Tpps', 'Ppps', 'Epps', 'Zpps', 'Ypps'];
+      const i = Math.floor(Math.log(size) / Math.log(k));
 
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+      result.value = parseFloat((size / Math.pow(k, i)).toFixed(dm));
+      result.unit = sizes[i];
+      
+    } else if(obj.resourceName === 'Network Traffic' || obj.resourceName === 'Network PPS') {
+      const k = 2048;
+      const sizes = ['Kbps', 'Mbps', 'Gbps', 'Tbps', 'Pbps', 'Ebps', 'Zbps', 'Ybps'];
+      const i = Math.floor(Math.log(size) / Math.log(k));
+  
+      result.value = parseFloat((size / Math.pow(k, i)).toFixed(dm));
+      result.unit = sizes[i];
+    } else if(obj.resourceName === 'Disk I/O Bytes') {
+      const k = 1024;
+      const sizes = ['B/s', 'KB/s', 'MB/s', 'GB/s', 'TB/s', 'PB/s', 'EB/s', 'ZB/s', 'YB/s'];
+      const i = Math.floor(Math.log(size) / Math.log(k));
+      result.value = parseFloat((size / Math.pow(k, i)).toFixed(dm));
+      result.unit = sizes[i];
+    } else {
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+      const i = Math.floor(Math.log(size) / Math.log(k));
 
-    const i = Math.floor(Math.log(size) / Math.log(k));
-
-    result.value = parseFloat((size / Math.pow(k, i)).toFixed(dm));
-    result.unit = sizes[i];
-    return result;
-  };
-
-  autoDiskConvertByte(size, decimals = 2) {
-    let result = {};
-
-    if (size === 0) return '0';
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['B/s', 'KB/s', 'MB/s', 'GB/s', 'TB/s', 'PB/s', 'EB/s', 'ZB/s', 'YB/s'];
-
-    const i = Math.floor(Math.log(size) / Math.log(k));
-
-    result.value = parseFloat((size / Math.pow(k, i)).toFixed(dm));
-    result.unit = sizes[i];
-    return result;
-  };
-
-  autoNetworkConvertByte(size, decimals = 2) {
-    let result = {};
-
-    if (size === 0) return '0';
-
-    const k = 2048;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Kbps', 'Mbps', 'Gbps', 'Tbps', 'Pbps', 'Ebps', 'Zbps', 'Ybps'];
-
-    const i = Math.floor(Math.log(size) / Math.log(k));
-
-    result.value = parseFloat((size / Math.pow(k, i)).toFixed(dm));
-    result.unit = sizes[i];
-    return result;
-  };
-
-  autoNetworkSecondConvertByte(size, decimals = 2) {
-    let result = {};
-
-    if (size === 0) return '0';
-
-    const k = 2048;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Kpps', 'Mpps', 'Gpps', 'Tpps', 'Ppps', 'Epps', 'Zpps', 'Ypps'];
-
-    const i = Math.floor(Math.log(size) / Math.log(k));
-
-    result.value = parseFloat((size / Math.pow(k, i)).toFixed(dm));
-    result.unit = sizes[i];
-    return result;
-  };
-
-  /* bps 단위 변경 */
-  changeByteVal(type, size, decimals = 2){
-    console.log(type);
-		let result = {},
-    selectFix = 0,
-    selectVal = 0;
-
-    const dm = decimals < 0 ? 0 : decimals;
-
-    if (size === 0) return '0'; 
-    else {
-      if(type == 'bps' || type == 'pps') {
-        selectVal = 8;
-      } else if(type == 'B' || type == 'B/s') {
-        selectVal = 1;
-      } else if(type == 'KB' || type == 'KB/s' || type == 'Kbps' || type == 'Kpps') {
-        selectVal = 1024;
-        selectFix = 3;
-      } else if(type == 'MB' || type == 'MB/s' || type == 'Mbps' || type == 'Mpps') {
-        selectVal = 1048576;
-        selectFix = 6;
-      } else if(type == 'GB' || type == 'GB/s' || type == 'Gbps' || type == 'Gpps') {
-        selectVal = 1073741824;
-        selectFix = 9;
-      }
-
-      if(selectVal < 10) {
-        size = parseFloat(size * selectVal); 
-      } else {
-        selectFix = size / selectVal > 1 ? 2 : selectFix;
-        size = size / selectVal === 0 ? 0 : parseFloat((size / selectVal)).toFixed(selectFix);
-      }
-
-      size = parseFloat(size).toFixed(dm);
-      result.value = Number(size);
+      result.value = parseFloat((size / Math.pow(k, i)).toFixed(dm));
+      result.unit = sizes[i];
     }
-    return result;
-	}
+  })
+  return result;
+};
+
+/* bps 단위 변경 */
+changeByteVal(type, size, decimals = 2){
+  let result = {},
+  selectFix = 0,
+  selectVal = 0;
+
+  const dm = decimals < 0 ? 0 : decimals;
+
+  if (size === 0) return '0'; 
+  else {
+    if(type == 'bps' || type == 'pps') {
+      selectVal = 8;
+    } else if(type == 'B' || type == 'B/s') {
+      selectVal = 1;
+    } else if(type == 'KB' || type == 'KB/s' || type == 'Kbps' || type == 'Kpps') {
+      selectVal = 1024;
+      selectFix = 3;
+    } else if(type == 'MB' || type == 'MB/s' || type == 'Mbps' || type == 'Mpps') {
+      selectVal = 1048576;
+      selectFix = 6;
+    } else if(type == 'GB' || type == 'GB/s' || type == 'Gbps' || type == 'Gpps') {
+      selectVal = 1073741824;
+      selectFix = 9;
+    }
+
+    if(selectVal < 10) {
+      size = parseFloat(size * selectVal); 
+    } else {
+      selectFix = size / selectVal > 1 ? 2 : selectFix;
+      size = size / selectVal === 0 ? 0 : parseFloat((size / selectVal)).toFixed(selectFix);
+    }
+
+    size = parseFloat(size).toFixed(dm);
+    result.value = Number(size);
+  }
+  return result;
+}
+
+   /* 차트 통계 */
+ chartTotalCheck = (e, obj , i) => {
+  const { totalKey, totalData, chartColumnDefs } = this.state; 
+  let chartOptions = _.cloneDeep(this.state.chartData);
+  console.log(obj);
+
+
+  
+
+  if(totalKey.length >= 0 && !totalKey.includes(obj.key)) {
+  const timeChart = [];
+  _.forEach(obj.option.xAxis.categories, (pobj) => {
+    timeChart.push(pobj)
+  })
+
+  if(!timeChart.includes('Max')) {
+    timeChart.push('Max')
+    timeChart.push('Min')
+    timeChart.push('Avg')
+  }
+
+  const data = []; 
+  _.forEach(obj.option.series, (dobj) => {
+      data.push(dobj.data)
+  })
+  const dataLength = [];
+  dataLength.push(data.length)
+  
+  /* 최대값, 최소값, 평균 */
+  if(obj.option.series.length === 1 ) {
+    data[0].push(Math.max(...data[0]))
+    data[0].push(Math.min(...data[0]))
+    const avg = data[0].reduce((a,b) => a+b, 0) / data[0].length;
+    data[0].push(Number(avg.toFixed(0)))
+  } else {
+    for(var w=0; w < obj.option.series.length; w++) {
+      data[w].push(Math.max(...data[w]))
+      data[w].push(Math.min(...data[w]))
+      const avg = data[w].reduce((a,b) => a+b, 0) / data[w].length;
+      data[w].push(Number(avg.toFixed(0)))
+    }
+  }
+  
+  console.log(data);
+  
+  if(chartOptions[i].resourceName === 'CPU Processor (%)' || chartOptions[i].resourceName === 'CPU Used (%)' ||
+    chartOptions[i].resourceName === 'CPU Context Switch' || chartOptions[i].resourceName === 'CPU Run Queue' ||
+    chartOptions[i].resourceName === 'Load Avg'  ) {
+    const array = [];
+    _.forEach(obj.option.series, (sobj) => {
+      _.forEach(sobj.data , (tobj, tkey) => {
+        console.log("aa");
+        const obj = {};
+        obj.time = timeChart[tkey];
+        obj.value = tobj
+        array.push(obj);
+      })
+    })
+    seriesGrid.push(array)
+
+    const columnDefs = [
+      {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
+      {headerName: obj.deviceName ,type: 'rightAligned', headerClass: "grid-cell-left", field: 'value' }
+    ]
+    seriesColumn.push(columnDefs)
+    
+  } else if(chartOptions[i].resourceName === 'Disk Used (%)' ) {
+    const array = [];
+    console.log(obj.diskGridData);
+    _.forEach(obj.diskGridData, (dobj) => {
+      console.log(dobj);
+      _.forEach(timeChart , (tobj,tkey) => {
+        const diskObj = {};
+        diskObj.time = tobj;
+        for(var x=0; x< obj.partition.length; x++) {
+          // console.log(obj.partition[x]);
+          diskObj[obj.partition[x]]= dobj[obj.partition[x]][tkey]
+        }
+        console.log(diskObj);
+        array.push(diskObj);
+      })
+    })
+    seriesGrid.push(array)
+  }
+ 
+
+  this.setState({ 
+    totalKey : totalKey.concat(obj.key), 
+    totalData: seriesGrid,
+    chartColumnDefs: seriesColumn
+  })
+  /* 데이터 초기화 */
+  data.length=0;
+} 
+  
+  
+  
+  else {
+    const countKey = totalKey.indexOf(obj.key)
+    this.setState({
+      totalKey : totalKey.filter(totalKey => totalKey !== obj.key),
+    })
+    seriesGrid.splice(countKey, 1)
+    seriesColumn.splice(countKey, 1)
+  }
+  
+ }
 
   render() {
     const { loader, chartData, isResourceModal, isDeviceModal, selectedResourceName, selectedDeviceName, deviceData,
-            calendarCheckFirst, calendarCheckSecond, date } = this.state;
+            calendarCheckFirst, calendarCheckSecond, date, totalKey, totalData, chartColumnDefs } = this.state;
 
       console.log(chartData);
+      console.log(totalKey);
+      console.log(totalData);
+      console.log(chartColumnDefs);
 
     return (
       <>
@@ -1374,7 +1523,7 @@ changeByteType = (e, obj, i) => {
                       )}
                       {obj.byteDiskType && (
                         <>
-                           <select name="changeSecondByte" className="reportChartSelect" value={obj.byteDiskVal} onChange={(e) => this.changeByteType(e, obj, i)}>
+                           <select name="changeDiskByte" className="reportChartSelect" value={obj.byteDiskVal} onChange={(e) => this.changeByteType(e, obj, i)}>
                               <option value="bps">bps</option>
                               <option value="B/s">B/s</option>
                               <option value="KB/s">KB/s</option>
@@ -1385,7 +1534,7 @@ changeByteType = (e, obj, i) => {
                       )}
                       {obj.byteNetworkType && (
                         <>
-                           <select name="changeSecondByte" className="reportChartSelect" value={obj.byteNetworkVal} onChange={(e) => this.changeByteType(e, obj, i)}>
+                           <select name="changeNetworkByte" className="reportChartSelect" value={obj.byteNetworkVal} onChange={(e) => this.changeByteType(e, obj, i)}>
                               <option value="bps">bps</option>
                               <option value="Kbps">Kbps</option>
                               <option value="Mbps">Mbps</option>
@@ -1395,7 +1544,7 @@ changeByteType = (e, obj, i) => {
                       )}
                       {obj.byteNetworkSecondType && (
                         <>
-                           <select name="changeSecondByte" className="reportChartSelect" value={obj.byteNetworkSecondVal} onChange={(e) => this.changeByteType(e, obj, i)}>
+                           <select name="changeNetworkSecondByte" className="reportChartSelect" value={obj.byteNetworkSecondVal} onChange={(e) => this.changeByteType(e, obj, i)}>
                               <option value="pps">pps</option>
                               <option value="Kpps">Kpps</option>
                               <option value="Mpps">Mpps</option>
@@ -1406,10 +1555,30 @@ changeByteType = (e, obj, i) => {
                     </div>
                   </div>
                   <div className="reportChartTotalArea">
-                    <button className="reportChartTotalBox" onClick={(e) => this.chartTotalCheck()}>
+                    <button className="reportChartTotalBox" onClick={(e) => this.chartTotalCheck(e, obj , i)}>
                       <label className="reportChartTotalText" name="chartStatisticsLabel">▼ 차트 통계</label>
                     </button>
-              
+                    {
+                      totalKey.map((t,a) => 
+                        (
+                          // c.key === t && totalName.includes(c.totalName) && ( 
+                            obj.key === t  && ( 
+                            <div className="reportChartTotalGrid" key={t}  >
+                              <div className="ag-theme-alpine" style={{ width:'93vw', height:'40vh',marginLeft:'0.5vw'}}>
+                                  <AgGridReact
+                                  headerHeight='30'
+                                  floatingFiltersHeight='23'
+                                  rowHeight='25'
+                                  columnDefs={chartColumnDefs[a]}  
+                                  defaultColDef={modalOptions.chartDefaultColDef}
+                                  rowData={totalData[a]}
+                                  onGridReady={params => { this.gridApiChart = params.api;}}
+                                />       
+                              </div>
+                            </div>
+                          )
+                        ))
+                      }
                   </div>
                 </div>
               </div>
