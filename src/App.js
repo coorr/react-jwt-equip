@@ -15,7 +15,7 @@ import BoardModerator from "./components/user/board-moderator.component";
 import EquipmentManage from "./components/deviceManage/equipment-manage";
 import ManageEquipmentList from "./components/deviceManage/equipment-group-manage";
 import Modify from './modals/modify.component';
-import HistoryRecord from "./components/deviceManage/histroy-record";
+import HistoryRecord from "./components/deviceManage/history-record";
 import ReportResoruce from "./components/deviceManage/report-resource";
 
 import test from "./components/deviceManage/test";

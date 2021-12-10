@@ -23,6 +23,7 @@ import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import "react-datepicker/dist/react-datepicker.css";
 
 import '../../css/reportResource.css';
+import { isFor } from '@babel/types';
 
 const time = [
   {value:'00'}, {value:'01'}, {value:'02'}, {value:'03'}, {value:'04'}, {value:'05'},
@@ -119,13 +120,12 @@ const modalOptions = {
   },
 };
 
-const firstDateFormatInput = Moment('2020-10-31', "YYYY-MM-DD").format("YYYY-MM-DD");
-const secondDateFormatInput = Moment('2020-10-31', "YYYY-MM-DD").format("YYYY-MM-DD");
-const firstTimeFormat = '00';
-const secondTimeFormat = '23';
+// 하루 초 86400 000
+const oneMonth = new Date(new Date().getTime() - 34992000000 );
 
 const seriesGrid = [];
 const seriesColumn = [];
+
 
 class test extends Component {
   constructor(props) {
@@ -143,6 +143,12 @@ class test extends Component {
       totalKey: [],
       totalData : [],
       chartColumnDefs: [],
+      firstDateFormat: Moment(oneMonth, "YYYY.MM.DD").format("YYYYMMDD"),
+      secondDateFormat: Moment(oneMonth, "YYYY.MM.DD").format("YYYYMMDD"),
+      firstTimeFormat: '00',
+      secondTimeFormat: '23',
+      calendarCheckSecond:false,
+      calendarCheckFirst:false,
     };
   }
 
@@ -166,7 +172,7 @@ class test extends Component {
     let selectedResourceName = [];
     let selectedResource = [];
 
-    if (selectedResourceNode.length === 0) {
+    if(selectedResourceNode.length === 0) {
       alert("체크박스를 선택해 주세요.");
       return;
     } else {
@@ -206,9 +212,10 @@ class test extends Component {
 
   getReportData() {
     this.setState({ loader: true, chartData : [] });
-    let { selecteResource, selectedDevice } = this.state;
-    let startDate = Moment(firstDateFormatInput).format("YYYYMMDD")+"000000";
-    let endDate = Moment(secondDateFormatInput).format("YYYYMMDD")+"235959";
+    let { selecteResource, selectedDevice, firstDateFormat, secondDateFormat, firstTimeFormat, secondTimeFormat } = this.state;
+
+    const startDate=firstDateFormat+firstTimeFormat+'0000';
+    const endDate= secondDateFormat+secondTimeFormat+'5959';
 
     let resourceKey = _.groupBy(selecteResource, 'resourceKey');
 
@@ -238,10 +245,10 @@ class test extends Component {
     });
   }
 
-  setReportDataFormat(data) {
-    let { selecteResource, selectedDevice } = this.state;
-    let startDate = Moment(firstDateFormatInput).format("YYYY.MM.DD");
-    let endDate = Moment(secondDateFormatInput).format("YYYY.MM.DD");
+setReportDataFormat(data) {
+    let { selecteResource, selectedDevice,firstDateFormat, secondDateFormat } = this.state;
+    let startDate = Moment(firstDateFormat).format("YYYY.MM.DD");
+    let endDate = Moment(secondDateFormat).format("YYYY.MM.DD");
     let chartData = {};
 
     console.log(data);
@@ -265,7 +272,7 @@ class test extends Component {
           },
           xAxis: {
             categories: [],
-            tickInterval:2,
+            // tickInterval:2,
             labels: {align:'center'}
           },
           series: [
@@ -421,7 +428,7 @@ class test extends Component {
           _.forEach(data[obj.resourceKey], (iobj) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
-              valueAry.push(iobj.usedMemory);
+              valueAry.push(this.autoConvertByte(obj,iobj.usedMemory).value);
               originValueAry.push(iobj.usedMemory);
             }
           });
@@ -466,7 +473,7 @@ class test extends Component {
           _.forEach(data[obj.resourceKey], (iobj) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
-              valueAry.push(iobj.memoryBuffers);
+              valueAry.push(this.autoConvertByte(obj,iobj.memoryBuffers).value);
               originValueAry.push(iobj.memoryBuffers);
             }
           });
@@ -511,7 +518,7 @@ class test extends Component {
           _.forEach(data[obj.resourceKey], (iobj) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
-              valueAry.push(iobj.memoryCached);
+              valueAry.push(this.autoConvertByte(obj,iobj.memoryCached).value);
               originValueAry.push(iobj.memoryCached);
             }
           });
@@ -601,7 +608,7 @@ class test extends Component {
           _.forEach(data[obj.resourceKey], (iobj) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
-              valueAry.push(iobj.usedSwap);
+              valueAry.push(this.autoConvertByte(obj,iobj.usedSwap).value);
               originValueAry.push(iobj.usedSwap);
             }
           });
@@ -1150,12 +1157,28 @@ class test extends Component {
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } 
+        // 시간 간격 조절 
+        let categoryLength = '';
+        if(categoryAry.length <= 24) { categoryLength = 2;} 
+        else if(categoryAry.length > 24 && categoryAry.length <= 48) { categoryLength = 4; }
+        else if(categoryAry.length > 48 && categoryAry.length <= 100) { categoryLength = 8; } 
+        else { categoryLength = 100;}
+        chartOptions.xAxis.tickInterval = categoryLength;
        })
       }); 
       console.log(chartData);
-    
-    this.setState({ loader: false, chartData: chartData });
-  }
+      for(var k=0; k< this.state.totalKey.length; k++) {
+        seriesGrid.splice(0, 1);
+        seriesColumn.splice(0, 1);
+      }
+        this.setState({
+          chartData:chartData,
+          totalKey: [],
+          totalData:[],
+          chartColumnDefs:[],
+          loader:false
+        })
+}
 
 /* line , bar 변경 */
 changeChartType = (e, obj, i) => {
@@ -1177,7 +1200,7 @@ maxStandred = (e, obj , i) => {
   }
   this.setState({ chartData: chartOptions });
 }
-
+/* 타입 변환 */
 changeByteType = (e, obj, i) => {
   console.log(e);
   console.log(obj);
@@ -1194,14 +1217,15 @@ changeByteType = (e, obj, i) => {
     _.forEach(chartOptions[i].originValueAry, (val) => {
       valueAry.push(this.changeByteVal(e.target.value, val).value);
     });
-    console.log(valueAry);
-
-    // chartOptions[i].byteVal = e.target.value;
-    // chartOptions[i].option.series[0].data = valueAry;
-    obj.byteVal = e.target.value;
-    obj.option.series[0].data = valueAry;
+    if(totalKey.includes(obj.key)) {
+      obj.byteVal = e.target.value;
+      obj.option.series[0].data = valueAry;
+    } else {
+      chartOptions[i].byteVal = e.target.value;
+      chartOptions[i].option.series[0].data = valueAry;
+    }
+      
     
-    console.log();
   } else if(chartOptions[i].resourceName === 'Disk Used Bytes' || chartOptions[i].resourceName === 'Disk I/O Bytes' || 
             chartOptions[i].resourceName === 'Network Traffic' || chartOptions[i].resourceName === 'Network PPS' || 
             chartOptions[i].resourceName === 'NIC Discards'    || chartOptions[i].resourceName === 'NIC Errors') {
@@ -1213,19 +1237,20 @@ changeByteType = (e, obj, i) => {
       valueAry.push({data: partitionVal, name: chartOptions[i].option.series[j].name});
       
     });
-    chartOptions[i].byteVal = e.target.value;
-    chartOptions[i].option.series = valueAry;
-    console.log(valueAry);
-    
+    if(totalKey.includes(obj.key)) {
+      obj.byteVal = e.target.value;
+      obj.option.series[0].data = valueAry;
+    } else {
+      chartOptions[i].byteVal = e.target.value;
+      chartOptions[i].option.series[0].data = valueAry;
+    }
   }
-  console.log(obj);
-  console.log(chartOptions[i]);
 
-  // this.setState({ chartData: chartOptions });
-  
   
   if(totalKey.includes(obj.key)) {
-    this.chartTotalCheckSecond(e,i,obj);
+    this.chartTotalCheckSecond(e,i,obj,valueAry);
+  } else {
+    this.setState({ chartData: chartOptions });
   }
 }
 
@@ -1324,34 +1349,40 @@ chartTotalCheck = (e, obj , i) => {
 
   const data = [];
   const gridDatas = [];
-  const dataLength = [];
-  const gridDataLength = [];
+  let dataLength = 0;
+  let gridDataLength = 0;
   if(obj.gridData === undefined) {
     _.forEach(obj.option.series, (dobj) => {
         data.push(dobj.data)
     })
-    dataLength.push(data.length)
+    dataLength = data[0].length
   } else {
     _.forEach(obj.gridData, (dobj) => {
       gridDatas.push(dobj)
     })
-    gridDataLength.push(gridDatas[0].length)
+    gridDataLength = gridDatas[0].length
   }
   
-  
-  
+  let maxVal = '';
+  let minVal = '';
+  let maxValAry = {};
+  let minValAry = {};
   /* 최대값, 최소값, 평균 */
   if(obj.option.series.length === 1 ) {
     data[0].push(Math.max(...data[0]))
     data[0].push(Math.min(...data[0]))
     const avg = data[0].reduce((a,b) => a+b, 0) / data[0].length;
     data[0].push(Number(avg.toFixed(0)))
+    maxVal = Math.max(...data[0])
+    minVal = Math.min(...data[0])
   } else {
     for(var w=0; w < obj.option.series.length; w++) {
       gridDatas[w].push(Math.max(...gridDatas[w]))
       gridDatas[w].push(Math.min(...gridDatas[w]))
       const avg = gridDatas[w].reduce((a,b) => a+b, 0) / gridDatas[w].length;
       gridDatas[w].push(Number(avg.toFixed(0)))
+      maxValAry[obj.partition[w]] = Math.max(...gridDatas[w])
+      minValAry[obj.partition[w]] = Math.min(...gridDatas[w])
     }
   }
   console.log(data);
@@ -1380,6 +1411,7 @@ chartTotalCheck = (e, obj , i) => {
     const columnDefs = [
       {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
       {headerName: obj.deviceName ,type: 'rightAligned', headerClass: "grid-cell-left", 
+      cellStyle: params => this.chartRowColor(params,maxVal,minVal), 
       valueFormatter: params =>  {
         if(obj.option.yAxis.max !== undefined) {
           return params.data.value+' '+'%' 
@@ -1397,7 +1429,7 @@ chartTotalCheck = (e, obj , i) => {
             chartOptions[i].resourceName === 'Disk I/O Bytes'  || chartOptions[i].resourceName === 'Disk Queue' || 
             chartOptions[i].resourceName === 'CPU Used (%)'    || chartOptions[i].resourceName === 'Network Traffic' || 
             chartOptions[i].resourceName === 'Network PPS'     ||chartOptions[i].resourceName === 'NIC Discards'      || 
-            chartOptions[i].resourceName === 'NIC Errors'){
+            chartOptions[i].resourceName === 'NIC Errors' ) {
     const array = [];
     _.forEach(timeChart, (tobj,tkey) => {
       const gridObj = {};
@@ -1414,6 +1446,7 @@ chartTotalCheck = (e, obj , i) => {
     _.forEach(obj.partition , (pobj,pkey) => {
       columnDefs.push({
         headerName:pobj,
+        cellStyle: params => this.chartRowColor(params,maxVal,minVal,pobj,maxValAry,minValAry), 
         valueFormatter: params => {
         if(obj.byteVal !== undefined) {
           return  params.data[pobj]+' '+obj.byteVal
@@ -1431,26 +1464,23 @@ chartTotalCheck = (e, obj , i) => {
   } 
   
   
- 
-
   this.setState({ 
     totalKey : totalKey.concat(obj.key), 
     totalData: seriesGrid,
     chartColumnDefs: seriesColumn
   })
   /* 데이터 초기화 */
-  for(var u=0; u< data.length; u++) {
-    data[u].length=dataLength
+  if(dataLength > 0) {
+    for(var u=0; u< data.length; u++) {
+      data[u].length=dataLength
+    }
   }
-  for(var k=0; k < gridDatas.length; k++) {
-    console.log(k);
-    console.log(gridDatas[k]);
-    gridDatas[k].length= gridDataLength;
+  if(gridDataLength > 0) {
+    for(var k=0; k < gridDatas.length; k++) {
+      gridDatas[k].length= gridDataLength;
+    }
   }
-  
 } 
-  
-  
   
   else {
     const countKey = totalKey.indexOf(obj.key)
@@ -1462,10 +1492,11 @@ chartTotalCheck = (e, obj , i) => {
   }
  }
 
-chartTotalCheckSecond = (e,i,obj) => {
+chartTotalCheckSecond = (e,i,obj,valueAry) => {
   console.log(obj);
   const { totalKey  } = this.state; 
   let chartOptions = _.cloneDeep(this.state.chartData);
+ 
 
   if(totalKey.length >= 0 && totalKey.includes(obj.key)) {
     const countKey = totalKey.indexOf(obj.key)
@@ -1484,34 +1515,41 @@ chartTotalCheckSecond = (e,i,obj) => {
   }
   const data = [];
   const gridDatas = [];
-  const dataLength = [];
-  const gridDataLength = [];
+  let dataLength = 0;
+  let gridDataLength = 0;
   if(obj.gridData === undefined) {
     _.forEach(obj.option.series, (dobj) => {
         data.push(dobj.data)
     })
-    dataLength.push(data.length)
+    dataLength = data[0].length
   } else {
     _.forEach(obj.gridData, (dobj) => {
       gridDatas.push(dobj)
     })
-    gridDataLength.push(gridDatas[0].length)
+    gridDataLength = gridDatas[0].length
   }
   console.log(data);
   
-  
+  let maxVal = '';
+  let minVal = '';
+  let maxValAry = {};
+  let minValAry = {};
   /* 최대값, 최소값, 평균 */
   if(obj.option.series.length === 1 ) {
     data[0].push(Math.max(...data[0]))
     data[0].push(Math.min(...data[0]))
     const avg = data[0].reduce((a,b) => a+b, 0) / data[0].length;
     data[0].push(Number(avg.toFixed(0)))
+    maxVal = Math.max(...data[0])
+    minVal = Math.min(...data[0])
   } else {
     for(var w=0; w < obj.option.series.length; w++) {
       gridDatas[w].push(Math.max(...gridDatas[w]))
       gridDatas[w].push(Math.min(...gridDatas[w]))
       const avg = gridDatas[w].reduce((a,b) => a+b, 0) / gridDatas[w].length;
       gridDatas[w].push(Number(avg.toFixed(0)))
+      maxValAry[obj.partition[w]] = Math.max(...gridDatas[w])
+      minValAry[obj.partition[w]] = Math.min(...gridDatas[w])
     }
   }
   console.log(data);
@@ -1536,10 +1574,10 @@ chartTotalCheckSecond = (e,i,obj) => {
       })
     })
     seriesGrid.push(array)
-
     const columnDefs = [
-      {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
+      {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' },},
       {headerName: obj.deviceName ,type: 'rightAligned', headerClass: "grid-cell-left", 
+      cellStyle: params => this.chartRowColor(params,maxVal,minVal), 
       valueFormatter: params =>  {
         if(obj.option.yAxis.max !== undefined) {
           return params.data.value+' '+'%' 
@@ -1548,8 +1586,11 @@ chartTotalCheckSecond = (e,i,obj) => {
         } else {
           return params.data.value
         }
-      }}
+      },
+      
+    }
     ]
+    
     seriesColumn.push(columnDefs)
     
   } else if(chartOptions[i].resourceName === 'Disk Used (%)'   || chartOptions[i].resourceName === 'Disk Used Bytes'  ||
@@ -1574,6 +1615,7 @@ chartTotalCheckSecond = (e,i,obj) => {
     _.forEach(obj.partition , (pobj,pkey) => {
       columnDefs.push({
         headerName:pobj,
+        cellStyle: params => this.chartRowColor(params,maxVal,minVal,pobj,maxValAry,minValAry), 
         valueFormatter: params => {
         if(obj.byteVal !== undefined) {
           return  params.data[pobj]+' '+obj.byteVal
@@ -1590,32 +1632,113 @@ chartTotalCheckSecond = (e,i,obj) => {
     seriesColumn.push(columnDefs)
   } 
   
-  /* 데이터 초기화 */
-  for(var u=0; u< data.length; u++) {
-    data[u].length=dataLength
-  }
-  for(var k=0; k < gridDatas.length; k++) {
-    gridDatas[k].length= gridDataLength;
-  }
-  chartOptions[i].byteVal = e.target.value;
-  chartOptions[i].option.series[0].data = data;
  
+  chartOptions[i].byteVal = e.target.value;
+  chartOptions[i].option.series.data = data;
 
   this.setState({ 
     totalData: seriesGrid,
     chartColumnDefs: seriesColumn,
     chartData: chartOptions
   })
-  
-  
-  
-
+  /* 데이터 초기화 */
+  if(dataLength > 0) {
+    for(var u=0; u< data.length; u++) {
+      data[u].length=dataLength
+    }
   }
+  if(gridDataLength > 0) {
+    for(var k=0; k < gridDatas.length; k++) {
+      gridDatas[k].length= gridDataLength;
+    }
+  }
+ }
 } 
+/* 차트 색깔 */
+chartRowColor = (params,maxVal,minVal,pobj,maxValAry,minValAry) => {
+  /* line 1개 */
+  if(params.data.time === 'Max') {
+    return {  background: '#FFE5E5' }
+  } else if(params.data.time === 'Min') {
+    return {  background: '#E7F8FF' }
+  } else if(params.data.time === 'Avg') {
+    return {  background: '#EDFFEF' }
+  } else if(params.data.value === maxVal) {
+    return {  background: '#FFE5E5' }
+  } else if(params.data.value === minVal) {
+    return {  background: '#E7F8FF' }
+  } 
+
+  /* line 2개 이상 */
+  if(maxValAry !== undefined ) {
+    if(params.data[pobj] === maxValAry[pobj]) {
+      return {  background: '#FFE5E5' }
+    } else if(params.data[pobj] === minValAry[pobj]) {
+      return {  background: '#E7F8FF' }
+    }
+  } 
+}
+
+reload = () => {
+  for(var k=0; k< this.state.totalKey.length; k++) {
+    seriesGrid.splice(0, 1);
+    seriesColumn.splice(0, 1);
+  }
+    this.setState({
+      graphCheck:false,
+      chartData:[],
+      totalKey: [],
+      totalData:[],
+      chartColumnDefs:[],
+      selectedResourceName:[],
+      selectedDeviceName:[],
+      // firstDateFormat:Moment(oneMonth, "YYYY.MM.DD").format("YYYYMMDD"), 
+      // secondDateFormat:Moment(oneMonth, "YYYY.MM.DD").format("YYYYMMDD"), 
+      calendarCheckFirst:false,
+      calendarCheckSecond:false,
+    })
+}
+/** 달력1 open */
+calendarFirst = (e) => {
+  e.preventDefault();
+  if(!this.state.calendarCheckFirst) {
+   this.setState({calendarCheckFirst:true})
+  } else if(this.state.calendarCheckFirst){
+   this.setState({calendarCheckFirst:false})
+  }
+}
+/** 달력2 open */
+calendarSecond = (e) => {
+ e.preventDefault();
+ if(!this.state.calendarCheckSecond) {
+   this.setState({calendarCheckSecond:true})
+  } else if(this.state.calendarCheckSecond){
+   this.setState({calendarCheckSecond:false})
+  }
+}
+/** 달력1 이벤트 */
+calenderFirstChange = (date) => {
+  this.setState({
+    firstDateFormat:Moment(date, "YYYY.MM.DD").format("YYYYMMDD"), 
+    calendarCheckFirst:false
+  })
+ }
+ /** 달력2 이벤트 */
+ calenderSecondChange = (date) => {
+  this.setState({
+    secondDateFormat:Moment(date, "YYYY.MM.DD").format("YYYYMMDD"), 
+    calendarCheckSecond:false
+  })
+ }
+
+
 
   render() {
     const { loader, chartData, isResourceModal, isDeviceModal, selectedResourceName, selectedDeviceName, deviceData,
-            calendarCheckFirst, calendarCheckSecond, date, totalKey, totalData, chartColumnDefs } = this.state;
+            calendarCheckFirst, calendarCheckSecond, date, totalKey, totalData, chartColumnDefs, firstDateFormat, secondDateFormat,firstTimeFormat,secondTimeFormat } = this.state;
+           
+    const firstDateFormatInput = Moment(firstDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
+    const secondDateFormatInput = Moment(secondDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
 
       console.log(chartData);
       console.log(totalKey);
@@ -1769,7 +1892,7 @@ chartTotalCheckSecond = (e,i,obj) => {
 
               <div className="reportFilterSelectBox">
                 <Button className="reportFilterSelectBtn" onClick={() => this.getReportData()}>통계하기</Button>
-                <Button className="reportFilterReloadBtn" >초기화</Button>
+                <Button className="reportFilterReloadBtn" onClick={()=> this.reload()} >초기화</Button>
               </div>
             </div>
           </div>
@@ -1842,19 +1965,19 @@ chartTotalCheckSecond = (e,i,obj) => {
                     </button>
                     {
                       totalKey.map((t,a) => 
-                        (
-                          // c.key === t && totalName.includes(c.totalName) && ( 
-                            obj.key === t  && ( 
+                        ( 
+                          obj.key === t  && ( 
                             <div className="reportChartTotalGrid" key={t}  >
                               <div className="ag-theme-alpine" style={{ width:'93vw', height:'40vh',marginLeft:'0.5vw'}}>
-                                  <AgGridReact
+                                <AgGridReact
                                   headerHeight='30'
                                   floatingFiltersHeight='23'
                                   rowHeight='25'
                                   columnDefs={chartColumnDefs[a]}  
-                                  defaultColDef={modalOptions.chartDefaultColDef}
                                   rowData={totalData[a]}
+                                  defaultColDef={modalOptions.chartDefaultColDef}
                                   onGridReady={params => { this.gridApiChart = params.api;}}
+                                  // getRowStyle={params => this.chartRowColor(params)}
                                 />       
                               </div>
                             </div>
