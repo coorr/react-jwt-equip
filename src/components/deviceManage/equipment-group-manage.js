@@ -20,10 +20,6 @@ const CustomIcon = () => {
    return <img style={{width:15,padding:1}} src={Equipment} alt="Custom Icon" />
 }
 
-
-
-
-
 class manageEquipmentList extends React.Component {
   static propTypes = {
     keys: PropTypes.array
@@ -349,6 +345,7 @@ class manageEquipmentList extends React.Component {
 
     console.log("deviceTree : ", deviceTree);
     console.log(deviceTree.length);
+    // 오른쪽 여러개 체크 장비 드래그할 경우
     for(var i=0; i< deviceTree.length; i++) {
       const insertMappingDevice = {
         group_id: event.node.props.eventKey.replace("-",""),
@@ -366,6 +363,7 @@ class manageEquipmentList extends React.Component {
    
     console.log("deviceTree : " + deviceTree);
     console.log("dragDeviceTree: " + dragDeviceTree);
+    // 오른쪽 장비 한개만 드래그할 경우
     if(dragDeviceTree.length > 0 && deviceTree.length === 0 ) {
       const insertMappingDrag = {
         group_id: event.node.props.eventKey.replace("-",""),
@@ -380,6 +378,7 @@ class manageEquipmentList extends React.Component {
     }
 
     console.log("childrenTree : " + childrenTree);
+    // 왼쪽 여러개 체크 장비 드래그할 경우
     for(var c=0; c < childrenTree.length; c++ ) {
       const insertMappingChildren = {
         group_id: event.node.props.eventKey.replace("-",""),
@@ -394,6 +393,7 @@ class manageEquipmentList extends React.Component {
     }
 
     console.log("dragChildrenTree : " + dragChildrenTree);
+    // 왼쪽 체크 없이 장비 드래그할 경우
     if(dragChildrenTree.length > 0 && childrenTree.length === 0) {
       const insertChildrenDrag = {
         group_id: event.node.props.eventKey.replace("-",""),
@@ -420,11 +420,11 @@ class manageEquipmentList extends React.Component {
     this.setState({dragChildrenTree:childrenKeyArray})
   }
 
-  /* 그룹 추가 */
-  addTreeNameBtn = () => {
-    const { parentTree, addTreeName  } = this.state;
-    const name = { treeName: this.state.addTreeName }
-    const parentKey =[];
+/* 그룹 추가 */
+addTreeNameBtn = () => {
+  const { parentTree, addTreeName  } = this.state;
+  const name = { treeName: this.state.addTreeName }
+  const parentKey =[];
     for(var i=0; i<parentTree.length; i++) {
       parentKey.push(parentTree[i].replace("-",""));
     }
@@ -455,9 +455,7 @@ class manageEquipmentList extends React.Component {
     } else { 
       alert("한개만 체크해주세요.")
     }
-    
-
-   }
+  }
   addOnKeyPress = (e) => {
     if(e.key === 'Enter') {
       this.addTreeNameBtn();
@@ -580,7 +578,7 @@ class manageEquipmentList extends React.Component {
             </div>
           </div>
           
-          { this.state.addBtn ? 
+          { this.state.addBtn && ( 
             <>
             <Modal show={this.state.addBtn} onHide={() => this.setState({addBtn:false})} size="sm" aria-labelledby="contained-modal-title-vcenter"   >
             <Modal.Header  className="header_area_add">
@@ -608,7 +606,7 @@ class manageEquipmentList extends React.Component {
             </Form.Group>
           </Modal>
             </>
-            : null 
+            )
           }
           
           { this.state.updateBtn ? 

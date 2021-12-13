@@ -18,7 +18,8 @@
 .reportFilterRightBox{ width: 90%; height: 100%; padding: 0.25rem;  padding: 0.25rem; }
 .reportFilterRightBoxSecond{display: flex;  border: 1px solid #c2cfd6; }
 .reportFilterRightBoxThird{ width: 90%; height: 100%; padding: 0.25rem;  padding: 0.25rem; display: flex; }
-.reportFilterSearch{ width: 4%; height: 100%; background-color: white; font-size: 0.8em; border: 1px solid #c2cfd6; }
+.reportFilterSearch{ width: 4%; height: 100%; font-size: 0.8em; border: 1px solid #c2cfd6; background-color: white; }
+.reportFilterSearchSecond{ width: 4%; height: 100%; font-size: 0.8em; border: 1px solid #c2cfd6; background-color: #F3F3F5; color: rgb(180, 180, 180) }
 .reportFilterScroll{ width: 100%; height: 25px; overflow-y: scroll; background-color: hsl(0, 0%, 95%); }
 .reportFilterSelect{ width: 100%; height: 20px; font-size: 0.8em;}
 .css-4tzcfa-control{border-radius: 0px !important; border: 0px !important;}

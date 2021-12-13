@@ -1,185 +1,1698 @@
-import React, { Component, PureComponent } from 'react';
-import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import Select from "react-select";
+import _ from "lodash";
 import AiwacsService from '../../services/equipment.service';
 import ReportService from '../../services/report.service';
-import ChartComponent from './ChartComponent';
 
 import Search from '../../images/search.png'
 import Loader from '../loader';
+import ChartComponent from './ChartComponent';
 
-import {Button, Modal,Form, Container, Row } from "react-bootstrap";
+import {Button, Modal, Form } from "react-bootstrap";
+
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import Moment from 'moment';
+
 import { ko } from 'date-fns/esm/locale'
 import { FcCalendar } from "react-icons/fc"
-import { AiOutlineArrowUp } from "react-icons/ai"
-import Moment from 'moment';
-import ReactHighcharts from 'react-highcharts';
-import Highcharts from "highcharts";
-import Drilldown from 'highcharts-drilldown'; 
+
 import {  AgGridReact } from 'ag-grid-react';
+import "ag-grid-enterprise";
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
-import "ag-grid-enterprise";
-import '../../css/reportResource.css'
+import "react-datepicker/dist/react-datepicker.css";
 
-import _ from "lodash";
+import '../../css/reportResource.css';
+import { isFor } from '@babel/types';
 
-const time = [{value:'00'},{value:'01'},{value:'02'},{value:'03'},{value:'04'},{value:'05'},{value:'06'},{value:'07'},{value:'08'},{value:'09'},{value:'10'},{value:'11'},{value:'12'}
-,{value:'13'},{value:'14'},{value:'15'},{value:'16'},{value:'17'},{value:'18'},{value:'19'},{value:'20'},{value:'21'},{value:'22'},{value:'23'}]
+const time = [
+  {value:'00'}, {value:'01'}, {value:'02'}, {value:'03'}, {value:'04'}, {value:'05'},
+  {value:'06'}, {value:'07'}, {value:'08'}, {value:'09'}, {value:'10'}, {value:'11'},
+  {value:'12'}, {value:'13'}, {value:'14'}, {value:'15'}, {value:'16'}, {value:'17'},
+  {value:'18'}, {value:'19'}, {value:'20'}, {value:'21'}, {value:'22'}, {value:'23'}]
 
-// calendar 사이즈 조절
 const customStyles = { control: base => ({ ...base, height: 26, minHeight: 26 }) };
-// 요일 반환
 const getDayName = (date) => { return date.toLocaleDateString('ko-KR', { weekday: 'long', }).substr(0, 1); }
-// 날짜 비교시 년 월 일까지만 비교하게끔
 const createDate = (date) => { return new Date(new Date(date.getFullYear() , date.getMonth() , date.getDate() , 0 , 0 , 0)); }
 
-const hwDatas = [
-{id:1, group:"CPU", cpu:"CPU Processor (%)"},{id:2, group:"CPU", cpu:"CPU Used (%)"},{id:3, group:"CPU", cpu:"CPU Context Switch"},
-{id:4, group:"CPU", cpu:"CPU Run Queue"}    ,{id:5, group:"CPU", cpu:"CPU Core"}    ,{id:6, group:"CPU", cpu:"Load Avg"},
+const resourceData = [
+  {id:1, group:"CPU", cpu:"CPU Processor (%)", resourceKey: 'sys', resourceName: 'CPU Processor (%)'},
+  {id:2, group:"CPU", cpu:"CPU Used (%)", resourceKey: 'sys', resourceName: 'CPU Used (%)'},
+  {id:3, group:"CPU", cpu:"CPU Context Switch", resourceKey: 'sys', resourceName: 'CPU Context Switch'},
+  {id:4, group:"CPU", cpu:"CPU Run Queue", resourceKey: 'sys', resourceName: 'CPU Run Queue'},
+  {id:5, group:"CPU", cpu:"CPU Core", resourceKey: 'sys', resourceName: 'CPU Core'},
+  {id:6, group:"CPU", cpu:"Load Avg", resourceKey: 'sys', resourceName: 'Load Avg'},
+  {id:7, group:"Memory", memory:"Memory Used (%)", resourceKey: 'sys', resourceName: 'Memory Used (%)'},
+  {id:8, group:"Memory", memory:"Memory Bytes", resourceKey: 'sys', resourceName: 'Memory Bytes'},
+  {id:9, group:"Memory", memory:"Memory Buffers (%)", resourceKey: 'sys', resourceName: 'Memory Buffers (%)'},
+  {id:10, group:"Memory", memory:"Memory Buffers Bytes", resourceKey: 'sys', resourceName: 'Memory Buffers Bytes'},
+  {id:11, group:"Memory", memory:"Memory Cached (%)", resourceKey: 'sys', resourceName: 'Memory Cached (%)'},
+  {id:12, group:"Memory", memory:"Memory Cached Bytes", resourceKey: 'sys', resourceName: 'Memory Cached Bytes'},
+  {id:13, group:"Memory", memory:"Memory Shared (%)", resourceKey: 'sys', resourceName: 'Memory Shared (%)'},
+  {id:14, group:"Memory", memory:"Memory Shared Bytes", resourceKey: 'sys', resourceName: 'Memory Shared Bytes'},
+  {id:15, group:"Memory", memory:"Memory Swap (%)", resourceKey: 'sys', resourceName: 'Memory Swap (%)'},
+  {id:16, group:"Memory", memory:"Memory Swap Bytes", resourceKey: 'sys', resourceName: 'Memory Swap Bytes'},
+  {id:17, group:"Memory", memory:"Memory Pagefault", resourceKey: 'sys', resourceName: 'Memory Pagefault'},
+  {id:18, group:"Disk", disk:"Disk Total Used (%)", resourceKey: 'diskTot', resourceName: 'Disk Total Used (%)'},
+  {id:19, group:"Disk", disk:"Disk Total Used Bytes", resourceKey: 'diskTot', resourceName: 'Disk Total Used Bytes'},
+  {id:20, group:"Disk", disk:"Disk Used (%)", resourceKey: 'disk', resourceName: 'Disk Used (%)'},
+  {id:21, group:"Disk", disk:"Disk Used Bytes", resourceKey: 'disk', resourceName: 'Disk Used Bytes'},
+  {id:22, group:"Disk", disk:"Disk I/O (%)", resourceKey: 'disk', resourceName: 'Disk I/O (%)'},
+  {id:23, group:"Disk", disk:"Disk I/O Count", resourceKey: 'disk', resourceName: 'Disk I/O Count'},
+  {id:24, group:"Disk", disk:"Disk I/O Bytes", resourceKey: 'disk', resourceName: 'Disk I/O Bytes'},
+  {id:25, group:"Disk", disk:"Disk Queue", resourceKey: 'disk', resourceName: 'Disk Queue'},
+  {id:26, group:"Network", network:"Network Traffic", resourceKey: 'nic', resourceName: 'Network Traffic'},
+  {id:27, group:"Network", network:"Network PPS", resourceKey: 'nic', resourceName: 'Network PPS'},
+  {id:28, group:"Network", network:"NIC Discards", resourceKey: 'nic', resourceName: 'NIC Discards'},
+  {id:29, group:"Network", network:"NIC Errors", resourceKey: 'nic', resourceName: 'NIC Errors'}];
 
-{id:7, group:"Memory", memory:"Memory Used (%)"},{id:8, group:"Memory", memory:"Memory Bytes"},{id:9, group:"Memory", memory:"Memory Buffers (%)"},
-{id:10, group:"Memory", memory:"Memory Buffers Bytes"},{id:11, group:"Memory", memory:"Memory Cached (%)"},{id:12, group:"Memory", memory:"Memory Cached Bytes"},
-{id:13, group:"Memory", memory:"Memory Shared (%)"},{id:14, group:"Memory", memory:"Memory Shared Bytes"},{id:15, group:"Memory", memory:"Memory Swap (%)"},
-{id:16, group:"Memory", memory:"Memory Swap Bytes"},{id:17, group:"Memory", memory:"Memory Pagefault (%)"},
+const modalOptions = {
+  resourceColumnDefs:[{ field:'group', rowGroup: true, hide:true, }],
+  resourceDefaultColDef: {
+    sortable:true,  
+    resizable:true,  
+    floatingFilter: true,
+    filter:'agTextColumnFilter', 
+    flex:1,
+    maxWidth:830,
+  },
+  deviceDefaultColDef: {
+    sortable:true,  
+    resizable:true,  
+    floatingFilter: true,
+    filter:'agTextColumnFilter', 
+    flex:1,
+    maxWidth:210,
+    cellStyle: {fontSize: '12px'}
+  },
+  deviceColumnDefs: [
+    { headerName: '별칭', field:'nickname', headerCheckboxSelection: true, checkboxSelection:true },
+    { headerName: '장비 명', field:'equipment' },
+    { headerName: 'IP', field:'settingIp' },
+    { headerName: 'GUID', field:'settingIp' },
+  ],
+  autoGroupColumnDef: {
+    headerName: '항목',
+    sortable:true,  
+    field:'group',
+    valueGetter: (params) => {
+      if(params.data.cpu !== undefined) {
+        return params.data.cpu
+      } else if(params.data.memory !== undefined) {
+        return params.data.memory
+      } else if(params.data.disk !== undefined) {
+        return params.data.disk
+      } else if(params.data.network !== undefined) {
+        return params.data.network
+      }
+   },
+    cellRendererParams: {
+      suppressCount: true,
+      checkbox:true,
+   }
+  },
+  chartDefaultColDef: {
+    sortable:true,  
+    resizable:true,  
+    floatingFilter: true,
+    filter:'agTextColumnFilter', 
+    flex:1,
+  },
+};
 
-{id:18, group:"Disk", disk:"Disk Total Used (%)"},{id:19, group:"Disk", disk:"Disk Total Used Bytes"},{id:20, group:"Disk", disk:"Disk Used (%)"},
-{id:21, group:"Disk", disk:"Disk Used Bytes"},{id:22, group:"Disk", disk:"Disk I/O (%)"},{id:23, group:"Disk", disk:"Disk I/O Count"},
-{id:24, group:"Disk", disk:"Disk I/O Bytes"},{id:25, group:"Disk", disk:"Disk Queue"},
-
-{id:26, group:"Network", network:"Network Traffic"},{id:27, group:"Network", network:"Network PPS"},
-{id:28, group:"Network", network:"NIC Discards"},{id:29, group:"Network", network:"NIC Errors"} ]
-
-// 하루 초 86400 000
-const oneMonth = new Date(new Date().getTime() - 34992000000 );
-
+// 하루 초 86400000
+const oneMonth = new Date(new Date().getTime() - 35251200000 );
 
 const seriesGrid = [];
 const seriesColumn = [];
-class ReportResoruce extends PureComponent {
+
+class ReportResoruce extends Component {
   constructor(props) {
     super(props);
-    this.imageRef = React.createRef();
-    this.state = {
-      loader:false,
-      
-      processor:[],
-      totalData:[],
-      deviceDefaultColDef: {
-        sortable:true,  
-        resizable:true,  
-        floatingFilter: true,
-        filter:'agTextColumnFilter', 
-        flex:1,
-        maxWidth:210,
-        cellStyle: {fontSize: '12px'}
-      },
-      deviceColumnDefs: [
-        { headerName: '별칭', field:'nickname' ,headerCheckboxSelection: true, checkboxSelection:true },
-        { headerName: '장비 명', field:'equipment' },
-        { headerName: 'IP', field:'settingIp' },
-        { headerName: 'GUID', field:'settingIp' },
-      ],
-      deviceData: [],
-      hwDefaultColDef: {
-        sortable:true,  
-        resizable:true,  
-        floatingFilter: true,
-        filter:'agTextColumnFilter', 
-        flex:1,
-        maxWidth:830,
-        // cellStyle: {fontSize: '12px'}
-      },
-      hwData: hwDatas,
-      autoGroupColumnDef: {
-        headerName: '항목',
-        sortable:true,  
-        field:'group',
-        valueGetter: (params) => {
-          if(params.data.cpu !== undefined) {
-            return params.data.cpu
-          } else if(params.data.memory !== undefined) {
-            return params.data.memory
-          } else if(params.data.disk !== undefined) {
-            return params.data.disk
-          } else if(params.data.network !== undefined) {
-            return params.data.network
-          }
-       },
-        cellRendererParams: {
-          suppressCount: true,
-          checkbox:true,
-       },
-      },
-      hwColumnDefs:[{ field:'group', rowGroup: true, hide:true, } ],
-      chartDefaultColDef: {
-        sortable:true,  
-        resizable:true,  
-        floatingFilter: true,
-        filter:'agTextColumnFilter', 
-        flex:1,
-      },
-      chartColumnDefs:[],
-      clickDeviceModel:false,
-      clickHwModel:false,
-      filterCheck:true,
-      clickedId:0,
-      clickedDeviceId:0,
-      buttonIdsArray: ['보고서', '통계 엑셀 다운로드'],
-      buttonIdsDeviceArray: ['장비','장비그룹','비즈니스','서비스','장비OS','제조사'],
-      inputIdsChart:[{value:'line'},{value:'bar'}],
-      inputIdsChartDefault:'line',
-      inputIdsChartCheck:null,
-      inputIdsChartType:null,
-      inputMaxCheck:false,
 
-      /* 달력 데이터  */
+    this.state = {
+      loader: false,
+      isResourceModal:false,
+      isDeviceModal: false,
+      selectedResource: [],
+      selectedResourceName: [],
+      selectedDevice: [], 
+      selectedDeviceName: [],
+      chartData: {},
+      totalKey: [],
+      totalData : [],
+      chartColumnDefs: [],
+      firstDateFormat: Moment(oneMonth, "YYYY.MM.DD").format("YYYYMMDD"),
+      secondDateFormat: Moment(oneMonth, "YYYY.MM.DD").format("YYYYMMDD"),
+      firstTimeFormat: '00',
+      secondTimeFormat: '23',
       calendarCheckSecond:false,
       calendarCheckFirst:false,
-      date: oneMonth,
-      firstDateFormat: Moment(oneMonth, "YYYY.MM.DD").format("YYYYMMDD"),
-      firstTimeFormat: '00',
-      secondDateFormat: Moment(oneMonth, "YYYY.MM.DD").format("YYYYMMDD"),
-      secondTimeFormat: '23',
+    };
+  }
 
-      /* 차트 */
-      config : [],
-      timeChart:[],
-      totalKey:[],
-      unitCheck:false,
-      totalName:[],
-      selectTotalCheck: false,
-      partitionLabel:null,
+  componentDidMount() {
+     
+  }
 
-      /* 조회 데이터  */
-      graphCheck:true,
-      deviceId: [],
-      hwName:[],
-      deviceSearchName:[],
-      hwSearchName:[],
-      testt:{value:"아아"}
-      
+  selectResourceModal = () => {
+    this.setState({isResourceModal:true})
+  }
+
+  selectDeviceModal = () => {
+    AiwacsService.getEquipmentSnmp() 
+      .then(res => {
+        this.setState({deviceData:res.data, isDeviceModal: true})
+      })
+  }
+
+  applyResourceModal = () => {
+    let selectedResourceNode = this.resourceGridApi.getSelectedNodes();
+    let selectedResourceName = [];
+    let selectedResource = [];
+
+    if(selectedResourceNode.length === 0) {
+      alert("체크박스를 선택해 주세요.");
+      return;
+    } else {
+      selectedResourceNode.forEach(v => {
+        let obj = {};
+        obj.label = v.data.group + ">" + v.data.resourceName;
+        obj.value = v.data.group + ">" + v.data.resourceName;
+        obj.id = v.data.id;
+        obj.name = v.data.resourceName;
+
+        selectedResourceName.push(obj);
+        selectedResource.push(v.data);
+      });
+      this.setState({ isResourceModal:false, selectedResourceName: selectedResourceName, selectedResource: selectedResource });
     }
   }
-  // componentDidMount() {
 
-  // }
+  applyDeviceModal = () => {
+    let selectedDeviceNode = this.deviceGridApi.getSelectedNodes();
+    let selectedDeviceName = [];
+    let selectedDevice = [];
 
-  groupCountRenderer = (params) => {
-    console.log(params.value);
+    if(selectedDeviceNode.length === 0) {
+      alert("장비를 선택해 주세요.");
+      return;
+    } else {
+      selectedDeviceNode.forEach(v => {
+        let obj = {};
+        obj.id = v.data.id
+        obj.value = v.data.equipment;
+        obj.label = v.data.equipment;
+        selectedDeviceName.push(obj);
+        selectedDevice.push(v.data);
+      });
+      this.setState({ isDeviceModal:false, selectedDeviceName: selectedDeviceName, selectedDevice: selectedDevice });
+    }
   }
 
-  labelChange = (id) => {
-    this.setState({ clickedId : id})
+  getReportData() {
+    let { selectedResource, selectedDevice, firstDateFormat, secondDateFormat, firstTimeFormat, secondTimeFormat } = this.state;
+    // 유효성 체크
+    if(selectedResource.length === 0) {
+      return alert("검색필터에서 자원을 선택하세요");
+    }
+    if(selectedDevice.length === 0) {
+      return alert("검색필터에서 장비을 선택하세요");
+    }
+    this.setState({ loader: true, chartData : [] });
+
+    const startDate=firstDateFormat+firstTimeFormat+'0000';
+    const endDate= secondDateFormat+secondTimeFormat+'5959';
+    let resourceKey = _.groupBy(selectedResource, 'resourceKey');
+    let sys = 0;
+    let disk = 0;
+    let nic = 0;
+
+    _.forEach(resourceKey, (obj, key) => {
+      if (key === 'sys') sys = 1;
+      else if(key === 'disk' || key === 'diskTot') disk = 1;
+      else if(key === 'nic') nic = 1;
+    });
+
+    let id = [];
+    _.forEach(selectedDevice, (obj) => {
+      id.push(obj.id);
+    });
+    let ids = id.join('|');
+
+    ReportService.getStatistics(ids, sys, disk, nic, startDate, endDate)
+    .then(res => {
+      this.setReportDataFormat(res.data);
+    });
   }
 
-  labelDeviceChange = (id) => {
-    this.setState({clickedDeviceId: id})
+setReportDataFormat(data) {
+    let { selectedResource, selectedDevice,firstDateFormat, secondDateFormat } = this.state;
+    let startDate = Moment(firstDateFormat).format("YYYY.MM.DD");
+    let endDate = Moment(secondDateFormat).format("YYYY.MM.DD");
+    let chartData = {};
+
+    _. forEach(selectedDevice , (dobj, dkey) => {
+      _.forEach(selectedResource, (obj, key) => {
+        let chartObj = {};
+
+        let chartOptions = {
+          chart: {
+            type: 'line'
+          },
+          title: {
+            text: null,
+            align: 'left',
+            style: {
+                fontSize: "12px"
+            }
+          },
+          xAxis: {
+            categories: [],
+            labels: {align:'center'}
+          },
+          series: [
+            {
+              data: [],
+              name: ''
+            }
+          ],
+          yAxis: {
+            title: { text: '' },
+            min:0, 
+          }
+        };
+
+        let categoryAry = [];
+        let valueAry = [];
+        let originValueAry = [];
+        let partitionName = [];
+        let partitionData = {};
+
+        if(obj.resourceName === 'CPU Processor (%)') {
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(iobj.deviceId ===  dobj.id) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+              valueAry.push(iobj.cpuProcessor);
+            }
+          });
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.yAxis = {max:100, tickInterval:20 }
+          chartOptions.series[0].data = [0, 0, 0,0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 0, 0, 0, 0, 0, 0];
+          chartOptions.series[0].name = dobj.equipment;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = dobj.equipment;
+          chartObj.percentMaxType = true;
+          chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'CPU Used (%)') {
+          const cpuGuest = [];
+          const cpuGuestnice = [];
+          const cpuIrq = [];
+          const cpuNice = [];
+          const cpuSoftirq = [];
+          const cpuSteal = [];
+          const cpuWait = [];
+          const cpuSystem = [];
+          const cpuProcessor = [];
+          const cpuUser = [];
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(iobj.deviceId ===  dobj.id) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+              cpuGuest.push(iobj.cpuGuest); cpuGuestnice.push(iobj.cpuGuestnice); cpuIrq.push(iobj.cpuIrq); cpuSoftirq.push(iobj.cpuSoftirq); cpuNice.push(iobj.cpuNice);
+              cpuProcessor.push(iobj.cpuProcessor); cpuSteal.push(iobj.cpuSteal); cpuSystem.push(iobj.cpuSystem); cpuWait.push(iobj.cpuWait); cpuUser.push(iobj.cpuUser);
+            }
+          });
+          partitionData = { cpuGuest: cpuGuest, cpuGuestnice: cpuGuestnice, cpuIrq:cpuIrq, cpuSoftirq:cpuSoftirq, 
+                            cpuNice:cpuNice, cpuProcessor:cpuProcessor, cpuSteal:cpuSteal, cpuSystem: cpuSystem, cpuWait:cpuWait, cpuUser:cpuUser }
+          partitionName.push('cpuGuest', 'cpuGuestnice', 'cpuIrq', 'cpuSoftirq', 'cpuNice', 'cpuProcessor', 'cpuSteal', 'cpuSystem', 'cpuWait', 'cpuUser')
+          valueAry.push({data:cpuGuest,name: 'cpuGuest'},{data:cpuGuestnice,name: 'cpuGuestnice'},{data:cpuIrq,name: 'cpuIrq'},{data:cpuSoftirq,name: 'cpuSoftirq'},
+                        {data:cpuNice,name: 'cpuNice'},{data:cpuProcessor,name: 'cpuProcessor'},{data:cpuSteal,name: 'cpuSteal'},
+                        {data:cpuSystem,name: 'cpuSystem'},{data:cpuWait,name: 'cpuWait'},{data:cpuUser,name: 'cpuUser'},)
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.yAxis = { max:100, tickInterval:20  }
+          chartOptions.series = valueAry;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = dobj.equipment;
+          chartObj.percentMaxType = true;
+          chartObj.option = chartOptions;
+          chartObj.partition = partitionName;
+          chartObj.gridData = partitionData;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'CPU Context Switch') {
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(iobj.deviceId ===  dobj.id) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+              valueAry.push(iobj.cpuContextswitch);
+            }
+          });
+          
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.series[0].data = valueAry;
+          chartOptions.series[0].name = dobj.equipment;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = dobj.equipment;
+          chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'CPU Run Queue') {
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(iobj.deviceId ===  dobj.id) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+              valueAry.push(iobj.cpuIrq);
+            }
+          });
+          
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.series[0].data = valueAry;
+          chartOptions.series[0].name = dobj.equipment;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = dobj.equipment;
+          chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Load Avg') {
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(iobj.deviceId ===  dobj.id) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+              valueAry.push(iobj.cpuLoadavg);
+            }
+          });
+          
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.series[0].data = valueAry;
+          chartOptions.series[0].name = dobj.equipment;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = dobj.equipment;
+          chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Memory Used (%)') {
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(iobj.deviceId ===  dobj.id) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+              valueAry.push(iobj.usedMemoryPercentage);
+            }
+          });
+          
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.series[0].data = valueAry;
+          chartOptions.series[0].name = dobj.equipment;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = dobj.equipment;
+          chartOptions.yAxis = {max:100, tickInterval:20 }
+          chartObj.percentMaxType = true;
+          chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Memory Bytes') {
+          let byteVal = 'bps';
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(iobj.deviceId ===  dobj.id) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+              valueAry.push(this.autoConvertByte(obj,iobj.usedMemory).value);
+              originValueAry.push(iobj.usedMemory);
+            }
+          });
+          
+          byteVal = this.autoConvertByte(obj,data[obj.resourceKey][0].usedMemory).unit;
+
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.series[0].data = valueAry;
+          chartOptions.series[0].name = dobj.equipment;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = dobj.equipment;
+          chartObj.byteType = true;
+          chartObj.byteVal = byteVal;
+          chartObj.originValueAry = originValueAry;
+          chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Memory Buffers (%)') {
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(iobj.deviceId ===  dobj.id) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+              valueAry.push(iobj.memoryBuffersPercentage);
+            }
+          });
+          
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.series[0].data = valueAry;
+          chartOptions.series[0].name = dobj.equipment;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = dobj.equipment;
+          chartOptions.yAxis = {max:100, tickInterval:20 }
+          chartObj.percentMaxType = true;
+          chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Memory Buffers Bytes') {
+          let byteVal = 'bps';
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(iobj.deviceId ===  dobj.id) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+              valueAry.push(this.autoConvertByte(obj,iobj.memoryBuffers).value);
+              originValueAry.push(iobj.memoryBuffers);
+            }
+          });
+          
+          byteVal = this.autoConvertByte(obj,data[obj.resourceKey][0].memoryBuffers).unit;
+
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.series[0].data = valueAry;
+          chartOptions.series[0].name = dobj.equipment;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = dobj.equipment;
+          chartObj.byteType = true;
+          chartObj.byteVal = byteVal;
+          chartObj.originValueAry = originValueAry;
+          chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Memory Cached (%)') {
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(iobj.deviceId ===  dobj.id) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+              valueAry.push(iobj.memoryCachedPercentage);
+            }
+          });
+          
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.series[0].data = valueAry;
+          chartOptions.series[0].name = dobj.equipment;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = dobj.equipment;
+          chartOptions.yAxis = {max:100, tickInterval:20 }
+          chartObj.percentMaxType = true;
+          chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Memory Cached Bytes') {
+          let byteVal = 'bps';
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(iobj.deviceId ===  dobj.id) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+              valueAry.push(this.autoConvertByte(obj,iobj.memoryCached).value);
+              originValueAry.push(iobj.memoryCached);
+            }
+          });
+          
+          byteVal = this.autoConvertByte(obj,data[obj.resourceKey][0].memoryCached).unit;
+
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.series[0].data = valueAry;
+          chartOptions.series[0].name = dobj.equipment;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = dobj.equipment;
+          chartObj.byteType = true;
+          chartObj.byteVal = byteVal;
+          chartObj.originValueAry = originValueAry;
+          chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Memory Shared (%)') {
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(iobj.deviceId ===  dobj.id) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+              valueAry.push(iobj.memorySharedPercentage);
+            }
+          });
+          
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.series[0].data = valueAry;
+          chartOptions.series[0].name = dobj.equipment;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = dobj.equipment;
+          chartOptions.yAxis = {max:100, tickInterval:20 }
+          chartObj.percentMaxType = true;
+          chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Memory Shared Bytes') {
+          let byteVal = 'bps';
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(iobj.deviceId ===  dobj.id) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+              valueAry.push(iobj.memoryShared);
+              originValueAry.push(iobj.memoryShared);
+            }
+          });
+          
+          byteVal = this.autoConvertByte(obj,data[obj.resourceKey][0].memoryShared).unit;
+
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.series[0].data = valueAry;
+          chartOptions.series[0].name = dobj.equipment;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = dobj.equipment;
+          chartObj.byteType = true;
+          chartObj.byteVal = byteVal;
+          chartObj.originValueAry = originValueAry;
+          chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Memory Swap (%)') {
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(iobj.deviceId ===  dobj.id) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+              valueAry.push(iobj.usedSwapPercentage);
+            }
+          });
+          
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.series[0].data = valueAry;
+          chartOptions.series[0].name = dobj.equipment;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = dobj.equipment;
+          chartOptions.yAxis = {max:100, tickInterval:20 }
+          chartObj.percentMaxType = true;
+          chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Memory Swap Bytes') {
+          let byteVal = 'bps';
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(iobj.deviceId ===  dobj.id) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+              valueAry.push(this.autoConvertByte(obj,iobj.usedSwap).value);
+              originValueAry.push(iobj.usedSwap);
+            }
+          });
+          
+          byteVal = this.autoConvertByte(obj,data[obj.resourceKey][0].usedSwap).unit;
+
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.series[0].data = valueAry;
+          chartOptions.series[0].name = dobj.equipment;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = dobj.equipment;
+          chartObj.byteType = true;
+          chartObj.byteVal = byteVal;
+          chartObj.originValueAry = originValueAry;
+          chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Memory Pagefault') {
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(iobj.deviceId ===  dobj.id) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+              valueAry.push(iobj.memoryPagefault);
+            }
+          });
+          
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.series[0].data = valueAry;
+          chartOptions.series[0].name = dobj.equipment;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = dobj.equipment;
+          chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Disk Total Used (%)') {
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(iobj.deviceId ===  dobj.id) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+              valueAry.push(iobj.usedPercentage);
+            }
+          });
+          
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.series[0].data = valueAry;
+          chartOptions.series[0].name = dobj.equipment;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = dobj.equipment;
+          chartOptions.yAxis = {max:100, tickInterval:20 }
+          chartObj.percentMaxType = true;
+          chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Disk Total Used Bytes') {
+          let byteVal = 'bps';
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(iobj.deviceId ===  dobj.id) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+              valueAry.push(this.autoConvertByte(obj,iobj.usedBytes).value);
+              originValueAry.push(iobj.usedBytes);
+            }
+          });
+
+          byteVal = this.autoConvertByte(obj,data[obj.resourceKey][0].usedBytes).unit;
+          console.log(byteVal);
+
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.series[0].data = valueAry;
+          chartOptions.series[0].name = data[obj.resourceKey][0].deviceName;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = data[obj.resourceKey][0].deviceName;
+          chartObj.byteType = true;
+          chartObj.byteVal = byteVal;
+          chartObj.originValueAry = originValueAry;
+          chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Disk Used (%)') {
+          let diskPartitionAry = _.groupBy(data[obj.resourceKey], 'partitionLabel');
+          chartOptions.series = [];
+          _.forEach(diskPartitionAry, (pobj, key) => {
+            let partitionVal = [];
+            
+            _.forEach(pobj, (disk) => {
+              if(disk.deviceId === dobj.id) {
+                partitionVal.push(disk.usedPercentage);
+              }
+              if(!partitionName.includes(key)) {
+                partitionName.push(key);
+              }
+            });
+            partitionData[key] = partitionVal;
+
+            const obj = {};
+            obj.data = partitionVal;
+            obj.name = key;
+            if(chartOptions.series.length === 1) { obj.color= 'rgb(255,184,64)' } 
+            else if(chartOptions.series.length  === 2)  { obj.color = 'red'; }
+            chartOptions.series.push(obj);
+          });
+         
+
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(!categoryAry.includes(_.replace(iobj.generateTime, 'T',' '))) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+            }
+          });
+          
+          
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.yAxis = {max:100, tickInterval:20 }
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = data[obj.resourceKey][0].deviceName;
+          chartObj.percentMaxType = true;
+          chartObj.option = chartOptions;
+          chartObj.partition = partitionName;
+          chartObj.key = "chart_"+key+'_'+dkey;
+          chartObj.gridData = partitionData;
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Disk Used Bytes') {
+          let byteVal = 'bps';
+          let diskPartitionAry = _.groupBy(data[obj.resourceKey], 'partitionLabel');
+
+          chartOptions.series = [];
+          originValueAry = [];
+          
+          _.forEach(diskPartitionAry, (pobj, key) => {
+            let partitionVal = [];
+            let originVal = [];
+            _.forEach(pobj, (disk) => {
+              if(disk.deviceId === dobj.id) {
+                partitionVal.push(this.autoConvertByte(obj,disk.usedBytes).value);
+                originVal.push(disk.usedBytes);              
+              }
+              if(!partitionName.includes(key)) {
+                partitionName.push(key);
+              }
+            });
+            partitionData[key] = partitionVal;
+            byteVal = this.autoConvertByte(obj,pobj[0].usedBytes).unit;
+            const objs = {};
+            objs.data = partitionVal;
+            objs.name = key;
+            if(chartOptions.series.length === 1) {
+              objs.color= 'rgb(255,184,64)'
+            } else if(chartOptions.series.length  === 2)  {
+              objs.color = 'red';
+            }
+            chartOptions.series.push(objs);
+            originValueAry.push({data: originVal});
+          });
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(!categoryAry.includes(_.replace(iobj.generateTime, 'T',' '))) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+            }
+          });
+          
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = data[obj.resourceKey][0].deviceName;
+          chartObj.byteType = true;
+          chartObj.byteVal = byteVal;
+          chartObj.originValueAry = originValueAry;
+          chartObj.option = chartOptions;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartObj.partition = partitionName;
+          chartObj.gridData = partitionData;
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Disk I/O (%)') {
+          let diskPartitionAry = _.groupBy(data[obj.resourceKey], 'partitionLabel');
+          chartOptions.series = [];
+          
+          _.forEach(diskPartitionAry, (pobj, key) => {
+            let partitionVal = [];
+            _.forEach(pobj, (disk) => {
+              if(disk.deviceId === dobj.id) {
+                partitionVal.push(disk.ioTimePercentage); 
+              }
+              if(!partitionName.includes(key)) {
+                partitionName.push(key);
+              }
+            });
+            partitionData[key] = partitionVal;
+            const obj = {};
+            obj.data = partitionVal;
+            obj.name = key;
+            if(chartOptions.series.length === 1) {
+              obj.color= 'rgb(255,184,64)'
+            } else if(chartOptions.series.length  === 2)  {
+              obj.color = 'red';
+            }
+            chartOptions.series.push(obj);
+          });
+
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(!categoryAry.includes(_.replace(iobj.generateTime, 'T',' '))) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+            }
+          });
+          
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+          chartOptions.yAxis = {max:100, tickInterval:20 }
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = data[obj.resourceKey][0].deviceName;
+          chartObj.percentMaxType = true;
+          chartObj.option = chartOptions;
+          chartObj.partition = partitionName;
+          chartObj.gridData = partitionData;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Disk I/O Count') {
+          let diskPartitionAry = _.groupBy(data[obj.resourceKey], 'partitionLabel');
+
+          chartOptions.series = [];
+          
+          _.forEach(diskPartitionAry, (pobj, key) => {
+            let partitionVal = [];
+            _.forEach(pobj, (disk) => {
+              if(disk.deviceId === dobj.id) {
+                partitionVal.push(disk.ioTotalCnt); 
+              }
+              if(!partitionName.includes(key)) {
+                partitionName.push(key);
+              }
+            });
+            partitionData[key] = partitionVal;
+            const obj = {};
+            obj.data = partitionVal;
+            obj.name = key;
+            if(chartOptions.series.length === 1) {
+              obj.color= 'rgb(255,184,64)'
+            } else if(chartOptions.series.length  === 2)  {
+              obj.color = 'red';
+            }
+            chartOptions.series.push(obj);
+          });
+
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(!categoryAry.includes(_.replace(iobj.generateTime, 'T',' '))) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+            }
+          });
+          
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = data[obj.resourceKey][0].deviceName;
+          chartObj.option = chartOptions;
+          chartObj.partition = partitionName;
+          chartObj.gridData = partitionData;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Disk I/O Bytes') {
+          let byteVal = 'bps';
+          let diskPartitionAry = _.groupBy(data[obj.resourceKey], 'partitionLabel');
+
+          chartOptions.series = [];
+          originValueAry = [];
+          
+          _.forEach(diskPartitionAry, (pobj, key) => {
+            let partitionVal = [];
+            let originVal = [];
+            _.forEach(pobj, (disk) => {
+              if(disk.deviceId === dobj.id) {
+                partitionVal.push(this.autoConvertByte(obj,disk.ioTotalBps).value);
+                originVal.push(disk.ioTotalBps);              
+              }
+              if(!partitionName.includes(key)) {
+                partitionName.push(key);
+              }
+            });
+            partitionData[key] = partitionVal;
+            byteVal = this.autoConvertByte(obj,pobj[0].ioTotalBps).unit;
+            console.log(byteVal);
+            const objs = {};
+            objs.data = partitionVal;
+            objs.name = key;
+            if(chartOptions.series.length === 1) {
+              objs.color= 'rgb(255,184,64)';
+            } else if(chartOptions.series.length  === 2)  {
+              objs.color = 'red';
+            }
+            chartOptions.series.push(objs);
+            originValueAry.push({data: originVal});
+          });
+
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(!categoryAry.includes(_.replace(iobj.generateTime, 'T',' '))) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+            }
+          });
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = data[obj.resourceKey][0].deviceName;
+          chartObj.byteDiskType = true;
+          chartObj.byteVal = byteVal;
+          chartObj.originValueAry = originValueAry;
+          chartObj.option = chartOptions;
+          chartObj.partition = partitionName;
+          chartObj.gridData = partitionData;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Disk Queue') {
+          let diskPartitionAry = _.groupBy(data[obj.resourceKey], 'partitionLabel');
+          chartOptions.series = [];
+
+          _.forEach(diskPartitionAry, (pobj, key) => {
+            let partitionVal = [];
+            
+            _.forEach(pobj, (disk) => {
+              if(disk.deviceId === dobj.id) {
+                partitionVal.push(disk.ioQueueDepth);
+              }
+              if(!partitionName.includes(key)) {
+                partitionName.push(key);
+              }
+            });
+            partitionData[key] = partitionVal;
+
+            const obj = {};
+            obj.data = partitionVal;
+            obj.name = key;
+            if(chartOptions.series.length === 1) { obj.color= 'rgb(255,184,64)' } 
+            else if(chartOptions.series.length  === 2)  { obj.color = 'red'; }
+            chartOptions.series.push(obj);
+          });
+         
+
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(!categoryAry.includes(_.replace(iobj.generateTime, 'T',' '))) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+            }
+          });
+          
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = data[obj.resourceKey][0].deviceName;
+          chartObj.option = chartOptions;
+          chartObj.partition = partitionName;
+          chartObj.key = "chart_"+key+'_'+dkey;
+          chartObj.gridData = partitionData;
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Network Traffic') {
+          let byteVal = 'bps';
+          chartOptions.series = [];
+          originValueAry = [];
+        
+          _.forEach(data, (pobj, key) => {
+            if(key === 'nic') {
+              let partitionRx = [];
+              let partitionTx = [];
+              let originRxVal = [];
+              let originTxVal = [];
+
+              _.forEach(pobj, (network) => {
+                if(network.deviceId === dobj.id) {
+                  partitionRx.push(this.autoConvertByte(obj,network.inBytesPerSec).value);
+                  partitionTx.push(this.autoConvertByte(obj,network.outBytesPerSec).value);
+                  originRxVal.push(network.inBytesPerSec);    
+                  originTxVal.push(network.outBytesPerSec);          
+                }
+              });
+              partitionName.push('RX','TX');
+              partitionData = {RX: partitionRx , TX: partitionTx};
+              byteVal = this.autoConvertByte(obj,pobj[0].inBytesPerSec).unit;
+              
+              chartOptions.series.push({data: partitionRx, name: 'RX' } , {data: partitionTx, name: 'TX' , color: 'rgb(255, 184, 64)'});
+              originValueAry.push({data: originRxVal}, {data: originTxVal});
+              }
+            });
+          
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(!categoryAry.includes(_.replace(iobj.generateTime, 'T',' '))) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+            }
+          });
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = data[obj.resourceKey][0].deviceName;
+          chartObj.byteNetworkType = true;
+          chartObj.byteVal = byteVal;
+          chartObj.originValueAry = originValueAry;
+          chartObj.option = chartOptions;
+          chartObj.partition = partitionName;
+          chartObj.gridData = partitionData;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'Network PPS') {
+          let byteVal = 'bps';
+          chartOptions.series = [];
+          originValueAry = [];
+        
+          _.forEach(data, (pobj, key) => {
+            if(key === 'nic') {
+              let partitionRx = [];
+              let partitionTx = [];
+              let originRxVal = [];
+              let originTxVal = [];
+
+              _.forEach(pobj, (network) => {
+                if(network.deviceId === dobj.id) {
+                  partitionRx.push(this.autoConvertByte(obj,network.inPktsPerSec).value);
+                  partitionTx.push(this.autoConvertByte(obj,network.outPktsPerSec).value);
+                  originRxVal.push(network.inPktsPerSec);    
+                  originTxVal.push(network.outPktsPerSec);          
+                }
+              });
+              partitionName.push('RX','TX');
+              partitionData = {RX: partitionRx , TX: partitionTx};
+              byteVal = this.autoConvertByte(obj,pobj[0].inPktsPerSec).unit;
+            
+              chartOptions.series.push({data: partitionRx, name: 'RX' } , {data: partitionTx, name: 'TX' , color: 'rgb(255, 184, 64)'});
+              originValueAry.push({data: originRxVal}, {data: originTxVal});
+              }
+            });
+          
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(!categoryAry.includes(_.replace(iobj.generateTime, 'T',' '))) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+            }
+          });
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = data[obj.resourceKey][0].deviceName;
+          chartObj.byteNetworkType = true;
+          chartObj.byteVal = byteVal;
+          chartObj.originValueAry = originValueAry;
+          chartObj.option = chartOptions;
+          chartObj.partition = partitionName;
+          chartObj.gridData = partitionData;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'NIC Discards') {
+          let byteVal = 'pps';
+          chartOptions.series = [];
+          originValueAry = [];
+        
+          _.forEach(data, (pobj, key) => {
+            if(key === 'nic') {
+              let partitionRx = [];
+              let partitionTx = [];
+              let originRxVal = [];
+              let originTxVal = [];
+
+              _.forEach(pobj, (network) => {
+                if(network.deviceId === dobj.id) {
+                  partitionRx.push(this.autoConvertByte(obj,network.inPktsPerSec).value);
+                  partitionTx.push(this.autoConvertByte(obj,network.outPktsPerSec).value);
+                  originRxVal.push(network.inPktsPerSec);    
+                  originTxVal.push(network.outPktsPerSec);          
+                }
+              });
+              partitionName.push('RX','TX');
+              partitionData = {RX: partitionRx , TX: partitionTx};
+              byteVal = this.autoConvertByte(obj,pobj[0].inPktsPerSec).unit;
+            
+              chartOptions.series.push({data: partitionRx, name: 'RX' } , {data: partitionTx, name: 'TX' , color: 'rgb(255, 184, 64)'});
+              originValueAry.push({data: originRxVal}, {data: originTxVal});
+              }
+            });
+          
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(!categoryAry.includes(_.replace(iobj.generateTime, 'T',' '))) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+            }
+          });
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = data[obj.resourceKey][0].deviceName;
+          chartObj.byteNetworkSecondType = true;
+          chartObj.byteVal = byteVal;
+          chartObj.originValueAry = originValueAry;
+          chartObj.option = chartOptions;
+          chartObj.partition = partitionName;
+          chartObj.gridData = partitionData;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } else if(obj.resourceName === 'NIC Errors') {
+          let byteVal = 'pps';
+          chartOptions.series = [];
+          originValueAry = [];
+        
+          _.forEach(data, (pobj, key) => {
+            if(key === 'nic') {
+              let partitionRx = [];
+              let partitionTx = [];
+              let originRxVal = [];
+              let originTxVal = [];
+
+              _.forEach(pobj, (network) => {
+                if(network.deviceId === dobj.id) {
+                  partitionRx.push(this.autoConvertByte(obj,network.inBytesPerSec).value);
+                  partitionTx.push(this.autoConvertByte(obj,network.outBytesPerSec).value);
+                  originRxVal.push(network.inBytesPerSec);    
+                  originTxVal.push(network.outBytesPerSec);          
+                }
+              });
+              partitionName.push('RX','TX');
+              partitionData = {RX: partitionRx , TX: partitionTx};
+              byteVal = this.autoConvertByte(obj,pobj[0].inBytesPerSec).unit;
+            
+              chartOptions.series.push({data: partitionRx, name: 'RX' } , {data: partitionTx, name: 'TX' , color: 'rgb(255, 184, 64)'});
+              originValueAry.push({data: originRxVal}, {data: originTxVal});
+              }
+            });
+          
+          _.forEach(data[obj.resourceKey], (iobj) => {
+            if(!categoryAry.includes(_.replace(iobj.generateTime, 'T',' '))) {
+              categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
+            }
+          });
+          chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
+          chartOptions.xAxis.categories = categoryAry;
+
+          chartObj.resourceName = obj.resourceName;
+          chartObj.deviceName = data[obj.resourceKey][0].deviceName;
+          chartObj.byteNetworkSecondType = true;
+          chartObj.byteVal = byteVal;
+          chartObj.originValueAry = originValueAry;
+          chartObj.option = chartOptions;
+          chartObj.partition = partitionName;
+          chartObj.gridData = partitionData;
+          chartObj.key = "chart_"+key+'_'+dkey
+          chartData['chartOptions'+key+'_'+dkey] = chartObj;
+        } 
+        // 시간 간격 조절 
+        let categoryLength = '';
+        if(categoryAry.length <= 24) { categoryLength = 2;} 
+        else if(categoryAry.length > 24 && categoryAry.length <= 48) { categoryLength = 4; }
+        else if(categoryAry.length > 48 && categoryAry.length <= 100) { categoryLength = 8; } 
+        else { categoryLength = 100;}
+        chartOptions.xAxis.tickInterval = categoryLength;
+       })
+      }); 
+      console.log(chartData);
+      // 초기화
+      for(var k=0; k< this.state.totalKey.length; k++) {
+        seriesGrid.splice(0, 1);
+        seriesColumn.splice(0, 1);
+      }
+      this.setState({
+        chartData:chartData,
+        totalKey: [],
+        totalData:[],
+        chartColumnDefs:[],
+        loader:false
+      })
+}
+
+/* line , bar 변경 */
+changeChartType = (e, obj, i) => {
+  let chartOptions = _.cloneDeep(this.state.chartData);
+  chartOptions[i].option.chart.type = e.target.value;
+
+  this.setState({ chartData: chartOptions });
+}
+
+/* 최대치 기준 */
+maxStandred = (e, obj , i) => {
+  let chartOptions = _.cloneDeep(this.state.chartData);
+  if(e.target.checked === true) {
+    chartOptions[i].option.yAxis.max = Math.max(...chartOptions[i].option.series[0].data);
+    chartOptions[i].option.yAxis.tickInterval = null;
+  } else {
+    chartOptions[i].option.yAxis.max = 100;
+    chartOptions[i].option.yAxis.tickInterval = 20;
   }
- /** 달력1 open */
- calendarFirst = (e) => {
+  this.setState({ chartData: chartOptions });
+}
+/* 타입 변환 */
+changeByteType = (e, obj, i) => {
+  const { totalKey } = this.state;
+  let chartOptions = _.cloneDeep(this.state.chartData);
+  let valueAry = [];
+
+  if(chartOptions[i].resourceName === 'Memory Bytes'       || chartOptions[i].resourceName === 'Memory Buffers Bytes' ||
+    chartOptions[i].resourceName === 'Memory Cached Bytes' || chartOptions[i].resourceName === 'Memory Shared Bytes' || 
+    chartOptions[i].resourceName === 'Memory Swap Bytes'   || chartOptions[i].resourceName === 'Disk Total Bytes' ||
+    chartOptions[i].resourceName === 'Disk Total Used Bytes') {
+    _.forEach(chartOptions[i].originValueAry, (val) => {
+      valueAry.push(this.changeByteVal(e.target.value, val).value);
+    });
+    if(totalKey.includes(obj.key)) {
+      obj.byteVal = e.target.value;
+      obj.option.series[0].data = valueAry;
+    } else {
+      chartOptions[i].byteVal = e.target.value;
+      chartOptions[i].option.series[0].data = valueAry;
+    }
+      
+    
+  } else if(chartOptions[i].resourceName === 'Disk Used Bytes' || chartOptions[i].resourceName === 'Disk I/O Bytes' || 
+            chartOptions[i].resourceName === 'Network Traffic' || chartOptions[i].resourceName === 'Network PPS' || 
+            chartOptions[i].resourceName === 'NIC Discards'    || chartOptions[i].resourceName === 'NIC Errors') {
+    _.forEach(chartOptions[i].originValueAry, (val, j) => {
+      let partitionVal = [];
+      _.forEach(val.data, (disk) => {
+        partitionVal.push(this.changeByteVal(e.target.value, disk).value);
+      });
+      valueAry.push({data: partitionVal, name: chartOptions[i].option.series[j].name});
+      
+    });
+    console.log(valueAry);
+    if(totalKey.includes(obj.key)) {
+      obj.byteVal = e.target.value;
+      obj.option.series = valueAry;
+    } else {
+      chartOptions[i].byteVal = e.target.value;
+      chartOptions[i].option.series = valueAry;
+    }
+  }
+
+  
+  if(totalKey.includes(obj.key)) {
+    this.chartTotalCheckSecond(e,i,obj,valueAry);
+  } else {
+    this.setState({ chartData: chartOptions });
+  }
+}
+
+/* 단위 자동 변경 */
+autoConvertByte(obj,size, decimals = 2) {
+  let result = {};
+
+  if (size === 0) return '0';
+  const dm = decimals < 0 ? 0 : decimals;
+    if(obj.resourceName === 'NIC Discards' || obj.resourceName === 'NIC Errors') {
+      const k = 2048;
+      const sizes = ['Kpps', 'Mpps', 'Gpps', 'Tpps', 'Ppps', 'Epps', 'Zpps', 'Ypps'];
+      const i = Math.floor(Math.log(size) / Math.log(k));
+
+      result.value = parseFloat((size / Math.pow(k, i)).toFixed(dm));
+      result.unit = sizes[i];
+    } else if(obj.resourceName === 'Network Traffic' || obj.resourceName === 'Network PPS') {
+      const k = 2048;
+      const sizes = ['Kbps', 'Mbps', 'Gbps', 'Tbps', 'Pbps', 'Ebps', 'Zbps', 'Ybps'];
+      const i = Math.floor(Math.log(size) / Math.log(k));
+  
+      result.value = parseFloat((size / Math.pow(k, i)).toFixed(dm));
+      result.unit = sizes[i];
+    } else if(obj.resourceName === 'Disk I/O Bytes') {
+      const k = 1024;
+      const sizes = ['B/s', 'KB/s', 'MB/s', 'GB/s', 'TB/s', 'PB/s', 'EB/s', 'ZB/s', 'YB/s'];
+      const i = Math.floor(Math.log(size) / Math.log(k));
+      result.value = parseFloat((size / Math.pow(k, i)).toFixed(dm));
+      result.unit = sizes[i];
+    } else {
+      const k = 1024;  
+      const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+      const i = Math.floor(Math.log(size) / Math.log(k));
+
+      result.value = parseFloat((size / Math.pow(k, i)).toFixed(dm));
+      result.unit = sizes[i];
+    }
+  return result;
+};
+
+/* bytes 단위 변경 */
+changeByteVal(type, size, decimals = 2) {
+  let result = {},
+  selectFix = 0,
+  selectVal = 0;
+
+  const dm = decimals < 0 ? 0 : decimals;
+
+  if (size === 0) return '0'; 
+  else {
+    if(type == 'bps' || type == 'pps') {
+      selectVal = 8;
+    } else if(type == 'B' || type == 'B/s') {
+      selectVal = 1;
+    } else if(type == 'KB' || type == 'KB/s' || type == 'Kbps' || type == 'Kpps') {
+      selectVal = 1024;
+      selectFix = 3;
+    } else if(type == 'MB' || type == 'MB/s' || type == 'Mbps' || type == 'Mpps') {
+      selectVal = 1048576;
+      selectFix = 6;
+    } else if(type == 'GB' || type == 'GB/s' || type == 'Gbps' || type == 'Gpps') {
+      selectVal = 1073741824;
+      selectFix = 9;
+    }
+
+    if(selectVal < 10) {
+      size = parseFloat(size * selectVal); 
+    } else {
+      selectFix = size / selectVal > 1 ? 2 : selectFix;
+      size = size / selectVal === 0 ? 0 : parseFloat((size / selectVal)).toFixed(selectFix);
+    }
+    size = parseFloat(size).toFixed(dm);
+    result.value = Number(size);
+  }
+  return result;
+}
+
+/* 차트 통계 */
+chartTotalCheck = (e, obj , i) => {
+  const { totalKey  } = this.state; 
+  let chartOptions = _.cloneDeep(this.state.chartData);
+  console.log(obj);
+
+  if(totalKey.length >= 0 && !totalKey.includes(obj.key)) {
+  const timeChart = [];
+  _.forEach(obj.option.xAxis.categories, (pobj) => {
+    timeChart.push(pobj)
+  })
+
+  if(!timeChart.includes('Max')) {
+    timeChart.push('Max')
+    timeChart.push('Min')
+    timeChart.push('Avg')
+  }
+
+  const data = [];
+  const gridDatas = [];
+  // 초기화 변수
+  let dataLength = 0;
+  let gridDataLength = 0;
+  if(obj.gridData === undefined) {
+    _.forEach(obj.option.series, (dobj) => {
+        data.push(dobj.data)
+    })
+    dataLength = data[0].length
+  } else {
+    _.forEach(obj.gridData, (dobj) => {
+      gridDatas.push(dobj)
+    })
+    gridDataLength = gridDatas[0].length
+  }
+  
+  let maxVal = '';
+  let minVal = '';
+  let maxValAry = {};
+  let minValAry = {};
+  /* 최대값, 최소값, 평균 */
+  if(obj.option.series.length === 1 ) {
+    data[0].push(Math.max(...data[0]))
+    data[0].push(Math.min(...data[0]))
+    const avg = data[0].reduce((a,b) => a+b, 0) / data[0].length;
+    data[0].push(Number(avg.toFixed(0)))
+    maxVal = Math.max(...data[0])
+    minVal = Math.min(...data[0])
+  } else {
+    for(var w=0; w < obj.option.series.length; w++) {
+      gridDatas[w].push(Math.max(...gridDatas[w]))
+      gridDatas[w].push(Math.min(...gridDatas[w]))
+      const avg = gridDatas[w].reduce((a,b) => a+b, 0) / gridDatas[w].length;
+      gridDatas[w].push(Number(avg.toFixed(0)))
+      maxValAry[obj.partition[w]] = Math.max(...gridDatas[w])
+      minValAry[obj.partition[w]] = Math.min(...gridDatas[w])
+    }
+  }
+  console.log(data);
+  console.log(gridDatas);
+  
+  if(chartOptions[i].resourceName === 'CPU Processor (%)'    || chartOptions[i].resourceName === 'CPU Context Switch' || 
+    chartOptions[i].resourceName === 'CPU Run Queue'         || chartOptions[i].resourceName === 'Load Avg'           || 
+    chartOptions[i].resourceName === 'Disk Total Used Bytes' || chartOptions[i].resourceName === 'Disk Total Used (%)' || 
+    chartOptions[i].resourceName === 'Memory Used (%)'       || chartOptions[i].resourceName === 'Memory Bytes' ||
+    chartOptions[i].resourceName === 'Memory Buffers (%)'    || chartOptions[i].resourceName === 'Memory Buffers Bytes' ||
+    chartOptions[i].resourceName === 'Memory Cached (%)'     || chartOptions[i].resourceName === 'Memory Cached Bytes' ||
+    chartOptions[i].resourceName === 'Memory Shared (%)'     || chartOptions[i].resourceName === 'Memory Shared Bytes' ||
+    chartOptions[i].resourceName === 'Memory Swap (%)'       || chartOptions[i].resourceName === 'Memory Swap Bytes' || 
+    chartOptions[i].resourceName === 'Memory Pagefault') {
+    const array = [];
+    _.forEach(obj.option.series, (sobj) => {
+      _.forEach(sobj.data , (tobj, tkey) => {
+        const obj = {};
+        obj.time = timeChart[tkey];
+        obj.value = tobj
+        array.push(obj);
+      })
+    })
+    seriesGrid.push(array)
+
+    const columnDefs = [
+      {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
+      {headerName: obj.deviceName ,type: 'rightAligned', headerClass: "grid-cell-left", 
+      cellStyle: params => this.chartRowColor(params,maxVal,minVal), 
+      valueFormatter: params =>  {
+        if(obj.option.yAxis.max !== undefined) {
+          return params.data.value+' '+'%' 
+        } else if(obj.byteVal !== undefined) {
+          return params.data.value+' '+obj.byteVal
+        } else {
+          return params.data.value
+        }
+      }}
+    ]
+    seriesColumn.push(columnDefs)
+    
+  } else if(chartOptions[i].resourceName === 'Disk Used (%)'   || chartOptions[i].resourceName === 'Disk Used Bytes'  ||
+            chartOptions[i].resourceName === 'Disk I/O (%)'    || chartOptions[i].resourceName === 'Disk I/O Count' ||
+            chartOptions[i].resourceName === 'Disk I/O Bytes'  || chartOptions[i].resourceName === 'Disk Queue' || 
+            chartOptions[i].resourceName === 'CPU Used (%)'    || chartOptions[i].resourceName === 'Network Traffic' || 
+            chartOptions[i].resourceName === 'Network PPS'     || chartOptions[i].resourceName === 'NIC Discards'      || 
+            chartOptions[i].resourceName === 'NIC Errors' ) {
+    const array = [];
+    _.forEach(timeChart, (tobj,tkey) => {
+      const gridObj = {};
+      gridObj.time= tobj
+      _.forEach(obj.gridData, (dobj,dkey) => {
+        gridObj[dkey] = dobj[tkey];
+      })
+      array.push(gridObj);
+    })
+    seriesGrid.push(array)
+
+    const columnDefs=[]
+    columnDefs.push({headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' }})
+    _.forEach(obj.partition , (pobj,pkey) => {
+      columnDefs.push({
+        headerName:pobj,
+        cellStyle: params => this.chartRowColor(params,maxVal,minVal,pobj,maxValAry,minValAry), 
+        valueFormatter: params => {
+        if(obj.byteVal !== undefined) {
+          return  params.data[pobj]+' '+obj.byteVal
+        } else if(obj.option.yAxis.max !== undefined) {
+          return params.data[pobj]+' '+'%'
+        } else {
+          return params.data[pobj]
+        }
+      },
+        type: 'rightAligned', 
+        headerClass: "grid-cell-left" 
+      })
+    })
+    seriesColumn.push(columnDefs)
+  } 
+  
+  
+  this.setState({ 
+    totalKey : totalKey.concat(obj.key), 
+    totalData: seriesGrid,
+    chartColumnDefs: seriesColumn
+  })
+  /* 데이터 초기화 */
+  if(dataLength > 0) {
+    for(var u=0; u< data.length; u++) {
+      data[u].length=dataLength
+    }
+  }
+  if(gridDataLength > 0) {
+    for(var k=0; k < gridDatas.length; k++) {
+      gridDatas[k].length= gridDataLength;
+    }
+  }
+} 
+  
+  else {
+    const countKey = totalKey.indexOf(obj.key)
+    this.setState({
+      totalKey : totalKey.filter(totalKey => totalKey !== obj.key),
+    })
+    seriesGrid.splice(countKey, 1)
+    seriesColumn.splice(countKey, 1)
+  }
+ }
+
+/* 단위 변환 시 통계 수치 */
+chartTotalCheckSecond = (e,i,obj,valueAry) => {
+  console.log(obj);
+  const { totalKey  } = this.state; 
+  let chartOptions = _.cloneDeep(this.state.chartData);
+ 
+
+  if(totalKey.length >= 0 && totalKey.includes(obj.key)) {
+    const countKey = totalKey.indexOf(obj.key)
+    seriesGrid.splice(countKey, 1)
+    seriesColumn.splice(countKey, 1)
+    
+  const timeChart = [];
+  _.forEach(obj.option.xAxis.categories, (pobj) => {
+    timeChart.push(pobj)
+  })
+
+  if(!timeChart.includes('Max')) {
+    timeChart.push('Max')
+    timeChart.push('Min')
+    timeChart.push('Avg')
+  }
+  const data = [];
+  const gridDatas = [];
+  // 초기화 변수
+  let dataLength = 0;
+  let gridDataLength = 0;
+  if(obj.gridData === undefined) {
+    _.forEach(obj.option.series, (dobj) => {
+        data.push(dobj.data)
+    })
+    dataLength = data[0].length
+  } else {
+    _.forEach(obj.gridData, (dobj) => {
+      gridDatas.push(dobj)
+    })
+    gridDataLength = gridDatas[0].length
+  }
+  
+  let maxVal = '';
+  let minVal = '';
+  let maxValAry = {};
+  let minValAry = {};
+  /* 최대값, 최소값, 평균 */
+  if(obj.option.series.length === 1 ) {
+    data[0].push(Math.max(...data[0]))
+    data[0].push(Math.min(...data[0]))
+    const avg = data[0].reduce((a,b) => a+b, 0) / data[0].length;
+    data[0].push(Number(avg.toFixed(0)))
+    maxVal = Math.max(...data[0])
+    minVal = Math.min(...data[0])
+  } else {
+    for(var w=0; w < obj.option.series.length; w++) {
+      gridDatas[w].push(Math.max(...gridDatas[w]))
+      gridDatas[w].push(Math.min(...gridDatas[w]))
+      const avg = gridDatas[w].reduce((a,b) => a+b, 0) / gridDatas[w].length;
+      gridDatas[w].push(Number(avg.toFixed(0)))
+      maxValAry[obj.partition[w]] = Math.max(...gridDatas[w])
+      minValAry[obj.partition[w]] = Math.min(...gridDatas[w])
+    }
+  }
+  console.log(data);
+  console.log(gridDatas);
+  
+  if(chartOptions[i].resourceName === 'CPU Processor (%)'     || chartOptions[i].resourceName === 'CPU Context Switch' || 
+    chartOptions[i].resourceName  === 'CPU Run Queue'         || chartOptions[i].resourceName === 'Load Avg'           || 
+    chartOptions[i].resourceName  === 'Disk Total Used Bytes' || chartOptions[i].resourceName === 'Disk Total Used (%)' || 
+    chartOptions[i].resourceName  === 'Memory Used (%)'       || chartOptions[i].resourceName === 'Memory Bytes' ||
+    chartOptions[i].resourceName  === 'Memory Buffers (%)'    || chartOptions[i].resourceName === 'Memory Buffers Bytes' ||
+    chartOptions[i].resourceName  === 'Memory Cached (%)'     || chartOptions[i].resourceName === 'Memory Cached Bytes' ||
+    chartOptions[i].resourceName  === 'Memory Shared (%)'     || chartOptions[i].resourceName === 'Memory Shared Bytes' ||
+    chartOptions[i].resourceName  === 'Memory Swap (%)'       || chartOptions[i].resourceName === 'Memory Swap Bytes' || 
+    chartOptions[i].resourceName  === 'Memory Pagefault') {
+    const array = [];
+    _.forEach(obj.option.series, (sobj) => {
+      _.forEach(sobj.data , (tobj, tkey) => {
+        const obj = {};
+        obj.time = timeChart[tkey];
+        obj.value = tobj
+        array.push(obj);
+      })
+    })
+    seriesGrid.push(array)
+    const columnDefs = [
+      {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' },},
+      {headerName: obj.deviceName ,type: 'rightAligned', headerClass: "grid-cell-left", 
+      cellStyle: params => this.chartRowColor(params,maxVal,minVal), 
+      valueFormatter: params =>  {
+        if(obj.option.yAxis.max !== undefined) {
+          return params.data.value+' '+'%' 
+        } else if(obj.byteVal !== undefined) {
+          return params.data.value+' '+obj.byteVal
+        } else {
+          return params.data.value
+        }
+      },
+     }
+    ]
+    seriesColumn.push(columnDefs)
+    
+  } else if(chartOptions[i].resourceName === 'Disk Used (%)'   || chartOptions[i].resourceName === 'Disk Used Bytes'  ||
+            chartOptions[i].resourceName === 'Disk I/O (%)'    || chartOptions[i].resourceName === 'Disk I/O Count' ||
+            chartOptions[i].resourceName === 'Disk I/O Bytes'  || chartOptions[i].resourceName === 'Disk Queue' || 
+            chartOptions[i].resourceName === 'CPU Used (%)'    || chartOptions[i].resourceName === 'Network Traffic' || 
+            chartOptions[i].resourceName === 'Network PPS'     ||chartOptions[i].resourceName === 'NIC Discards'      || 
+            chartOptions[i].resourceName === 'NIC Errors'){
+    const array = [];
+    _.forEach(timeChart, (tobj,tkey) => {
+      const gridObj = {};
+      gridObj.time= tobj
+      _.forEach(obj.gridData, (dobj,dkey) => {
+        gridObj[dkey] = dobj[tkey];
+      })
+      array.push(gridObj);
+    })
+    seriesGrid.push(array)
+
+    const columnDefs=[]
+    columnDefs.push({headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' }})
+    _.forEach(obj.partition , (pobj,pkey) => {
+      columnDefs.push({
+        headerName:pobj,
+        cellStyle: params => this.chartRowColor(params,maxVal,minVal,pobj,maxValAry,minValAry), 
+        valueFormatter: params => {
+        if(obj.byteVal !== undefined) {
+          return  params.data[pobj]+' '+obj.byteVal
+        } else if(obj.option.yAxis.max !== undefined) {
+          return params.data[pobj]+' '+'%'
+        } else {
+          return params.data[pobj]
+        }
+      },
+        type: 'rightAligned', 
+        headerClass: "grid-cell-left" 
+      })
+    })
+    seriesColumn.push(columnDefs)
+  } 
+  
+ 
+  chartOptions[i].byteVal = e.target.value;
+  chartOptions[i].option.series.data = data;
+
+  this.setState({ 
+    totalData: seriesGrid,
+    chartColumnDefs: seriesColumn,
+    chartData: chartOptions
+  })
+  /* 데이터 초기화 */
+  if(dataLength > 0) {
+    for(var u=0; u< data.length; u++) {
+      data[u].length=dataLength
+    }
+  }
+  if(gridDataLength > 0) {
+    for(var k=0; k < gridDatas.length; k++) {
+      gridDatas[k].length= gridDataLength;
+    }
+  }
+ }
+} 
+/* 차트 색깔 */
+chartRowColor = (params,maxVal,minVal,pobj,maxValAry,minValAry) => {
+  // line 1개 
+  if(params.data.time === 'Max') {
+    return {  background: '#FFE5E5' }
+  } else if(params.data.time === 'Min') {
+    return {  background: '#E7F8FF' }
+  } else if(params.data.time === 'Avg') {
+    return {  background: '#EDFFEF' }
+  } else if(params.data.value === maxVal) {
+    return {  background: '#FFE5E5' }
+  } else if(params.data.value === minVal) {
+    return {  background: '#E7F8FF' }
+  } 
+
+  // line 2개 이상 
+  if(maxValAry !== undefined ) {
+    if(params.data[pobj] === maxValAry[pobj]) {
+      return {  background: '#FFE5E5' }
+    } else if(params.data[pobj] === minValAry[pobj]) {
+      return {  background: '#E7F8FF' }
+    }
+  } 
+}
+/* 초기화 */
+reload = () => {
+  for(var k=0; k< this.state.totalKey.length; k++) {
+    seriesGrid.splice(0, 1);
+    seriesColumn.splice(0, 1);
+  }
+    this.setState({
+      graphCheck:false,
+      chartData:[],
+      totalKey: [],
+      totalData:[],
+      chartColumnDefs:[],
+      selectedResourceName:[],
+      selectedDeviceName:[],
+      // firstDateFormat:Moment(oneMonth, "YYYY.MM.DD").format("YYYYMMDD"), 
+      // secondDateFormat:Moment(oneMonth, "YYYY.MM.DD").format("YYYYMMDD"), 
+      calendarCheckFirst:false,
+      calendarCheckSecond:false,
+    })
+}
+/** 달력1 open */
+calendarFirst = (e) => {
   e.preventDefault();
   if(!this.state.calendarCheckFirst) {
    this.setState({calendarCheckFirst:true})
@@ -196,94 +1709,6 @@ calendarSecond = (e) => {
    this.setState({calendarCheckSecond:false})
   }
 }
-
-clickFilter = () => {
-  const { filterCheck } = this.state;
-  if(filterCheck) {
-    this.setState({filterCheck:false})
-  } else {
-    this.setState({filterCheck:true})
-  }
-}
-/* 자원 모델 open */
-clickDeviceModelBtn = () => {
-  AiwacsService.getEquipmentSnmp() 
-    .then(res => {
-      this.setState({deviceData:res.data,clickDeviceModel:true})
-    })
-}
-/* 자원 모델 적용 */
-clickDeviceModelSubmit = () => {
-  const deviceNode = this.gridApis.getSelectedNodes();
-  const deviceArray = [];
-  const deviceName = [];
-  console.log(deviceNode);
-  if(this.gridApis.getSelectedNodes().length === 0) {
-    alert("체크 박스를 선택해주세요");
-  } else {
-    deviceNode.forEach(node => {
-      console.log(node);
-      const obj = {};
-      obj.value=node.data.equipment;
-      obj.label=node.data.equipment;
-      deviceName.push(obj)
-      
-      // id 추가 
-      const objSec= {};
-      objSec.id =node.data.id;
-      objSec.name = node.data.equipment;
-      deviceArray.push(objSec)
-    })
-    this.setState({deviceId:deviceArray, clickDeviceModel:false, deviceSearchName:deviceName})
-  }
-}
-/* 하드웨어 모델 open */
-clickHwModelBtn = () => {
-  this.setState({clickHwModel:true})
-}
-/* 하드웨어 모델 적용 */
-clickHwModelSubmit = () => {
-  const hwNode = this.gridApi.getSelectedNodes();
-  const groupName = [];
-  const hwNodeName = [];
-  
-  console.log(this.gridApi.getSelectedNodes().length);
-  if(this.gridApi.getSelectedNodes().length === 0) {
-    alert("체크 박스를 선택해주세요");
-  } else {
-    hwNode.forEach(node => {
-      const obj = {};
-      if(node.data.cpu !== undefined) {
-        obj.label=node.data.group+" > "+node.data.cpu;
-        obj.value=node.data.group+" > "+node.data.cpu;
-        obj.id=node.data.id;
-        obj.name=node.data.cpu;
-      }  
-      if(node.data.memory !== undefined) {
-        obj.label=node.data.group+" > "+node.data.memory;
-        obj.value=node.data.group+" > "+node.data.memory;
-        obj.id=node.data.id;
-        obj.name=node.data.memory;
-      }  
-      if(node.data.disk !== undefined) {
-        obj.label=node.data.group+" > "+node.data.disk;
-        obj.value=node.data.group+" > "+node.data.disk;
-        obj.id=node.data.id;
-        obj.name=node.data.disk;
-      }  
-      if(node.data.network !== undefined) {
-        obj.label=node.data.group+" > "+node.data.network;
-        obj.value=node.data.group+" > "+node.data.network;
-        obj.id=node.data.id;
-        obj.name=node.data.network;
-      }
-      hwNodeName.push(obj);
-      groupName.push(node.data.group);
-      this.setState({hwName:groupName,clickHwModel:false, hwSearchName: hwNodeName })
-    })
-  }
-}
-
 /** 달력1 이벤트 */
 calenderFirstChange = (date) => {
   this.setState({
@@ -298,1727 +1723,291 @@ calenderFirstChange = (date) => {
     calendarCheckSecond:false
   })
  }
- /** 차트 이벤트 */
- reportSelectSubmit = () => {
-   this.setState({loader:true})
-   const { firstDateFormat,firstTimeFormat, secondDateFormat,secondTimeFormat,hwName,deviceId, hwSearchName,deviceSearchName } = this.state;
-   const configArray = [];
-   const startDate=firstDateFormat+firstTimeFormat+'0000';
-   const endDate= secondDateFormat+secondTimeFormat+'5959';
-   const graphStartDate = Moment(firstDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
-   const graphEndDate = Moment(secondDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
-
-   const sys=[];
-   const sysNetwork=[];
-   const sysMemoey=[];
-   const id = [];
-   const deviceName = [];
-   hwName.forEach(h => {
-    if(h.includes("CPU") || h.includes("Memory")) {
-      sys.push(1);
-    } 
-    if(sys.length === 0) {
-      sys.push(0)
-    }
-    if(h.includes("Network")) {
-      sysNetwork.push(1);
-    } 
-    if(h.includes("Disk")) {
-      sysMemoey.push(1);
-    } 
-   })
-   if(sys.length === 0) { sys.push(0) }
-   if(sysNetwork.length === 0) { sysNetwork.push(0) }
-   if(sysMemoey.length === 0) { sysMemoey.push(0) }
-
-   deviceId.forEach(d => {
-      id.push(d.id)
-      deviceName.push(d.name)
-   })
-   const ids = id.join('|');
-
-    ReportService.getSysCpuDisk(ids,sys[0],sysNetwork[0],sysMemoey[0],startDate,endDate)
-    .then(res => {
-      console.log(res.data)
-      const data = res.data;
-      const graphHwName =[];
-      const graphDeviceName =[];
-      const time = [];
-      const cpuProcessor = [];
-      const cpuUser = [];
-      const cpuContextSwitch = [];
-      const cpuRunQueue =[];
-      const cpuLoadAvg=[];
-      const memoryUsedPercentage=[];
-      const memoryBytes=[];
-      const memoryBuffersPercentage=[];
-      const memoryBuffers=[];
-      const memoryCached =[];
-      const memoryCachedPercentage=[];
-      const memoryShared =[];
-      const memorySharedPercentage=[];
-      const memorySwapPercentage=[];
-      const memorySwap=[];
-      const memoryPagefault=[];
-      const diskTotalUsedPercentage =[];
-      const diskTotalUsedBytes =[];
-      const diskUsedPercentage =[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
-      const diskUsedBytes =[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
-      const diskIoPercentage =[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
-      const diskIoCount =[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
-      const diskIoBytes =[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
-      const diskQueue =[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
-      const networkTraffic = [{ in:[], out:[] }];
-      const networkPps = [{ in:[], out:[] }];
-      const nicDiscards = [{ in:[], out:[] }];
-      const nicErrors = [{ in:[], out:[] }];
-      const partitionLabel = [];
-
-      for(var i=0; i < id.length; i++) {
-      /* 초기화 */
-       time.length=0;
-       cpuProcessor.length=0;  cpuUser.length=0;  cpuContextSwitch.length=0; cpuRunQueue.length=0;  cpuLoadAvg.length=0;
-       memoryUsedPercentage.length=0;  memoryBytes.length=0;  memoryBuffersPercentage.length=0; memoryBuffers.length=0;  memoryCached.length=0; memoryCachedPercentage.length=0;  
-       memoryShared.length=0;  memorySharedPercentage.length=0; memorySwapPercentage.length=0;  memorySwap.length=0; memoryPagefault.length=0; 
-       diskTotalUsedPercentage.length=0;  diskTotalUsedBytes.length=0; 
-       for(var m=0; m < partitionLabel.length; m++) {
-        diskUsedPercentage[m].length=0; diskUsedBytes[m].length=0; diskIoPercentage[m].length=0;  
-        diskIoCount[m].length=0; diskIoBytes[m].length=0; diskQueue[m].length=0;  
-       }
-       networkTraffic[0].in.length=0; networkPps[0].in.length=0; nicDiscards[0].in.length=0;  nicErrors[0].in.length=0; 
-       networkTraffic[0].out.length=0; networkPps[0].out.length=0; nicDiscards[0].out.length=0;  nicErrors[0].out.length=0; 
-
-       /* 데이터 세분화 */
-       data.forEach(d => {
-        d.forEach(c => {
-          if(c.cpuProcessor !== undefined && id[i] === c.deviceId) {  // CPU MEMORY
-            cpuProcessor.push(c.cpuProcessor); cpuUser.push(c.cpuUser); cpuContextSwitch.push(c.cpuContextswitch);  cpuRunQueue.push(c.cpuIrq); cpuLoadAvg.push(c.cpuLoadavg);
-            memoryUsedPercentage.push(c.usedMemoryPercentage); memoryBytes.push(c.usedMemory);  memoryBuffersPercentage.push(c.memoryBuffersPercentage); 
-            memoryBuffers.push(c.memoryBuffers); memoryCached.push(c.memoryCached); memoryCachedPercentage.push(c.memoryCachedPercentage); 
-            memoryShared.push(c.memoryShared); memorySharedPercentage.push(c.memorySharedPercentage); memorySwapPercentage.push(c.usedSwapPercentage);
-            memorySwap.push(c.usedSwap); memoryPagefault.push(c.usedSwapPercentage); 
-          }
-          if(c.ioQueueDepth !== undefined && id[i] === c.deviceId  ) {  // DISK
-            if(!partitionLabel.includes(c.partitionLabel) ) {
-              partitionLabel.push(c.partitionLabel)
-            }
-            
-            for(var x=0; x<partitionLabel.length; x++) { // 파티션 길이만큼 데이터가 저장 됨
-              if(partitionLabel[x] === c.partitionLabel) {
-                diskUsedPercentage[x].push(c.usedPercentage); diskUsedBytes[x].push(c.usedBytes); diskIoPercentage[x].push(c.ioTimePercentage);
-                diskIoCount[x].push(c.ioTotalCnt); diskIoBytes[x].push(c.ioTotalBps); diskQueue[x].push(c.ioQueueDepth)
-              }
-            }
-          }
-          if(c.ioTotalBps === undefined && id[i] === c.deviceId && c.usedPercentage !== undefined) {  // DISK TOTAL
-            diskTotalUsedPercentage.push(c.usedPercentage); diskTotalUsedBytes.push(c.usedBytes); 
-          }
-          if(c.inBytesPerSec !== undefined && id[i] === c.deviceId) { // NETWORK  
-            nicDiscards[0].in.push(c.inDiscardPkts); nicDiscards[0].out.push(c.outDiscardPkts);
-            nicErrors[0].in.push(c.inErrorPkts); nicErrors[0].out.push(c.outErrorPkts);
-            networkTraffic[0].in.push(c.inBytesPerSec); networkTraffic[0].out.push(c.outBytesPerSec);
-            networkPps[0].in.push(c.inPktsPerSec); networkPps[0].out.push(c.outPktsPerSec);
-          }
-
-          /* 각 데이터마다 시간 조절 */
-          if(c.cpuProcessor !== undefined && id[i] === c.deviceId) {
-            c.generateTime= c.generateTime.replace("T"," ");
-            Moment(c.generateTime, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:00");
-            time.push(Moment(c.generateTime, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:00"));
-          } else if(c.inBytesPerSec !== undefined && id[i] === c.deviceId && memoryUsedPercentage.length === 0 ) {
-            c.generateTime= c.generateTime.replace("T"," ");
-            Moment(c.generateTime, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:00");
-            time.push(Moment(c.generateTime, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:00"));
-          } else if(c.totalBytes === undefined && id[i] === c.deviceId && nicDiscards[0].in.length === 0) {
-            c.generateTime= c.generateTime.replace("T"," ");
-            Moment(c.generateTime, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:00");
-            time.push(Moment(c.generateTime, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD HH:00"));
-          } 
-        })
-      })
-
-      this.setState({ partitionLabel : partitionLabel})
-      /* 장비 이름 출력 */
-      hwSearchName.forEach(h => {
-        if(h.id === 1)  { graphHwName.push(h.name); } if(h.id === 2)  { graphHwName.push(h.name); } if(h.id === 3)  { graphHwName.push(h.name); } 
-        if(h.id === 4)  { graphHwName.push(h.name); } if(h.id === 5)  { graphHwName.push(h.name); } if(h.id === 6)  { graphHwName.push(h.name); }
-        if(h.id === 7)  { graphHwName.push(h.name); } if(h.id === 8)  { graphHwName.push(h.name); } if(h.id === 9)  { graphHwName.push(h.name); }
-        if(h.id === 10) { graphHwName.push(h.name); } if(h.id === 11) { graphHwName.push(h.name); } if(h.id === 12) { graphHwName.push(h.name); }
-        if(h.id === 13) { graphHwName.push(h.name); } if(h.id === 14) { graphHwName.push(h.name); } if(h.id === 15) { graphHwName.push(h.name); }
-        if(h.id === 16) { graphHwName.push(h.name); } if(h.id === 17) { graphHwName.push(h.name); } if(h.id === 18) { graphHwName.push(h.name); }
-        if(h.id === 19) { graphHwName.push(h.name); } if(h.id === 20) { graphHwName.push(h.name); } if(h.id === 21) { graphHwName.push(h.name); }
-        if(h.id === 22) { graphHwName.push(h.name); } if(h.id === 23) { graphHwName.push(h.name); } if(h.id === 24) { graphHwName.push(h.name); }
-        if(h.id === 25) { graphHwName.push(h.name); } if(h.id === 26) { graphHwName.push(h.name); } if(h.id === 27) { graphHwName.push(h.name); }
-        if(h.id === 28) { graphHwName.push(h.name); } if(h.id === 29) { graphHwName.push(h.name); } if(h.id === 30) { graphHwName.push(h.name); }
-      })
-      /* 하드웨어 이름 출력 */ 
-      deviceSearchName.forEach(d => {
-        graphDeviceName.push(d.value)
-      })
-      /* 시간 간격 조절 */
-      const timeInterval = [];
-      console.log(time.length);
-      if(time.length <= 24) { timeInterval.push(2)} 
-      else if(time.length > 24 && time.length <= 48) { timeInterval.push(4) }
-      else if(time.length > 48 && time.length <= 100) { timeInterval.push(8) } 
-      else { timeInterval.push(100)}
-      this.setState({ timeChart: time})
-
-      Highcharts.setOptions({
-        chart: { type:  'line', height:300, width:1560,  styledMode: true},   
-        xAxis: { categories: time, tickInterval:2,labels: {align:'center'},crosshair: {width: 2}}, 
-        yAxis: { title: { text: '' },min:0,  }, 
-        plotOptions: { line: { marker: { enabled: false }}, series:{ color : 'rgb(0, 169, 255)'} }, // sky blue 00CCFF
-        title: { text:null, margin:40, align:'left',style:{fontSize:'12',fontWeight:'none'}},
-        legend: { align: 'right', verticalAlign: 'top', layout: 'vertical', x: 0, y: 100, },
-        tooltip : { shared:true, },
-      })
-
-      if(graphHwName.includes("CPU Processor (%)")) {
-        const array = [];  // HW 이름
-        hwSearchName.forEach(h => { if(h.id === 1) {  array.push(h.name); }})
-        const obj= {};
-
-        obj.key="chart_1_"+i
-        obj.yAxis = { max:100, tickInterval:20   } 
-        const testData = [0, 0, 0,0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 0, 0, 0, 0, 0, 0]
-        obj.series = [{data: testData  }]
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=deviceName[i]+'_1' 
-        configArray.push(obj);
-        
-      }
-      if(graphHwName.includes("CPU Used (%)")) {
-        const array = [];
-        hwSearchName.forEach(h => { if(h.id === 2) { array.push(h.name); }})
-        const obj = {};
-        obj.key="chart_2_"+i
-        obj.yAxis = { max:100, tickInterval:20  } 
-        obj.series = [{data: cpuUser}]
-        obj.title= {text :'<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+''}
-        obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=deviceName[i]+'_2' 
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("CPU Context Switch")) {
-        const array = [];
-        hwSearchName.forEach(h => { if(h.id === 3) { array.push(h.name); }})
-        const obj = {};
-        obj.key="chart_3_"+i
-        obj.series = [{data: cpuContextSwitch}]
-        obj.title= {text :'<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+''}
-        obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=deviceName[i]+'_3' 
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("CPU Run Queue")) {
-        const array = [];
-        hwSearchName.forEach(h => { if(h.id === 4) { array.push(h.name); }})
-        const obj = {};
-        obj.key="chart_4_"+i
-        obj.series = [{data: cpuRunQueue}]
-        obj.title= {text :'<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+''}
-        obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=deviceName[i]+'_4'
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Load Avg")) {
-        const array = [];
-        hwSearchName.forEach(h => { if(h.id === 6) { array.push(h.name); }})
-        const obj = {};
-        obj.key="chart_6_"+i
-        obj.series = [{data: cpuLoadAvg}]
-        obj.title= {text :'<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+''}
-        obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=deviceName[i]+'_6'
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Memory Used (%)")) {
-        const obj= {};
-        const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 7) {  array.push(h.name); }})
-        obj.key="chart_7_"+i
-        obj.yAxis = { max:100, tickInterval:20  } 
-        obj.series = [{data: memoryUsedPercentage  }]
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=deviceName[i]+'_7'
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Memory Bytes")) {
-        const unitData = [];
-        for(var e=0; e< memoryBytes.length; e++) {
-          var q = Math.floor( Math.log(memoryBytes[e]) / Math.log(1024) );
-          var unit = ['B', 'kB', 'MB', 'GB'][q];
-          unitData.push(Number(( memoryBytes[e] / Math.pow(1024, q) ).toFixed(0)));
-        }
-        const obj= {};
-        const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 8) {  array.push(h.name); }})
-        obj.key="chart_8_"+i
-        obj.series = [{data:  unitData}]
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=deviceName[i]+'_8'
-        obj.bytes=memoryBytes;
-        obj.unit=unit;
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Memory Buffers (%)")) {
-        const obj= {};
-        const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 9) {  array.push(h.name); }})
-        obj.key="chart_9_"+i
-        obj.yAxis = { max:100, tickInterval:20  } 
-        obj.series = [{data: memoryBuffersPercentage  }]
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=deviceName[i]+'_9'
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Memory Buffers Bytes")) {
-        const unitData = [];
-        for(var e=0; e< memoryBuffersPercentage.length; e++) {
-          if(memoryBuffersPercentage[0]  !== 0  ) { var q = Math.floor( Math.log(memoryBuffersPercentage[0] ) / Math.log(1024)); }
-          var unit = ['B', 'kB', 'MB', 'GB'][q];
-          unitData.push(Number(( memoryBuffersPercentage[e] / Math.pow(1024, q) ).toFixed(0)));
-        }
-        const obj= {};
-        const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 10) {  array.push(h.name); }})
-        obj.key="chart_10_"+i
-        obj.series = [{data: unitData    }]
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=deviceName[i]+'_10' 
-        obj.bytes=memoryBuffersPercentage;
-        obj.unit=unit;
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Memory Cached (%)")) {
-        const obj= {};
-        const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 11) {  array.push(h.name); }})
-        obj.key="chart_11_"+i
-        obj.yAxis = { max:100, tickInterval:20  }
-        obj.series = [{data: memoryCachedPercentage  }]
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=deviceName[i]+'_11' 
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Memory Cached Bytes")) {
-        const unitData = [];
-        for(var e=0; e< memoryCached.length; e++) {
-          var q = Math.floor( Math.log(memoryCached[e]) / Math.log(1024) );
-          var unit = ['B', 'kB', 'MB', 'GB'][q];
-          unitData.push(Number(( memoryCached[e] / Math.pow(1024, q) ).toFixed(0)));
-        }
-        const obj= {};
-        const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 12) {  array.push(h.name); }})
-        obj.key="chart_12_"+i
-        obj.series = [{data: unitData   }]
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=deviceName[i]+'_12' 
-        obj.bytes=memoryCached;
-        obj.unit=unit;
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Memory Shared (%)")) {
-        const obj= {};
-        const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 13) {  array.push(h.name); }})
-        obj.key="chart_13_"+i
-        obj.yAxis = { max:100, tickInterval:20  } 
-        obj.series = [{data: memorySharedPercentage  }]
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=deviceName[i]+'_13'
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Memory Shared Bytes")) {
-        const unitData = [];
-        for(var e=0; e< memoryShared.length; e++) {
-          var q = Math.floor( Math.log(memoryShared[e]) / Math.log(1024) );
-          var unit = ['B', 'kB', 'MB', 'GB'][q];
-          unitData.push(Number(( memoryShared[e] / Math.pow(1024, q) ).toFixed(0)));
-        }
-        const obj= {};
-        const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 14) {  array.push(h.name); }})
-        obj.key="chart_14_"+i
-        obj.series = [{data: unitData }]
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=deviceName[i]+'_14' 
-        obj.bytes=memoryShared;
-        obj.unit=unit;
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Memory Swap (%)")) {
-        const obj= {};
-        const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 15) {  array.push(h.name); }})
-        obj.key="chart_15_"+i
-        obj.yAxis = { max:100, tickInterval:20  }
-        obj.series = [{data: memorySwapPercentage  }]
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=deviceName[i]+'15' 
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Memory Swap Bytes")) {
-        const unitData = [];
-        for(var e=0; e< memorySwap.length; e++) {
-          var q = Math.floor( Math.log(memorySwap[e]) / Math.log(1024) );
-          var unit = ['B', 'kB', 'MB', 'GB'][q];
-          unitData.push(Number(( memorySwap[e] / Math.pow(1024, q) ).toFixed(0)));
-        }
-        const obj= {};
-        const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 16) {  array.push(h.name); }})
-        obj.key="chart_16_"+i
-        obj.series = [{data: unitData }]
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=deviceName[i]+'_16' 
-        obj.bytes=memorySwap;
-        obj.unit=unit;
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Memory Pagefault (%)")) {
-        const obj= {};
-        const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 17) {  array.push(h.name); }})
-        obj.key="chart_17_"+i
-        obj.yAxis = { max:100, tickInterval:20  }
-        obj.series = [{data: memoryPagefault  }]
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=deviceName[i]+'_17'
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Disk Total Used (%)")) {
-        const obj= {};
-        const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 18) {  array.push(h.name); }})
-        obj.key="chart_18_"+i
-        obj.yAxis = { max:100, tickInterval:20  }
-        obj.series = [{data: diskTotalUsedPercentage   }]
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=deviceName[i]+'_18' 
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Disk Total Used Bytes")) {
-        const unitData = [];
-        for(var e=0; e< diskTotalUsedBytes.length; e++) {
-          var q = Math.floor( Math.log(diskTotalUsedBytes[e]) / Math.log(1024) );
-          var unit = ['B', 'kB', 'MB', 'GB'][q];
-          unitData.push(Number(( diskTotalUsedBytes[e] / Math.pow(1024, q) ).toFixed(0)));
-        }
-        const obj= {};
-        const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 19) {  array.push(h.name); }})
-        obj.key="chart_19_"+i
-        obj.series = [{data: unitData  }]
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.legend={ labelFormat : deviceName[i]}
-        obj.totalName=deviceName[i]+'19'
-        obj.bytes=diskTotalUsedBytes;
-        obj.unit=unit;
-        configArray.push(obj);
-      }
-      console.log(diskUsedBytes);
-      if(graphHwName.includes("Disk Used (%)")) {
-        const obj= {};
-        const array = [];  
-        const diskData = [];
-        const gridData = [];  // 단위가 변환된 데이터
-        const diskGridData = []; 
-        hwSearchName.forEach(h => { if(h.id === 20) {  array.push(h.name); }})
-        for(var z=0; z<partitionLabel.length; z++) {
-          const obj2={};
-          console.log(diskUsedPercentage);
-          obj2.data=diskUsedPercentage[z];
-          if(z === 1)      { obj2.color= 'rgb(255,184,64)'; } 
-          else if(z === 2) { obj2.color = 'red' }
-          obj2.name = partitionLabel[z];
-          diskData.push(obj2);
-          gridData.push(diskUsedPercentage[z])
-        }
-        for(var x=0; x<partitionLabel.length; x++) {
-          if(diskGridData.length === 0) {
-            const obj = {};
-            obj[partitionLabel[x]] = gridData[x]
-            obj[partitionLabel[x+1]] = gridData[x+1]
-            obj[partitionLabel[x+2]] = gridData[x+2]
-            obj[partitionLabel[x+3]] = gridData[x+3]
-            obj[partitionLabel[x+4]] = gridData[x+4]
-            obj[partitionLabel[x+5]] = gridData[x+5]
-            obj[partitionLabel[x+6]] = gridData[x+6]
-            obj[partitionLabel[x+7]] = gridData[x+7]
-            obj[partitionLabel[x+8]] = gridData[x+8]
-            obj[partitionLabel[x+9]] = gridData[x+9]
-            diskGridData.push(obj)
-          }
-        }
-        obj.series = diskData
-        obj.key="chart_20_"+i
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.data=diskGridData;
-        obj.totalName=deviceName[i]+'_20'
-        obj.yAxis = { max:100, tickInterval:20  }
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Disk Used Bytes")) {
-        const obj= {};
-        const array = [];  
-        const diskData = [];
-        const unitData = [];
-        const gridData = [];  // 단위가 변환된 데이터
-        const diskGridData = []; 
-
-        hwSearchName.forEach(h => { if(h.id === 21) {  array.push(h.name); }})
-        for(var z=0; z<partitionLabel.length; z++) {
-          const obj2={};
-          obj2.data=diskUsedBytes[z];
-          diskData.push(obj2);
-        }
-        for(var l=0; l<partitionLabel.length; l++) {
-          const udata =[];
-          for(var e=0; e< diskData[0].data.length; e++) {
-            var q= Math.floor(Math.log(diskData[l].data[e]) / Math.log(1024));    
-            var unit = ['B', 'kB', 'MB', 'GB'][q];
-            udata.push(Number((diskData[l].data[e]/ Math.pow(1024, q)).toFixed(0)))
-          }
-          const obj3={};
-          obj3.data = udata
-          obj3.name = partitionLabel[l]
-          obj3.length = l;
-          if(l === 1)      { obj3.color= 'rgb(255,184,64)'; } 
-          else if(l === 2) { obj3.color = 'red' }
-          unitData.push(obj3)
-          gridData.push(udata)
-        }
-        for(var x=0; x<partitionLabel.length; x++) {
-          if(diskGridData.length === 0) {
-            const obj = {};
-            obj[partitionLabel[x]] = gridData[x]
-            obj[partitionLabel[x+1]] = gridData[x+1]
-            obj[partitionLabel[x+2]] = gridData[x+2]
-            obj[partitionLabel[x+3]] = gridData[x+3]
-            obj[partitionLabel[x+4]] = gridData[x+4]
-            obj[partitionLabel[x+5]] = gridData[x+5]
-            obj[partitionLabel[x+6]] = gridData[x+6]
-            obj[partitionLabel[x+7]] = gridData[x+7]
-            obj[partitionLabel[x+8]] = gridData[x+8]
-            obj[partitionLabel[x+9]] = gridData[x+9]
-            diskGridData.push(obj)
-          }
-        }
-        obj.series = unitData
-        obj.key="chart_21_"+i
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.data=diskGridData;  // [ { /dev: [array24] ,/boot: [array24] , /: [array24] ,  }]
-        obj.bytes=diskData;  // [ { data : [array24], { data : [array24], { data : [array24], }]
-        obj.unit=unit;
-        obj.totalName=deviceName[i]+'_21' 
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Disk I/O (%)")) {
-        const obj= {};
-        const array = [];  
-        const gridData = [];  // 단위가 변환된 데이터
-        const diskGridData = []; 
-        hwSearchName.forEach(h => { if(h.id === 22) {  array.push(h.name); }})
-        
-        const diskData = [];
-        for(var z=0; z<partitionLabel.length; z++) {
-          const obj2={};
-          obj2.data=diskIoPercentage[z];
-          if(z === 1)      { obj2.color= 'rgb(255,184,64)'; } 
-          else if(z === 2) { obj2.color = 'red' }
-          obj2.name = partitionLabel[z];
-          diskData.push(obj2);
-          gridData.push(diskIoPercentage[z])
-        }
-        for(var x=0; x<partitionLabel.length; x++) {
-          if(diskGridData.length === 0) {
-            const obj = {};
-            obj[partitionLabel[x]] = gridData[x]
-            obj[partitionLabel[x+1]] = gridData[x+1]
-            obj[partitionLabel[x+2]] = gridData[x+2]
-            obj[partitionLabel[x+3]] = gridData[x+3]
-            obj[partitionLabel[x+4]] = gridData[x+4]
-            obj[partitionLabel[x+5]] = gridData[x+5]
-            obj[partitionLabel[x+6]] = gridData[x+6]
-            obj[partitionLabel[x+7]] = gridData[x+7]
-            obj[partitionLabel[x+8]] = gridData[x+8]
-            obj[partitionLabel[x+9]] = gridData[x+9]
-            diskGridData.push(obj)
-          }
-        }
-        obj.series = diskData
-        obj.key="chart_22_"+i
-        obj.yAxis = { max:100, tickInterval:20  }
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.data=diskGridData;
-        obj.totalName=deviceName[i]+'_22' 
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Disk I/O Count")) {
-        const obj= {};
-        const array = []; 
-        const diskData = [];
-        const gridData = [];  // 단위가 변환된 데이터
-        const diskGridData = [];  
-        hwSearchName.forEach(h => { if(h.id === 23) {  array.push(h.name); }})
-        for(var z=0; z<partitionLabel.length; z++) {
-          const obj2={};
-          obj2.data=diskIoCount[z];
-          if(z === 1)      { obj2.color= 'rgb(255,184,64)'; } 
-          else if(z === 2) { obj2.color = 'red' }
-          obj2.name = partitionLabel[z];
-          diskData.push(obj2);
-          gridData.push(diskIoCount[z])
-        }
-        for(var x=0; x<partitionLabel.length; x++) {
-          if(diskGridData.length === 0) {
-            const obj = {};
-            obj[partitionLabel[x]] = gridData[x]
-            obj[partitionLabel[x+1]] = gridData[x+1]
-            obj[partitionLabel[x+2]] = gridData[x+2]
-            obj[partitionLabel[x+3]] = gridData[x+3]
-            obj[partitionLabel[x+4]] = gridData[x+4]
-            obj[partitionLabel[x+5]] = gridData[x+5]
-            obj[partitionLabel[x+6]] = gridData[x+6]
-            obj[partitionLabel[x+7]] = gridData[x+7]
-            obj[partitionLabel[x+8]] = gridData[x+8]
-            obj[partitionLabel[x+9]] = gridData[x+9]
-            diskGridData.push(obj)
-          }
-        }
-        obj.series = diskData
-        obj.key="chart_23_"+i
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.data=diskGridData;
-        obj.totalName=deviceName[i]+'_23' 
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Disk I/O Bytes")) {
-        const obj= {};
-        const array = [];  
-        const diskData = [];
-        const unitData = [];
-        const gridData = [];  // 단위가 변환된 데이터
-        const diskGridData = []; 
-        hwSearchName.forEach(h => { if(h.id === 24) {  array.push(h.name); }})
-
-        for(var z=0; z<partitionLabel.length; z++) {
-          const obj2={};
-          obj2.data=diskIoBytes[z];
-          diskData.push(obj2);
-        }
-        for(var l=0; l<partitionLabel.length; l++) {
-          const udata =[];
-          for(var e=0; e< diskData[0].data.length; e++) {
-            var q= Math.floor(Math.log(diskData[l].data[e]) / Math.log(1024));    
-            var unit = ['B', 'kB', 'MB', 'GB'][q];
-            udata.push(Number((diskData[l].data[e]/ Math.pow(1024, q)).toFixed(0)))
-          }
-          const obj3={};
-          obj3.data = udata
-          obj3.name = partitionLabel[l]
-          if(l === 1)      { obj3.color= 'rgb(255,184,64)'; } 
-          else if(l === 2) { obj3.color = 'red' }
-          unitData.push(obj3)
-          gridData.push(udata)
-        }
-        for(var x=0; x<partitionLabel.length; x++) {
-          if(diskGridData.length === 0) {
-            const obj = {};
-            obj[partitionLabel[x]] = gridData[x]
-            obj[partitionLabel[x+1]] = gridData[x+1]
-            obj[partitionLabel[x+2]] = gridData[x+2]
-            obj[partitionLabel[x+3]] = gridData[x+3]
-            obj[partitionLabel[x+4]] = gridData[x+4]
-            obj[partitionLabel[x+5]] = gridData[x+5]
-            obj[partitionLabel[x+6]] = gridData[x+6]
-            obj[partitionLabel[x+7]] = gridData[x+7]
-            obj[partitionLabel[x+8]] = gridData[x+8]
-            obj[partitionLabel[x+9]] = gridData[x+9]
-            diskGridData.push(obj)
-          }
-        }
-        obj.series = unitData
-        obj.key="chart_24_"+i
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'' }
-        obj.data=diskGridData;
-        obj.bytes=diskData;
-        obj.unit=unit;
-        obj.totalName=deviceName[i]+'_24'
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Disk Queue")) {
-        const obj= {};
-        const array = [];  
-        const diskData = [];
-        const gridData = [];  // 단위가 변환된 데이터
-        const diskGridData = [];  
-        hwSearchName.forEach(h => { if(h.id === 25) {  array.push(h.name); }})
-        for(var z=0; z<partitionLabel.length; z++) {
-          const obj2={};
-          obj2.data=diskQueue[z];
-          if(z === 1)      { obj2.color= 'rgb(255,184,64)'; } 
-          else if(z === 2) { obj2.color = 'red' }
-          obj2.name = partitionLabel[z];
-          diskData.push(obj2);
-          gridData.push(diskQueue[z])
-        }
-        for(var x=0; x<partitionLabel.length; x++) {
-          if(diskGridData.length === 0) {
-            const obj = {};
-            obj[partitionLabel[x]] = gridData[x]
-            obj[partitionLabel[x+1]] = gridData[x+1]
-            obj[partitionLabel[x+2]] = gridData[x+2]
-            obj[partitionLabel[x+3]] = gridData[x+3]
-            obj[partitionLabel[x+4]] = gridData[x+4]
-            obj[partitionLabel[x+5]] = gridData[x+5]
-            obj[partitionLabel[x+6]] = gridData[x+6]
-            obj[partitionLabel[x+7]] = gridData[x+7]
-            obj[partitionLabel[x+8]] = gridData[x+8]
-            obj[partitionLabel[x+9]] = gridData[x+9]
-            diskGridData.push(obj)
-          }
-        }
-        obj.series = diskData
-        obj.key="chart_25_"+i
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'', }
-        obj.data=diskGridData;
-        obj.totalName=deviceName[i]+'_26'
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Network Traffic")) {
-        const unitData =  [{ in:[], out:[] }];
-        for(var e=0; e< networkTraffic[0].in.length; e++) {
-          // 값이 0 일 때 나눌 수 없어 nan 뜨는 예외처리
-          if(networkTraffic[0].in[e] !== 0  ) { var q = Math.floor( Math.log(networkTraffic[0].in[e]) / Math.log(1024)); }
-          if(networkTraffic[0].out[e]  !== 0 ) { var w = Math.floor( Math.log(networkTraffic[0].out[e]) / Math.log(1024) ); }
-          var unit = ['B', 'kB', 'MB', 'GB'][q];
-          unitData[0].in.push(Number(( networkTraffic[0].in[e] / Math.pow(1024, q) ).toFixed(0)));
-          unitData[0].out.push(Number(( networkTraffic[0].out[e] / Math.pow(1024, w) ).toFixed(0)));
-        }
-        const obj= {};
-        const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 26) {  array.push(h.name); }})
-        obj.key="chart_26_"+i
-        obj.series = [{data: unitData[0].in, name: 'RX'},{ data: unitData[0].out, name:'TX', color:'rgb(255, 184, 64)'}]
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'', }
-        obj.data = unitData;
-        obj.bytes = networkTraffic;
-        obj.unit=unit;
-        obj.totalName=deviceName[i]+'_27'
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("Network PPS")) {
-        const unitData =  [{ in:[], out:[] }];
-        for(var e=0; e< networkPps[0].in.length; e++) {
-          if(networkPps[0].in[e] !== 0  ) { var q = Math.floor( Math.log(networkPps[0].in[e]) / Math.log(1024)); }
-          if(networkPps[0].out[e]  !== 0 ) { var w = Math.floor( Math.log(networkPps[0].out[e]) / Math.log(1024) ); }
-          var unit = ['B', 'kB', 'MB', 'GB'][q];
-          unitData[0].in.push(Number(( networkPps[0].in[e] / Math.pow(1024, q) ).toFixed(0)));
-          unitData[0].out.push(Number(( networkPps[0].out[e] / Math.pow(1024, w) ).toFixed(0)));
-        }
-        const obj= {};
-        const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 27) {  array.push(h.name); }})
-        obj.key="chart_27_"+i
-        obj.yAxis = { max:100, tickInterval:20  }
-        obj.series = [{data: unitData[0].in, name: 'RX'},{ data: unitData[0].out, name:'TX', color:'rgb(255, 184, 64)'}]
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'', }
-        obj.data = unitData;
-        obj.bytes = networkPps;
-        obj.unit=unit;
-        obj.totalName=deviceName[i]+'_28'
-        configArray.push(obj);
-      }
-      if(graphHwName.includes("NIC Discards")) {
-        const unitData =  [{ in:[], out:[] }];
-        for(var e=0; e< nicDiscards[0].in.length; e++) {
-          if(nicDiscards[0].in[e] !== 0  ) { var q = Math.floor( Math.log(nicDiscards[0].in[e]) / Math.log(1024)); }
-          if(nicDiscards[0].out[e]  !== 0 ) { var w = Math.floor( Math.log(nicDiscards[0].out[e]) / Math.log(1024) ); }
-          var unit = ['B', 'kB', 'MB', 'GB'][q];
-          unitData[0].in.push(Number(( nicDiscards[0].in[e] / Math.pow(1024, q) ).toFixed(0)));
-          unitData[0].out.push(Number(( nicDiscards[0].out[e] / Math.pow(1024, w) ).toFixed(0)));
-        }
-        const obj= {};
-        const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 28) {  array.push(h.name); }})
-        obj.key="chart_28_"+i
-        obj.yAxis = { max:100, tickInterval:20  }
-        obj.series = [{data: unitData[0].in, name: 'RX'},{ data: unitData[0].out, name:'TX', color:'rgb(255, 184, 64)'}]
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'', }
-        obj.data = unitData;
-        obj.bytes = nicDiscards;
-        obj.unit=unit;
-        obj.totalName=deviceName[i]+'_29'
-        configArray.push(obj);
-      } 
-      if(graphHwName.includes("NIC Errors")) {
-        const unitData =  [{ in:[], out:[] }];
-        for(var e=0; e< nicErrors[0].in.length; e++) {
-          if(nicErrors[0].in[e] !== 0  ) { var q = Math.floor( Math.log(nicErrors[0].in[e]) / Math.log(1024)); }
-          if(nicErrors[0].out[e]  !== 0 ) { var w = Math.floor( Math.log(nicErrors[0].out[e]) / Math.log(1024) ); }
-          var unit = ['B', 'kB', 'MB', 'GB'][q];
-          unitData[0].in.push(Number(( nicErrors[0].in[e] / Math.pow(1024, q) ).toFixed(0)));
-          unitData[0].out.push(Number(( nicErrors[0].out[e] / Math.pow(1024, w) ).toFixed(0)));
-        }
-        const obj= {};
-        const array = [];  
-        hwSearchName.forEach(h => { if(h.id === 29) {  array.push(h.name); }})
-        obj.key="chart_29_"+i
-        obj.yAxis = { max:100, tickInterval:20  }
-        obj.series = [{data: unitData[0].in, name: 'RX'},{ data: unitData[0].out, name:'TX', color:'rgb(255, 184, 64)'}]
-        obj.title={text : '<span style="font-weight: bold; font-size:18px;">'+array+'</span> / '+graphStartDate+'∽'+graphEndDate+', '+deviceName[i]+'', }
-        obj.data = unitData;
-        obj.bytes = nicErrors;
-        obj.unit=unit;
-        obj.totalName=deviceName[i]+'_30'
-        configArray.push(obj);
-      } 
-      
-      console.log(configArray);
-    }
-    for(var k=0; k< this.state.totalKey.length; k++) {
-      seriesGrid.splice(0, 1);
-      seriesColumn.splice(0, 1);
-    }
-      this.setState({
-        graphCheck:true,
-        config:configArray,
-        totalKey: [],
-        totalData:[],
-        chartColumnDefs:[],
-        totalName:[],
-        loader:false
-      })
-    })
- }
-
- /* Line && Bar 변경 */
- inputChartLineBar = (e,c,i) => {
-   console.log(c);
-   if(e.target.value === 'line') {
-     c.chart = {type: 'line'};
-   } else if(e.target.value === 'bar') {
-     c.chart={type: 'column'};
-   }
-   this.setState({config:[...this.state.config]})  
-}
-
-/* bytes 단위 변환 */
-inputChartBytes = (e,c,i) => {
-  const { partitionLabel } = this.state; 
-  console.log(c);
-  const changeBytes = [];
-  const bytes = [];
-  const changeData = [];
-  const changeGridData = []; // 파티션의 길이를 넓히기 위한 변수
-  
-  c.bytes.forEach((f,i) => {
-    console.log(f);
-      if(c.series.length === 1) {
-        bytes.push(f)
-      } else if(c.series.length === 3) {
-        const obj={};
-        if(e.target.value === 'bps') {
-          const datas = [];
-          for(var y=0; y< f.data.length; y++) { datas.push(Number((f.data[y] * 8).toFixed(0))); }
-          obj.data = datas;
-          changeData.push(obj)
-          changeGridData.push(datas)
-        } else if(e.target.value === 'B') {
-          const datas = [];
-          for(var y=0; y< f.data.length; y++) { datas.push(f.data[y]); }
-          obj.data = datas;
-          changeData.push(obj)
-          changeGridData.push(datas)
-        } else if(e.target.value === 'KB') {
-          const datas = [];
-          for(var y=0; y< f.data.length; y++) { datas.push(Number((f.data[y] / 1024).toFixed(0)));  }
-          obj.data = datas;
-          changeData.push(obj)
-          changeGridData.push(datas)
-        } else if(e.target.value === 'MB') {
-          const datas = [];
-          for(var y=0; y< f.data.length; y++) {datas.push(Number((f.data[y] / 1024/ 1024).toFixed(0))); }
-          obj.data = datas;
-          changeData.push(obj)
-          changeGridData.push(datas)
-        } else if(e.target.value === 'GB') {
-          const datas = [];
-          for(var y=0; y< f.data.length; y++) { datas.push(Number((f.data[y] / 1024/ 1024/ 1024).toFixed(0))); }
-          obj.data = datas;
-          changeData.push(obj)
-          changeGridData.push(datas)
-        }
-        obj.name = partitionLabel[i]
-        if(i === 1)   { obj.color= 'rgb(255,184,64)'; } 
-        else if(i === 2) { obj.color = 'red' }
-      }
-  })
-  
-  if(c.series.length === 3) {
-    c.series = changeData;
-
-    /* 단위 변경 후 data 초기화 */
-    const diskGridData = [];
-    for(var x=0; x<partitionLabel.length; x++) {
-      if(diskGridData.length === 0) {
-        const obj = {};
-        obj[partitionLabel[x]] = changeGridData[x]
-        obj[partitionLabel[x+1]] = changeGridData[x+1]
-        obj[partitionLabel[x+2]] = changeGridData[x+2]
-        obj[partitionLabel[x+3]] = changeGridData[x+3]
-        obj[partitionLabel[x+4]] = changeGridData[x+4]
-        obj[partitionLabel[x+5]] = changeGridData[x+5]
-        obj[partitionLabel[x+6]] = changeGridData[x+6]
-        obj[partitionLabel[x+7]] = changeGridData[x+7]
-        obj[partitionLabel[x+8]] = changeGridData[x+8]
-        obj[partitionLabel[x+9]] = changeGridData[x+9]
-        diskGridData.push(obj)
-      }
-    }
-    c.data = diskGridData;
-  }
-  c.unit = e.target.value;
-
-  /* cpu 단위 변환  */ 
-  c.series.forEach(d => {
-    if(c.series.length === 1) {
-     for(var i=0; i<d.data.length; i++) {
-        if(e.target.value === 'bps') {
-          changeBytes.push(Number((bytes[i] * 8).toFixed(0)))
-        } else if(e.target.value === 'B') {
-          changeBytes.push(bytes[i])
-        } else if(e.target.value === 'KB') {
-          changeBytes.push(Number((bytes[i] / 1024).toFixed(0)))        
-        } else if(e.target.value === 'MB') {
-          changeBytes.push(Number((bytes[i] / 1024 / 1024).toFixed(0)))        
-        } else if(e.target.value === 'GB') {
-          changeBytes.push(Number((bytes[i] / 1024 / 1024 / 1024).toFixed(0)))        
-        }
-      } 
-       d.data=changeBytes;
-    }
-  })
-
-  if(this.state.totalKey.includes(c.key)) {
-    this.chartTotalCheckSecond(e,c,i);
-    this.setState({config:[...this.state.config] })
-    
-  } else {
-    this.setState({config:[...this.state.config] })
-  }
-}
-
-/* disk && network 단위 변환 */
-inputChartTime = (e,c,i) => {
-  console.log(c);
-  const { totalKey } = this.state;
-  const changeBytes = [];
-  const data = [];
-  const value = [];
-  const value1 = [];
-  c.bytes.forEach(f => {
-    for(var y=0; y<f.in.length; y++) {
-       if(e.target.value === 'bps' || e.target.value === 'pps') {
-        value.push(f.in[y])
-        value1.push(f.out[y])
-      } else if(e.target.value === 'Kbps' || e.target.value === 'Kpps') {
-        value.push(Number((f.in[y] / 1024).toFixed(0)))
-        value1.push(Number((f.out[y] / 1024).toFixed(0)))   
-      } else if(e.target.value === 'Mbps' || e.target.value === 'Mpps') {
-        value.push(Number((f.in[y] / 1024 / 1024).toFixed(0)))
-        value1.push(Number((f.out[y] / 1024 / 1024).toFixed(0)))        
-      } else if(e.target.value === 'Gbps' || e.target.value === 'Gpps' ) {
-        value.push(Number((f.in[y] / 1024 / 1024 / 1024).toFixed(0)))
-        value1.push(Number((f.out[y] / 1024 / 1024 / 1024).toFixed(0)))
-      }
-    }
-  })
-    const obj ={};
-    const obj1= {};
-    const objData = {};
-
-    obj.data = value;
-    obj.name = 'RX';
-    obj1.data = value1;
-    obj1.name = 'TX';
-    obj1.color = 'rgb(255, 184, 64)';
-    changeBytes.push(obj,obj1)
-
-    objData.in = value;
-    objData.out = value1;
-    data.push(objData);
-
-    c.series = changeBytes;
-    c.data=data;
-    c.unit = e.target.value;
-
-    if(totalKey.includes(c.key)) {
-      this.chartTotalCheckSecond(e,c,i);
-      this.setState({config:[...this.state.config] })
-      
-    } else {
-      this.setState({config:[...this.state.config] })
-    }
-    
-}
- /* 최대치 기준 */
- maxStandred = (e,c) => {
-  var seriesData = [];
-  c.series.forEach(d => {
-    seriesData.push(d.data)
-  })
-  if(e.target.checked == true) {
-    var max = Math.max(...seriesData[0]);
-    c.yAxis={max:max}
-  } else {
-    c.yAxis={max:100,tickInterval:20}
-  } 
-  this.setState({inputMaxCheck:e.target.checked})
- }
-
- /* 차트 통계 */
- chartTotalCheck = (e,c,i) => {
-   const { timeChart, totalKey, totalName,partitionLabel  } = this.state;
-   console.log(c);
-
-   if(totalKey.length >= 0 && !totalKey.includes(c.key)) {
-    var seriesData = [];
-    const totalTime = [];
-    timeChart.forEach(t => {
-        totalTime.push(t);
-    })
-    if(!totalTime.includes('Max')) {
-      totalTime.push('Max')
-      totalTime.push('Min')
-      totalTime.push('Avg')
-    }
- 
-    var data = [];
-    c.series.forEach(s => {
-       data.push(s.data)
-    })
-    const dataLength = [];
-    dataLength.push(data[0].length)
-
-    /* 최대값, 최소값, 평균 */
-    if(c.data === undefined ) {
-      data[0].push(Math.max(...data[0]))
-      data[0].push(Math.min(...data[0]))
-      const avg = data[0].reduce((a,b) => a+b, 0) / data[0].length;
-      data[0].push(avg.toFixed(0))
-    } else {
-      for(var w=0; w < c.series.length; w++) {
-        data[w].push(Math.max(...data[w]))
-        data[w].push(Math.min(...data[w]))
-        const avg = data[w].reduce((a,b) => a+b, 0) / data[w].length;
-        data[w].push(avg.toFixed(0))
-      }
-    }
-    
-    /* line 1개일 경우 */
-    c.series.forEach(d => {
-        if(c.series.length === 1 ) {
-          const array = [];
-          for(var i=0; i < totalTime.length; i++) {
-            const obj = {};
-            obj.time = totalTime[i];
-            obj.value = d.data[i];
-            array.push(obj);
-          }
-          seriesGrid.push(array)
-        } 
-    })
-
-    /* line 2~3개일 경우 */
-    if(c.data !== undefined) {
-      const array2 = [];
-      c.data.forEach(e => {
-        
-        for(var i=0; i< totalTime.length; i++) {
-          if(c.series.length === 2) {
-            const obj = {};
-            obj.time = totalTime[i];
-            obj.in = e.in[i];
-            obj.out = e.out[i];
-            obj.total = Number(e.in[i]) +Number( e.out[i])
-            array2.push(obj);
-          }  else if(c.series.length === 3) {
-            const obj = {};
-            obj.time = totalTime[i];
-            for(var x=0; x< partitionLabel.length; x++) {
-              obj[partitionLabel[x]]= e[partitionLabel[x]][i]
-            }
-            array2.push(obj);
-          }
-        }
-      })
-      seriesGrid.push(array2)
-    }
-   
-  const diskTotalData=[]
-  diskTotalData.push({headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' }})
-  partitionLabel.map((i,p) => {
-    diskTotalData.push({
-      headerName:partitionLabel[p] ,
-      valueFormatter: params => {
-        if(c.unit !== undefined) {
-       return  params.data[partitionLabel[p]]+' '+c.unit
-      } else if(c.yAxis !== undefined) {
-        return params.data[partitionLabel[p]]+' '+'%'
-      } else {
-        return params.data[partitionLabel[p]]
-      }
-    },
-      type: 'rightAligned', 
-      headerClass: "grid-cell-left" 
-    })
-  })
-  const columnDefs = c.series.length === 1  ?   ([
-    {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-    {headerName: c.legend.labelFormat ,type: 'rightAligned', headerClass: "grid-cell-left",
-    valueFormatter: params =>  {
-      if(c.yAxis !== undefined) {
-        return params.data.value+'%' 
-      } else if(c.unit !== undefined) {
-        return params.data.value+c.unit
-      } else {
-        return params.data.value
-      }
-    }}
-    ]) :  ( diskTotalData )
-
-  const columnDefsNetwork = [
-      {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-      {headerName:'RX' ,valueFormatter: params => c.unit !== undefined ? params.data.in+' '+c.unit : params.data.in,  type: 'rightAligned', headerClass: "grid-cell-left" },
-      {headerName:'TX' ,valueFormatter: params => c.unit !== undefined ? params.data.out+' '+c.unit : params.data.out,  type: 'rightAligned', headerClass: "grid-cell-left" },
-      {headerName:'Total' ,valueFormatter: params => c.unit !== undefined ? params.data.total+' '+c.unit : params.data.total,  type: 'rightAligned', headerClass: "grid-cell-left" },
-    ]
-  if(c.series.length !== 2) {
-    seriesColumn.push(columnDefs);
-  } else {
-    seriesColumn.push(columnDefsNetwork)
-  }
-  console.log(seriesColumn);
-  console.log(seriesGrid);
-    this.setState({
-      chartColumnDefs: seriesColumn,
-      totalData: seriesGrid,
-      totalKey:totalKey.concat(c.key),
-      totalName: totalName.concat(c.totalName) 
-    })
-    /* 데이터 초기화 */
-    for(var u=0; u< data.length; u++) {
-      data[u].length=dataLength
-    }
-   } 
-    else if(totalKey.includes(c.key)) {
-      console.log(totalKey.length);
-      console.log(seriesColumn.length);
-
-      this.setState({
-        totalKey: totalKey.filter(totalKey => totalKey !== c.key) ,
-        totalName: totalName.filter(totalName => totalName !== c.totalName) 
-      })  
-      console.log(totalKey.length);
-      seriesGrid.splice(totalKey.length-1, 1)
-      seriesColumn.splice(totalKey.length-1, 1)
-     }
-    
-}
-
- /* 단위 변화 차트 통계 */
- chartTotalCheckSecond = (e,c,i) => {
-  const { timeChart, totalKey,partitionLabel  } = this.state;
-  console.log(c);
-
-  if(totalKey.length >= 0 && totalKey.includes(c.key)) {
-    seriesGrid.splice(totalKey.length-1, 1)
-    seriesColumn.splice(totalKey.length-1, 1)
-
-   const totalTime = [];
-   timeChart.forEach(t => {
-       totalTime.push(t);
-   })
-   if(!totalTime.includes('Max')) {
-     totalTime.push('Max')
-     totalTime.push('Min')
-     totalTime.push('Avg')
-   }
-
-   var data = [];
-   c.series.forEach(s => {
-      data.push(s.data)
-   })
-   console.log(data);
-   const dataLength = [];
-   dataLength.push(data[0].length)
-
-   /* 최대값, 최소값 ,평균 */
-   if(c.data === undefined ) {
-     data[0].push(Math.max(...data[0]))
-     data[0].push(Math.min(...data[0]))
-     const avg = data[0].reduce((a,b) => a+b, 0) / data[0].length;
-     data[0].push(avg.toFixed(0))
-   } else {
-     for(var w=0; w < c.series.length; w++) {
-       console.log( Math.max(...data[w]));
-       data[w].push(Math.max(...data[w]))
-       data[w].push(Math.min(...data[w]))
-       const avg = data[w].reduce((a,b) => a+b, 0) / data[w].length;
-       data[w].push(avg.toFixed(0))
-     }
-   }
-
-   /* line 1개일 경우 */
-   c.series.forEach(d => {
-       if(c.series.length === 1 ) {
-        const array = [];
-         for(var i=0; i < totalTime.length; i++) {
-           const obj = {};
-           obj.time = totalTime[i];
-           obj.value = d.data[i];
-           array.push(obj)
-         }
-         seriesGrid.push(array)
-       } 
-   })
-
-
-   console.log(seriesGrid);
-   /* line 2~3개일 경우 */
-   if(c.data !== undefined) {
-     const array2=[];
-     c.data.forEach(e => {
-       for(var i=0; i< totalTime.length; i++) {
-         if(c.series.length === 2) {
-           const obj = {};
-           obj.time = totalTime[i];
-           obj.in = e.in[i];
-           obj.out = e.out[i];
-           obj.total = Number(e.in[i]) +Number( e.out[i])
-           array2.push(obj);
-         }  else if(c.series.length === 3) {
-           const obj = {};
-           obj.time = totalTime[i];
-           for(var x=0; x< partitionLabel.length; x++) {
-             obj[partitionLabel[x]]= e[partitionLabel[x]][i]
-           }
-           array2.push(obj);
-         }
-       }
-     })
-     seriesGrid.push(array2)
-   }
-
-const diskTotalData=[]
-diskTotalData.push({headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' }},)
-partitionLabel.map((i,p) => {
-  diskTotalData.push({
-    headerName:partitionLabel[p] ,
-    valueFormatter: params => {
-      if(c.unit !== undefined) {
-      return  params.data[partitionLabel[p]]+' '+c.unit
-    } else if(c.yAxis !== undefined) {
-      return params.data[partitionLabel[p]]+' '+'%'
-    } else {
-      return params.data[partitionLabel[p]]
-    }
-  },
-    type: 'rightAligned', 
-    headerClass: "grid-cell-left" })
-})
- const columnDefs = c.series.length === 1  ?   ([
-     {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-     {headerName: c.legend.labelFormat ,type: 'rightAligned', headerClass: "grid-cell-left",
-     valueFormatter: params =>  {
-       if(c.yAxis !== undefined) {
-         return params.data.value+' '+'%' 
-       } else if(c.unit !== undefined) {
-         return params.data.value+' '+c.unit
-       } else {
-         return params.data.value
-       }
-     }}
-     ]) :  ( diskTotalData )
-
- const columnDefsNetwork = [
-     {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
-     {headerName:'RX' ,valueFormatter: params => c.unit !== undefined ? params.data.in+' '+c.unit : params.data.in,  type: 'rightAligned', headerClass: "grid-cell-left" },
-     {headerName:'TX' ,valueFormatter: params => c.unit !== undefined ? params.data.out+' '+c.unit : params.data.out,  type: 'rightAligned', headerClass: "grid-cell-left" },
-     {headerName:'Total' ,valueFormatter: params => c.unit !== undefined ? params.data.total+' '+c.unit : params.data.total,  type: 'rightAligned', headerClass: "grid-cell-left" },
-   ]
-       
- if(c.series.length !== 2) {
-  seriesColumn.push(columnDefs);
-} else {
-  seriesColumn.push(columnDefsNetwork)
-}
- this.setState({
-  chartColumnDefs: seriesColumn,
-  totalKey:totalKey
-})
-this.gridApiChart.setRowData(seriesGrid[totalKey.length-1])
-   /* 데이터 초기화 */
-   for(var u=0; u< data.length; u++) {
-     data[u].length=dataLength
-   }
-  } 
-}
-
-
-
-diskValueFormatter = (c,params) => {
-   if(c.unit !== undefined) {
-    return params.data.href+' '+c.unit
-  } else if(c.yAxis !== undefined) {
-    return params.data.href+' '+'%'
-  } else {
-    return params.data.href
-  }
-}
-
-reload = () => {
-  for(var k=0; k< this.state.totalKey.length; k++) {
-    seriesGrid.splice(0, 1);
-    seriesColumn.splice(0, 1);
-  }
-    this.setState({
-      graphCheck:false,
-      config:[],
-      totalKey: [],
-      totalData:[],
-      chartColumnDefs:[],
-      totalName:[],
-      deviceSearchName:[],
-      hwSearchName:[],
-      firstDateFormat:Moment(oneMonth, "YYYY.MM.DD").format("YYYYMMDD"), 
-      secondDateFormat:Moment(oneMonth, "YYYY.MM.DD").format("YYYYMMDD"), 
-      calendarCheckFirst:false,
-      calendarCheckSecond:false,
-    })
-}
 
 
 
   render() {
-    const { buttonIdsArray,clickedId,calendarCheckFirst,calendarCheckSecond,date,firstDateFormat,secondDateFormat,firstTimeFormat,secondTimeFormat,filterCheck,
-      config,clickHwModel,hwColumnDefs,hwData,hwDefaultColDef,clickDeviceModel,deviceColumnDefs,deviceData,deviceDefaultColDef,buttonIdsDeviceArray,clickedDeviceId,
-      autoGroupColumnDef,deviceSearchName,hwSearchName,graphCheck,inputIdsChart,inputIdsChartDefault,inputIdsChartCheck,inputIdsChartType,inputMaxCheck,
-      chartColumnDefs,totalData,chartDefaultColDef,loader, totalKey, totalName,deviceId } =this.state;
-
+    const { loader, chartData, isResourceModal, isDeviceModal, selectedResourceName, selectedDeviceName, deviceData, calendarCheckFirst, calendarCheckSecond, 
+            date, totalKey, totalData, chartColumnDefs, firstDateFormat, secondDateFormat,firstTimeFormat,secondTimeFormat } = this.state;
+           
     const firstDateFormatInput = Moment(firstDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
     const secondDateFormatInput = Moment(secondDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
 
-    console.log(totalKey);
-    console.log(totalName);
-    console.log(config);
+      // console.log(chartData);
+      // console.log(totalKey);
+      // console.log(totalData);
+      // console.log(chartColumnDefs);
+      console.log(selectedResourceName.length);
 
     return (
       <>
-      <div className="reportResourceContainer" > 
-       <div className="reportHighTitleArea">
-        { 
-          buttonIdsArray.map((b,i) => (
-            <button key={i} className={i === clickedId ? "reportHighButtonAction" : "reportHighButton"} onClick={() => this.labelChange(i)} >
-              <label className={i === clickedId ? "reportHighLabelAction" : "reportHighLabel"} >
-                {b}
-              </label>
-            </button>
-          ))
-        }
-       </div>
-
-        {
-          filterCheck ? (
-            <div className="reportFilterArea">
+        <div className="reportResourceContainer">
+          <div className="reportFilterArea">
             <div className="reportFilterBox">
-                <div className="reportFilterFirstDiv">
-                  <div className="reportFilterLeftBox">
-                    <label className="reportFilterLeftText">자원</label>
+              <div className="reportFilterFirstDiv">
+                <div className="reportFilterLeftBox">
+                  <label className="reportFilterLeftText">자원</label>
+                </div>
+                <div className="reportFilterRightBox">
+                  <div className="reportFilterRightBoxSecond">
+                    <button className="reportFilterSearch" onClick={() => this.selectResourceModal()}>선택<img src={Search} style={{ width: 20, padding: 1 }} /></button>
+                    <div className="reportFilterScroll">
+                      <Select className="reportFilterSelect" isDisabled={true} isMulti name="colors" styles={customStyles} placeholder="검색"
+                        value={selectedResourceName}
+                        components={{
+                          DropdownIndicator: () => null,
+                          IndicatorSeparator: () => null,
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div className="reportFilterRightBox">
-                    <div className="reportFilterRightBoxSecond">
-                      <button className="reportFilterSearch" onClick={()=> this.clickHwModelBtn()} >
-                        선택
-                        <img src={Search} style={{width:20, padding:1}} />
-                      </button>
-                      <div className="reportFilterScroll">
-                        <Select 
-                          value={hwSearchName}
-                          className="reportFilterSelect" 
-                          isDisabled={true} 
-                          isMulti
-                          name="colors"
-                          components={{
-                            DropdownIndicator: () => null,
-                            IndicatorSeparator: () => null
-                          }}
-                          styles={customStyles}
-                          placeholder="검색"
+                </div>
+              </div>
+              {isResourceModal && (
+                <>
+                  <Modal show={isResourceModal} onHide={() => this.setState({ isResourceModal: false })} dialogClassName="userModel" className="reportModelHw">
+                    <Modal.Header className="header-Area">
+                      <Modal.Title id="contained-modal-title-vcenter" className="header_Text">자원</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                      <div className="ag-theme-alpine" style={{ width: "43vw", height: "60vh" }}>
+                        <AgGridReact
+                          headerHeight="30"
+                          floatingFiltersHeight="27"
+                          rowHeight="30"
+                          rowSelection="multiple"
+                          rowData={resourceData}
+                          columnDefs={modalOptions.resourceColumnDefs}
+                          defaultColDef={modalOptions.resourceDefaultColDef}
+                          autoGroupColumnDef={modalOptions.autoGroupColumnDef}
+                          groupSelectsChildren={true}
+                          onGridReady={params => {
+                            this.resourceGridApi = params.api; 
+                            this.resourceGridApi.forEachLeafNode((node) => {
+                              selectedResourceName.forEach(s => {
+                              if (node.data.id === s.id) {
+                                node.setSelected(true);
+                            }})
+                           });}
+                          } 
                         />
                       </div>
+                    </Modal.Body>
+                    <Form.Group className="reportHwFooter">
+                      <Button onClick={() => this.applyResourceModal()} className="reportActiveBtn">적용</Button>
+                      <Button onClick={() => this.setState({ isResourceModal: false })} className="reporthideBtn">닫기</Button>
+                    </Form.Group>
+                  </Modal>
+                </>
+              )}
+              <div className="reportFilterFirstDiv">
+                <div className="reportFilterLeftBox">
+                  <label className="reportFilterLeftText">장비</label>
+                </div>
+                <div className="reportFilterRightBox">
+                  <div className="reportFilterRightBoxSecond">
+                    {
+                      selectedResourceName.length === 0 ? (
+                        <button disabled className="reportFilterSearchSecond" onClick={() => this.selectDeviceModal()}>선택<img src={Search} style={{ width: 20, padding: 1 }} /></button>
+                      ) : (
+                        <button className="reportFilterSearch" onClick={() => this.selectDeviceModal()}>선택<img src={Search} style={{ width: 20, padding: 1 }} /></button>
+                      )
+                    }
+                    <div className="reportFilterScroll">
+                      <Select className="reportFilterSelect" isDisabled={true} isMulti name="colors" styles={customStyles} placeholder="검색"
+                        value={selectedDeviceName}
+                        components={{
+                          DropdownIndicator: () => null,
+                          IndicatorSeparator: () => null,
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
-                {
-                  clickHwModel && (
-                    <>
-                    <Modal show={clickHwModel} onHide={()=>this.setState({clickHwModel:false})} dialogClassName="userModel" className="reportModelHw"  >
-                    <Modal.Header  className="header-Area">
-                    <Modal.Title id="contained-modal-title-vcenter" className="header_Text">
-                      자원
-                    </Modal.Title>
+              </div>
+              {isDeviceModal && (
+                <>
+                  <Modal show={isDeviceModal} onHide={() => this.setState({ isDeviceModal: false })} dialogClassName="userModel" className="reportModelHw">
+                    <Modal.Header className="header-Area">
+                      <Modal.Title id="contained-modal-title-vcenter" className="header_Text">장비</Modal.Title>
                     </Modal.Header>
-                        <Modal.Body>
-                              <div className="ag-theme-alpine" style={{ width:'43vw', height:'60vh'}}>
-                                  <AgGridReact
-                                    headerHeight='30'
-                                    floatingFiltersHeight='27'
-                                    rowHeight='30'
-                                    rowData={hwData} 
-                                    columnDefs={hwColumnDefs} 
-                                    defaultColDef={hwDefaultColDef}
-                                    rowSelection='multiple'
-                                    autoGroupColumnDef={autoGroupColumnDef}
-                                    groupSelectsChildren={true}
-                                    onGridReady={params => {
-                                      this.gridApi = params.api; 
-                                      this.gridApi.forEachLeafNode( (node) => {
-                                      hwSearchName.forEach(s => {
-                                        if (node.data.id === s.id) {
-                                          node.setSelected(true);
-                                      }})
-                                   });}
-                                  } 
-                                  />        
-                              </div>
-                      </Modal.Body>
-
-                      <Form.Group className="reportHwFooter">
-                          <Button onClick={()=> this.clickHwModelSubmit()} className="reportActiveBtn"  >적용</Button>
-                          <Button onClick={()=> this.setState({clickHwModel:false})} className="reporthideBtn"  >닫기</Button>
-                      </Form.Group>
-                      </Modal>
-                    </>
-                  )
-                }
-                <div className="reportFilterFirstDiv">
-                  <div className="reportFilterLeftBox">
-                    <label className="reportFilterLeftText">장비</label>
-                  </div>
-                  <div className="reportFilterRightBox">
-                    <div className="reportFilterRightBoxSecond">
-                      <button className="reportFilterSearch" onClick={()=> this.clickDeviceModelBtn()} >
-                        선택
-                        <img src={Search} style={{width:20, padding:1}} />
-                      </button>
-                      <div className="reportFilterScroll">
-                        <Select 
-                          value={deviceSearchName}
-                          className="reportFilterSelect" 
-                          isDisabled={true} 
-                          isMulti
-                          name="colors"
-                          components={{
-                            DropdownIndicator: () => null,
-                            IndicatorSeparator: () => null
-                          }}
-                          styles={customStyles}
-                          placeholder="검색"
+                    <Modal.Body>
+                      <div className="ag-theme-alpine" style={{ width: "43vw", height: "40vh" }}>
+                        <AgGridReact
+                          headerHeight="30"
+                          floatingFiltersHeight="27"
+                          rowHeight="30"
+                          rowSelection="multiple"
+                          rowData={deviceData}
+                          columnDefs={modalOptions.deviceColumnDefs}
+                          defaultColDef={modalOptions.deviceDefaultColDef}
+                          onGridReady={params => {
+                            this.deviceGridApi = params.api; 
+                            this.deviceGridApi.forEachLeafNode((node) => {
+                              selectedDeviceName.forEach(s => {
+                              if (node.data.id === s.id) {
+                                node.setSelected(true);
+                            }})
+                           });}
+                          } 
                         />
                       </div>
-                    </div>
-                  </div>
-                </div>
-                {
-                  clickDeviceModel && (
-                    <>
-                    <Modal show={clickDeviceModel} onHide={()=>this.setState({clickDeviceModel:false})} dialogClassName="userModel" className="reportModelHw"  >
-                    <Modal.Header  className="header-Area">
-                      
-                    <Modal.Title id="contained-modal-title-vcenter" className="header_Text">
-                      장비
-                    </Modal.Title>
-                    
-                    </Modal.Header>
-                        <Modal.Body>
-                              <div className="ag-theme-alpine" style={{ width:'43vw', height:'40vh'}}>
-                                <div className="reportDeviceBar">
-                                  { 
-                                    buttonIdsDeviceArray.map((b,i) => (
-                                      <button key={i} className={i === clickedDeviceId ? "reportModelDeviceAction" : "reportModelDevice"} onClick={() => this.labelDeviceChange(i)} >
-                                        <label className={i === clickedDeviceId ? "reportModelDeviceLabelAction" : "reportModelDeviceLabel"} >
-                                          {b}
-                                        </label>
-                                      </button>
-                                    ))
-                                  }
-                                </div>
-                                  <AgGridReact
-                                    headerHeight='30'
-                                    floatingFiltersHeight='27'
-                                    rowHeight='30'
-                                    rowData={deviceData} 
-                                    columnDefs={deviceColumnDefs} 
-                                    defaultColDef={deviceDefaultColDef}
-                                    rowSelection='multiple'
-                                    onGridReady={params => {
-                                      this.gridApis = params.api; 
-                                      this.gridApis.forEachLeafNode( (node) => {
-                                        deviceId.forEach(s => {
-                                        if (node.data.id === s.id) {
-                                          node.setSelected(true);
-                                      }})
-                                   });}
-                                  }  
-                                  />        
-                              </div>
-                      </Modal.Body>
+                    </Modal.Body>
 
-                      <Form.Group className="reportDeviceFooter">
-                          <Button onClick={()=> this.clickDeviceModelSubmit()} className="reportActiveBtn"  >적용</Button>
-                          <Button onClick={()=> this.setState({clickDeviceModel:false})} className="reporthideBtn"  >닫기</Button>
-                      </Form.Group>
-                      </Modal>
-                    </>
-                  )
-                }
-                <div className="reportFilterFirstDivThird">
-                  <div className="reportFilterLeftBox">
-                    <label className="reportFilterLeftText">날짜</label>
-                  </div>
-                  <div className="reportFilterRightBoxThird">
-                    <div className="reportCalendarYear">
-                       <input className="reportCalendarInput" type="text" value={firstDateFormatInput} disabled readOnly />
-                       <button className="reportCalendarIcon" onClick={(e)=> this.calendarFirst(e)} >
-                        <FcCalendar className="reportCalendarIconStyle"  size="20" />
-                      </button>
-                      {
-                          calendarCheckFirst && (
-                            <DatePicker
-                            locale={ko}
-                            selected={date}
-                            dateFormat="yyyy-mm-dd"
-                            onChange={date => this.calenderFirstChange(date)} 
-                            inline 
-                            dayClassName={date => getDayName(createDate(date)) === '토' ? "saturday" : getDayName(createDate(date)) === '일' ? "sunday" : undefined }
-                            closeOnScroll={true}
-                            />
-                          )
-                      }
-                    </div>
-    
-                    <select 
-                      className="reportCalendarTimeArea" 
-                      placeholder="년월일 입력" 
-                      // defaultValue={firstTimeFormat} 
-                      value={firstTimeFormat} 
-                      onChange={e => this.setState({firstTimeFormat:e.target.value})}  
-                    >
-                      {time.map((t,i) => 
-                        <option key={i} value={t.value} selected={t.value} >{t.value}</option>
-                        ) }
-                    </select>
-                    <p className="reportCalendarDateMiddle">~</p>
-                    <div className="reportCalendarYear">
-                       <input className="reportCalendarInput" type="text" value={secondDateFormatInput} disabled readOnly />
-                       <button className="reportCalendarIcon"  onClick={(e)=> this.calendarSecond(e)} >
-                        <FcCalendar className="reportCalendarIconStyle"  size="20" />
-                      </button>
-                      {
-                          calendarCheckSecond && (
-                            <DatePicker
-                            locale={ko}
-                            selected={date}
-                            dateFormat="yyyy-mm-dd"
-                            // minDate={new Date()}
-                            onChange={date => this.calenderSecondChange(date)} 
-                            inline 
-                            dayClassName={date => getDayName(createDate(date)) === '토' ? "saturday" : getDayName(createDate(date)) === '일' ? "sunday" : undefined }
-                            closeOnScroll={true}
-                            />
-                          )
-                      }
-                    </div>
-    
-                    <select 
-                      className="reportCalendarTimeArea" 
-                      placeholder="년월일 입력" 
-                      // defaultValue={secondTimeFormat} 
-                      value={secondTimeFormat} 
-                      onChange={e => this.setState({secondTimeFormat:e.target.value})}  
-                    >
-                      {time.map((t,i) => 
-                        <option key={i} value={t.value} selected={t.value} >{t.value}</option>
-                        ) }
-                    </select>
-                  </div>
+                    <Form.Group className="reportDeviceFooter">
+                      <Button onClick={() => this.applyDeviceModal()} className="reportActiveBtn">적용</Button>
+                      <Button onClick={() => this.setState({ isDeviceModal: false })} className="reporthideBtn">닫기</Button>
+                    </Form.Group>
+                  </Modal>
+                </>
+              )}
+              <div className="reportFilterFirstDivThird">
+                <div className="reportFilterLeftBox">
+                  <label className="reportFilterLeftText">날짜</label>
                 </div>
-    
-                <div className="reportFilterSelectBox">
-                  <Button className="reportFilterSelectBtn" onClick={()=> this.reportSelectSubmit()}>통계하기</Button>
-                  <Button className="reportFilterReloadBtn" onClick={()=> this.reload()}>초기화</Button>
+                <div className="reportFilterRightBoxThird">
+                  <div className="reportCalendarYear">
+                    <input className="reportCalendarInput" type="text" value={firstDateFormatInput} disabled readOnly/>
+                    <button className="reportCalendarIcon" onClick={(e) => this.calendarFirst(e)}>
+                      <FcCalendar className="reportCalendarIconStyle" size="20"/>
+                    </button>
+                    {calendarCheckFirst && (
+                      <DatePicker locale={ko} selected={date} dateFormat="yyyy-mm-dd" onChange={(date) => this.calenderFirstChange(date)} inline closeOnScroll={true}
+                        dayClassName={(date) => getDayName(createDate(date)) === "토"? "saturday" : getDayName(createDate(date)) === "일"? "sunday": undefined}/>
+                    )}
+                  </div>
+                  
+                  <select className="reportCalendarTimeArea" placeholder="년월일 입력" value={firstTimeFormat} onChange={(e) => this.setState({ firstTimeFormat: e.target.value })}>
+                    {time.map((t, i) => (
+                      <option key={i} value={t.value} selected={t.value}>{t.value}</option>
+                    ))}
+                  </select>
+                  <p className="reportCalendarDateMiddle">~</p>
+                  <div className="reportCalendarYear">
+                    <input className="reportCalendarInput" type="text" value={secondDateFormatInput} disabled readOnly/>
+                    <button className="reportCalendarIcon" onClick={(e) => this.calendarSecond(e)}>
+                      <FcCalendar className="reportCalendarIconStyle" size="20"/>
+                    </button>
+                    {calendarCheckSecond && (
+                      <DatePicker locale={ko} selected={date} dateFormat="yyyy-mm-dd" onChange={(date) => this.calenderSecondChange(date)} inline closeOnScroll={true}
+                        dayClassName={(date) => getDayName(createDate(date)) === "토"? "saturday" : getDayName(createDate(date)) === "일"? "sunday": undefined} />
+                    )}
+                  </div>
+
+                  <select className="reportCalendarTimeArea" placeholder="년월일 입력" value={secondTimeFormat} onChange={(e) => this.setState({ secondTimeFormat: e.target.value })}>
+                    {time.map((t, i) => (
+                      <option key={i} value={t.value} selected={t.value}>{t.value}</option>
+                    ))}
+                  </select>
                 </div>
+              </div>
+
+              <div className="reportFilterSelectBox">
+                <Button className="reportFilterSelectBtn" onClick={() => this.getReportData()}>통계하기</Button>
+                <Button className="reportFilterReloadBtn" onClick={()=> this.reload()} >초기화</Button>
+              </div>
             </div>
-           </div>
-          ) : (
-            null
-          )
-        }
-      
-
-       <div className="reportFilterButtonBox">
-          <button type="button" className="input-group-addon reportFilterButtonBtn" onClick={()=> this.clickFilter()}>
-            <label className="reportFilterLabel">
-             ▲ Filter
-            </label>
-          </button>
-        </div>
-
-        {
-          graphCheck && (
-            <>
-              {
-                config.map((c,i) => (
-                 <div className="reportChartParent" key={"i_"+i} >
-                  <div className="reportChartArea">
-                    <div className="reportChartBox">
-                      <ChartComponent option={c} />
-                      <div className="reportChartMaxSelect">
-                        <select 
-                          name={"name"+i} 
-                          key={c.key}
-                          id={`${c.key}`}
-                          className="reportChartSelect"
-                          onChange={(e) => this.inputChartLineBar(e,c,i)} >
-                            <option value="line">Line</option>
-                            <option value="bar">Bar</option>
-                        </select>
-                        {
-                          c.title.text.includes("(%)") && (
-                            <>
-                            <label className="reportChartLabel">최대치 기준</label>
-                            <input type="checkbox"  name={"checkbox_"+i} onChange={(e)=> this.maxStandred(e,c)} className="reportChartInput" />
-                            </>
-                          )
-                        }
-                        {
-                          c.title.text.includes("Bytes") && (
-                            <>
-                            <select 
-                              name={"name"+i} 
-                              className="reportChartSelect"
-                              value={c.unit}
-                              onChange={(e) => this.inputChartBytes(e,c,i)} >
-                                <option value="bps">bps</option>
-                                <option value="B">B</option>
-                                <option value="KB">KB</option>
-                                <option value="MB">MB</option>
-                                <option value="GB">GB</option>
+          </div>
+          {
+            _.map(chartData, (obj, i) => (
+              <div className="reportChartParent" key={i}>
+                <div className="reportChartArea">
+                  <div className="reportChartBox">
+                    <ChartComponent option={obj.option} />
+                    <div className="reportChartMaxSelect">
+                      <select name="changeType" className="reportChartSelect" onChange={(e) => this.changeChartType(e, obj, i)}>
+                        <option value="line">Line</option>
+                        <option value="column">Bar</option>
+                      </select>
+                      {obj.percentMaxType && (
+                        <>
+                          <label className="reportChartLabel">
+                            최대치 기준
+                          </label>
+                          <input type="checkbox" name="percentMax" onChange={(e) => this.maxStandred(e, obj , i)} className="reportChartInput" />
+                        </>
+                      )}
+                     {obj.byteType && (
+                        <>
+                           <select name="changeByte" className="reportChartSelect" value={obj.byteVal} onChange={(e) => this.changeByteType(e, obj, i)}>
+                              <option value="bps">bps</option>
+                              <option value="B">B</option>
+                              <option value="KB">KB</option>
+                              <option value="MB">MB</option>
+                              <option value="GB">GB</option>
                             </select>
-                            </>
-                          )
-                        }
-                        {
-                          c.title.text.includes("Traffic") && (
-                            <>
-                            <select 
-                              name={"name"+i} 
-                              className="reportChartSelect"
-                              value={c.unit}
-                              onChange={(e) => this.inputChartTime(e,c,i)} >
-                                <option value="bps">bps</option>
-                                <option value="Kbps">Kbps</option>
-                                <option value="Mbps">Mbps</option>
-                                <option value="Gbps">Gbps</option>
+                        </>
+                      )}
+                      {obj.byteDiskType && (
+                        <>
+                           <select name="changeDiskByte" className="reportChartSelect" value={obj.byteVal} onChange={(e) => this.changeByteType(e, obj, i)}>
+                              <option value="bps">bps</option>
+                              <option value="B/s">B/s</option>
+                              <option value="KB/s">KB/s</option>
+                              <option value="MB/s">MB/s</option>
+                              <option value="GB/s">GB/s</option>
                             </select>
-                            </>
-                          )
-                        }
-                        {
-                          c.title.text.includes("PP") || c.title.text.includes("NIC")  ? (
-                            <>
-                            <select 
-                              name={"name"+i} 
-                              className="reportChartSelect"
-                              value={c.unit}
-                              onChange={(e) => this.inputChartTime(e,c,i)} >
-                                <option value="pps">pps</option>
-                                <option value="Kpps">Kpps</option>
-                                <option value="Mpps">Mpps</option>
-                                <option value="Gpps">Gpps</option>
+                        </>
+                      )}
+                      {obj.byteNetworkType && (
+                        <>
+                           <select name="changeNetworkByte" className="reportChartSelect" value={obj.byteVal} onChange={(e) => this.changeByteType(e, obj, i)}>
+                              <option value="bps">bps</option>
+                              <option value="Kbps">Kbps</option>
+                              <option value="Mbps">Mbps</option>
+                              <option value="Gbps">Gbps</option>
                             </select>
-                            </>
-                          ) : null
-                        }
-                      </div>
+                        </>
+                      )}
+                      {obj.byteNetworkSecondType && (
+                        <>
+                           <select name="changeNetworkSecondByte" className="reportChartSelect" value={obj.byteVal} onChange={(e) => this.changeByteType(e, obj, i)}>
+                              <option value="pps">pps</option>
+                              <option value="Kpps">Kpps</option>
+                              <option value="Mpps">Mpps</option>
+                              <option value="Gpps">Gpps</option>
+                            </select>
+                        </>
+                      )}
                     </div>
-
+                  </div>
                   <div className="reportChartTotalArea">
-                    <button className="reportChartTotalBox"   onClick={(e) => this.chartTotalCheck(e,c,i)}>
-                      <label className="reportChartTotalText" >
-                        ▼ 차트 통계
-                      </label>
+                    <button className="reportChartTotalBox" onClick={(e) => this.chartTotalCheck(e, obj , i)}>
+                      <label className="reportChartTotalText" name="chartStatisticsLabel">▼ 차트 통계</label>
                     </button>
                     {
                       totalKey.map((t,a) => 
-                        (
-                        c.key === t && totalName.includes(c.totalName) && ( 
-                          <div className="reportChartTotalGrid" key={t}  >
-                            <div className="ag-theme-alpine" style={{ width:'93vw', height:'40vh',marginLeft:'0.5vw'}}>
+                        ( 
+                          obj.key === t  && ( 
+                            <div className="reportChartTotalGrid" key={t}  >
+                              <div className="ag-theme-alpine" style={{ width:'93vw', height:'40vh',marginLeft:'0.5vw'}}>
                                 <AgGridReact
-                                headerHeight='30'
-                                floatingFiltersHeight='23'
-                                rowHeight='25'
-                                columnDefs={chartColumnDefs[a]}  
-                                defaultColDef={chartDefaultColDef}
-                                rowData={totalData[a]}
-                                onGridReady={params => { this.gridApiChart = params.api;}}
-                              />       
+                                  headerHeight='30'
+                                  floatingFiltersHeight='23'
+                                  rowHeight='25'
+                                  columnDefs={chartColumnDefs[a]}  
+                                  rowData={totalData[a]}
+                                  defaultColDef={modalOptions.chartDefaultColDef}
+                                  onGridReady={params => { this.gridApiChart = params.api;}}
+                                />       
+                              </div>
                             </div>
-                          </div>
                           )
                         ))
                       }
                   </div>
                 </div>
               </div>
-                ))
-              }
-              
-            <div className="reportFooter"></div>
-            </>
-          )
-        }
+            ))
+          }
+          
+          <div className="reportFooter"></div>
+        </div>
         
-      </div>
-
-      {
-            loader && <Loader  />
-      }
+        { loader && <Loader /> }
       </>
     );
   }
 }
-
-
 
 export default ReportResoruce;
