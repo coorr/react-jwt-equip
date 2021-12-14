@@ -83,6 +83,7 @@ export default class upload extends Component  {
     const mimeType = { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], mimeType);
+    console.log(blob);
     saveAs(blob, "Equipment.xlsx");
   }
   /* 파일 Change */

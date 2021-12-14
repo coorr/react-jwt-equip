@@ -121,7 +121,7 @@ const modalOptions = {
 };
 
 // 하루 초 86400000
-const oneMonth = new Date(new Date().getTime() - 35251200000 );
+const oneMonth = new Date(new Date().getTime() - 35683200000 );
 
 const seriesGrid = [];
 const seriesColumn = [];
@@ -243,7 +243,8 @@ class ReportResoruce extends Component {
     ReportService.getStatistics(ids, sys, disk, nic, startDate, endDate)
     .then(res => {
       this.setReportDataFormat(res.data);
-    });
+    })
+    .catch(err => {console.log(err)})
   }
 
 setReportDataFormat(data) {
@@ -1252,7 +1253,10 @@ changeByteType = (e, obj, i) => {
 autoConvertByte(obj,size, decimals = 2) {
   let result = {};
 
-  if (size === 0) return '0';
+  if (size === 0) { 
+    result.value = 0;
+    return result;
+  }
   const dm = decimals < 0 ? 0 : decimals;
     if(obj.resourceName === 'NIC Discards' || obj.resourceName === 'NIC Errors') {
       const k = 2048;
@@ -1282,6 +1286,7 @@ autoConvertByte(obj,size, decimals = 2) {
       result.value = parseFloat((size / Math.pow(k, i)).toFixed(dm));
       result.unit = sizes[i];
     }
+    
   return result;
 };
 
@@ -1590,7 +1595,7 @@ chartTotalCheckSecond = (e,i,obj,valueAry) => {
             chartOptions[i].resourceName === 'Disk I/O (%)'    || chartOptions[i].resourceName === 'Disk I/O Count' ||
             chartOptions[i].resourceName === 'Disk I/O Bytes'  || chartOptions[i].resourceName === 'Disk Queue' || 
             chartOptions[i].resourceName === 'CPU Used (%)'    || chartOptions[i].resourceName === 'Network Traffic' || 
-            chartOptions[i].resourceName === 'Network PPS'     ||chartOptions[i].resourceName === 'NIC Discards'      || 
+            chartOptions[i].resourceName === 'Network PPS'     || chartOptions[i].resourceName === 'NIC Discards'      || 
             chartOptions[i].resourceName === 'NIC Errors'){
     const array = [];
     _.forEach(timeChart, (tobj,tkey) => {
@@ -1733,11 +1738,10 @@ calenderFirstChange = (date) => {
     const firstDateFormatInput = Moment(firstDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
     const secondDateFormatInput = Moment(secondDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
 
-      // console.log(chartData);
+      console.log(chartData);
       // console.log(totalKey);
       // console.log(totalData);
       // console.log(chartColumnDefs);
-      console.log(selectedResourceName.length);
 
     return (
       <>
@@ -1806,13 +1810,13 @@ calenderFirstChange = (date) => {
                 </div>
                 <div className="reportFilterRightBox">
                   <div className="reportFilterRightBoxSecond">
-                    {
+                    {/* {
                       selectedResourceName.length === 0 ? (
                         <button disabled className="reportFilterSearchSecond" onClick={() => this.selectDeviceModal()}>선택<img src={Search} style={{ width: 20, padding: 1 }} /></button>
-                      ) : (
+                      ) : ( */}
                         <button className="reportFilterSearch" onClick={() => this.selectDeviceModal()}>선택<img src={Search} style={{ width: 20, padding: 1 }} /></button>
-                      )
-                    }
+                   {/*   )
+                     }*/}
                     <div className="reportFilterScroll">
                       <Select className="reportFilterSelect" isDisabled={true} isMulti name="colors" styles={customStyles} placeholder="검색"
                         value={selectedDeviceName}
