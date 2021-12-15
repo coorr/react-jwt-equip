@@ -7,6 +7,7 @@ import ReportService from '../../services/report.service';
 import Search from '../../images/search.png'
 import Loader from '../loader';
 import ChartComponent from './ChartComponent';
+import CreatePdf from './chart/createPdf.js'
 
 import {Button, Modal, Form } from "react-bootstrap";
 
@@ -1739,6 +1740,8 @@ calenderFirstChange = (date) => {
     const secondDateFormatInput = Moment(secondDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
 
       console.log(chartData);
+      console.log(chartData.length);
+      console.log(Object.keys(chartData).length);
       // console.log(totalKey);
       // console.log(totalData);
       // console.log(chartColumnDefs);
@@ -1810,13 +1813,13 @@ calenderFirstChange = (date) => {
                 </div>
                 <div className="reportFilterRightBox">
                   <div className="reportFilterRightBoxSecond">
-                    {/* {
+                    {
                       selectedResourceName.length === 0 ? (
                         <button disabled className="reportFilterSearchSecond" onClick={() => this.selectDeviceModal()}>선택<img src={Search} style={{ width: 20, padding: 1 }} /></button>
-                      ) : ( */}
+                      ) : ( 
                         <button className="reportFilterSearch" onClick={() => this.selectDeviceModal()}>선택<img src={Search} style={{ width: 20, padding: 1 }} /></button>
-                   {/*   )
-                     }*/}
+                      )
+                     }
                     <div className="reportFilterScroll">
                       <Select className="reportFilterSelect" isDisabled={true} isMulti name="colors" styles={customStyles} placeholder="검색"
                         value={selectedDeviceName}
@@ -1912,6 +1915,11 @@ calenderFirstChange = (date) => {
               </div>
             </div>
           </div>
+          {
+            Object.keys(chartData).length !== 0 && (
+              <CreatePdf option={chartData} />
+            )
+          }
           {
             _.map(chartData, (obj, i) => (
               <div className="reportChartParent" key={i}>
