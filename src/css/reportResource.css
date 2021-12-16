@@ -105,6 +105,7 @@
 .reportFooter{height: 100px; width: 100%; background-color: #E5E4EA; }
 
 .reportFilterReloadBtnPDF{font-size: 0.9em; color: #6693D7; background-color: white; border: 1px solid #6693D7; margin-right: 0.3%; border-radius: 0;}
+.reportFilterReloadBtnPDF:hover{background-color: #6693D7; border: 1px solid #6693D7}
 
 
 
