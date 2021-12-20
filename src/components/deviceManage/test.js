@@ -9,22 +9,15 @@ import {
   Canvas,
   StyleSheet,
   Image,
-  renderToFile,
 } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
 import '../../css/reportResource.css'
 import ChartComponent from './ChartComponent';
 import iimage from '../../images/equipment.png'
-import  { LineChart, CartesianGrid, XAxis, YAxis, Line } from 'recharts';
+import fs from 'fs'
 import Graph from './chart/Graph.js'
-import jsPDF from "jspdf"; // check the docs for this: https://parall.ax/products/jspdf
-import html2canvas from 'html2canvas';
-import fontFile from './chart/fontFile';
-import Moment from 'moment';
 
 const date = new Date();
-
-
 
 const styles = StyleSheet.create({
   body: {
@@ -43,58 +36,125 @@ const styles = StyleSheet.create({
   }
 });
 
-const path = require('path');
 
-const Prints = () => (
-  <div style={{ position: 'absolute', left: 0, top: -500 }}>
-    <div id="printThis">
-      <Graph />
-    </div>
-  </div> 
-);
-
-const print = () => {
-  
-  
-  const input = document.getElementById('printThis');
-  html2canvas(input)
-    .then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
-      let pdf = new jsPDF('p','mm','a4');
-      let font = fontFile;
-      console.log(font);
-
-      pdf.addFileToVFS("Amiri-Regular.ttf", font);
-      pdf.addFont("Amiri-Regular.ttf", "Amiri", "normal");
-
-      pdf.setFont("helvetica",'bold');
-      pdf.text(90, 25, 'AiWACS Report')
-
-      let date = Moment(new Date(), "YYYY.MM.DD HH.mm.ss").format("YYYY-MM-DD HH:mm:ss")
-      pdf.setFont("normal","normal");
-      pdf.setFontSize(10);
-      pdf.text(150, 35, "출력일시:");
-      pdf.text(170, 35, date)
-
-      pdf.text(20, 45,"조회대상")
-      // pdf.addImage(imgData, 'JPEG', 15, 40)
-      pdf.save("download.pdf");
-    })
+const chartData =  {
+  chart: {
+    type: 'line'
+  },
+  title: {
+    text: null,
+    align: 'left',
+    style: {
+        fontSize: "12px"
+    }
+  },
+  xAxis: {
+    categories: [1,2,3,4,5],
+    labels: {align:'center'}
+  },
+  series: [
+    {
+      data: [1,2,3,4,5],
+      name: 'kim'
+    }
+  ],
+  yAxis: {
+    title: { text: '' },
+    min:0, 
+  }
 };
 
+const Testaa = () => {
+  return (
+    <>
+     <div><p>adasdasd</p></div>
+    </>
+  )
+}
+
+let datas = ["aa","bb"]
+
+const Chart = () => {
+  return (
+    <Graph  />
+  )
+}
+
+function charts()  {
+  console.log("aa");
+  return (
+    <ChartComponent option={chartData}  />
+  )
+}
+
+const aa = () => {
+  return (
+    <div>
+      <p>aaa</p>
+    </div>
+  )
+}
+
+
+const DocumentPdf = ({ someString }) => {
+  return (
+      <Document>
+        <Page>
+        <Image src={Chart}   />
+          <View >
+            {
+              datas.map((d,k) => (
+                <>
+                  <Text key={k}>Hey look at this string: {someString} </Text>
+                  <Text value={date}>1123123123</Text>  
+                  <Canvas
+                    paint={painter => painter.circle(50, 50, 10).fill('#FF3300')}
+                    style={styles.circle}
+                  />
+                </>
+              ))
+            }
+           
+            {/* <Testaa /> */}
+          </View>
+        </Page>
+    </Document>
+  )
+}
+const delay = (t) => new Promise((resolve) => setTimeout(resolve, t));
+async function getProps() {
+  await delay(1_000);
+  return ({
+    someString: 'You waited 1 second for this',
+  });
+}
+
+
 class test extends Component {
+
+  componentDidMount() {
+    console.log(date);
+  }
 
   render() {
     return (
       <>
       <div style={{marginLeft:'200px', marginTop:'200px'}}> 
-          <Graph />
+      <ChartComponent  />
           <button 
-            onClick={print}
+            onClick={
+              async () => {
+              const props = await getProps();
+              const doc = <DocumentPdf {...props} />;
+              const asPdf = pdf([]); // {} is important, throws without an argument
+              asPdf.updateContainer(doc);
+              const blob = await asPdf.toBlob();
+              saveAs(blob, 'document.pdf');
+            }}
           >
         Download PDF
       </button>
-      <Prints />
+      <Graph />
       </div>
       </>
     );

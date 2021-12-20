@@ -122,7 +122,7 @@ const modalOptions = {
 };
 
 // 하루 초 86400000
-const oneMonth = new Date(new Date().getTime() - 35683200000 );
+const oneMonth = new Date(new Date().getTime() - 36979200000 );
 
 const seriesGrid = [];
 const seriesColumn = [];
@@ -1730,6 +1730,18 @@ calenderFirstChange = (date) => {
   })
  }
 
+ downloadPDF = () => {
+   const { chartData } = this.state;
+    // const chartData = {
+    //   'test' : 'tset'
+    // }
+   console.log(chartData);
+  ReportService.getReportDownloadPdf(chartData) 
+    .then(() => {
+      console.log("aa");
+    })
+ }
+
 
 
   render() {
@@ -1740,8 +1752,7 @@ calenderFirstChange = (date) => {
     const secondDateFormatInput = Moment(secondDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
 
       console.log(chartData);
-      console.log(chartData.length);
-      console.log(Object.keys(chartData).length);
+      console.log(seriesGrid);
       // console.log(totalKey);
       // console.log(totalData);
       // console.log(chartColumnDefs);
@@ -1916,8 +1927,9 @@ calenderFirstChange = (date) => {
             </div>
           </div>
           {
-            Object.keys(chartData).length !== 0 && (
-              <CreatePdf option={chartData} />
+             Object.keys(chartData).length !== 0 && (
+              // <CreatePdf option={chartData} />
+              <Button className="reportFilterReloadBtnPDF" onClick={()=> this.downloadPDF()} >PDF</Button>
             )
           }
           {

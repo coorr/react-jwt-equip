@@ -98,13 +98,10 @@ componentDidMount() {
    handleSubmit = (e) => {
        
       const form=e.currentTarget;
-      if(form.checkValidity() === false) {   // valid Check
+      if(form.checkValidity() === false) {   
         e.preventDefault();
-        e.stopPropagation();   // 이벤트 멈춤
-
-        console.log("체크 걸림");
+        e.stopPropagation();   
       } else {
-        console.log("체크에 풀림")
         const equipment = {
           equipment: this.state.equipment,
           nickname: this.state.nickname,
@@ -123,8 +120,6 @@ componentDidMount() {
         }
         AiwacsService.updateEquipmentByNo(this.state.equipId , equipment,window.location.pathname)
         .then(res => {
-          console.log("응답받는곳")
-          // this.setState({redirect: "/equipmentManage" })
           alert("저장되었습니다.")
           window.location.reload();
         },
@@ -136,7 +131,6 @@ componentDidMount() {
               error.message ||
               error.toString();
 
-              console.log(resMessage);
             alert("중복된 IP를 가진 장비가 존재합니다.");
         });
       }
@@ -146,31 +140,10 @@ componentDidMount() {
       });
       e.preventDefault();
       e.stopPropagation();  
-
-      
-      console.log(this.state.equipment);
-      console.log(this.state.nickname);
-      console.log(this.state.settingType.value);
-      console.log(this.state.settingTemplate.value);
-      console.log(this.state.settingIp);
-      console.log(this.state.settingCatagory);
-      console.log(this.state.settingOs);
-      console.log(this.state.settingPerson);
-      console.log(this.state.settingProxy.value);
-      console.log(this.state.settingActive);
-      console.log(this.state.hwTitle);
-      console.log(this.state.hwCpu);
-      console.log(this.state.hwDisk);
-      console.log(this.state.hwNic);
-      console.log(this.state.hwSensor);
     }
 
 
   render() {
-    console.log("equipId : " + this.state.equipId);
-    console.log("settingActive"+ this.state.settingActive);
-    
-
     if (this.state.redirect) {
       return <Redirect to={this.state.redirect} />
     }
@@ -198,9 +171,6 @@ componentDidMount() {
       </Modal.Header>
       <Form noValidate validated={this.state.validated} onSubmit={this.handleSubmit} >
       <Modal.Body>
-      
-
-      
       
       <Container>
       <Form.Group as={Row} className="mb-3" controlId="formHorizontalEquip">
