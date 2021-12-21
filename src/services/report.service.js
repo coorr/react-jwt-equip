@@ -13,7 +13,7 @@ class ReportService {
     }
 
     getReportDownloadPdf(chartData) {
-      return axios.get(API_URL + "getReportDownloadPdf", chartData)
+      return axios.post(API_URL + "getReportDownloadPdf", chartData, {responseType:'arraybuffer' , headers: { Authorization:  authHeader() }})
     }
 }
 

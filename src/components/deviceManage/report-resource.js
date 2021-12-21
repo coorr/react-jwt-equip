@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import Select from "react-select";
 import _ from "lodash";
+import { saveAs } from 'file-saver';
 import AiwacsService from '../../services/equipment.service';
 import ReportService from '../../services/report.service';
+import AuthService from "../../services/auth.service";
 
 import Search from '../../images/search.png'
 import Loader from '../loader';
@@ -308,6 +310,7 @@ setReportDataFormat(data) {
           chartObj.deviceName = dobj.equipment;
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
+          chartObj.seriesData = [];
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'CPU Used (%)') {
@@ -1407,6 +1410,8 @@ chartTotalCheck = (e, obj , i) => {
       })
     })
     seriesGrid.push(array)
+    console.log(array);
+    chartOptions[i].seriesData=array;
 
     const columnDefs = [
       {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
@@ -1467,7 +1472,8 @@ chartTotalCheck = (e, obj , i) => {
   this.setState({ 
     totalKey : totalKey.concat(obj.key), 
     totalData: seriesGrid,
-    chartColumnDefs: seriesColumn
+    chartColumnDefs: seriesColumn,
+    chartData: chartOptions
   })
   /* 데이터 초기화 */
   if(dataLength > 0) {
@@ -1731,14 +1737,38 @@ calenderFirstChange = (date) => {
  }
 
  downloadPDF = () => {
-   const { chartData } = this.state;
-    // const chartData = {
-    //   'test' : 'tset'
-    // }
-   console.log(chartData);
-  ReportService.getReportDownloadPdf(chartData) 
-    .then(() => {
-      console.log("aa");
+  const { firstDateFormat, secondDateFormat, firstTimeFormat, secondTimeFormat, selectedDeviceName } = this.state;
+
+  const startDate=firstDateFormat+firstTimeFormat+'0000';
+  const endDate= secondDateFormat+secondTimeFormat+'5959';
+  const currentUser = AuthService.getCurrentUser();
+  const deviceName =[];
+  _.forEach(selectedDeviceName, (v) => {
+    deviceName.push(v.value)
+  })
+  const deviceNames=deviceName.join('|');
+
+  let chartOptions = _.cloneDeep(this.state.chartData);
+
+  let chart = {}
+  let chartAry = [];
+  _.forEach(chartOptions , (c,i) => {
+    console.log(c);
+    chartAry.push(c);
+  })
+  let chartDatas = {
+    chart: chartAry,
+    user:currentUser.username,
+    startDate:startDate,
+    endDate:endDate,
+    device:deviceNames,
+  }
+  console.log(chartOptions);
+  console.log(deviceNames);
+  ReportService.getReportDownloadPdf(chartDatas) 
+    .then((res) => {
+      const blob =new Blob([res.data],{type: 'application/pdf'});
+      saveAs(blob,"download.pdf")
     })
  }
 

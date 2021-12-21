@@ -6,6 +6,7 @@ import Select from 'react-select'
 import AiwacsService from '../services/equipment.service';
 import { Redirect } from 'react-router';
 
+
 const Type = [ {label: 'SNMP',value:'SNMP'},{label:'ICMP', value:'ICMP'} ]
 const Template = [
     {label: 'None',value:'None'},{label: 'Cisco C6807-XL',value:'Cisco C6807-XL'},{label: 'Cisco 표준',value:'Cisco 표준'},{label: '지니안',value:'지니안'},

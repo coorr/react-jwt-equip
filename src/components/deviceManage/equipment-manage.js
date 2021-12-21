@@ -763,6 +763,7 @@ tooltipValidation = () => {
 downloadExcel = () => {
   AiwacsService.downloadExcel(window.location.pathname)
   .then((res) => {
+    console.log(res);
     const mimeType = { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
     const blob =new Blob([res.data],mimeType);
     saveAs(blob,"Devices.xls")

@@ -59,9 +59,9 @@ const Prints = () => (
   // <div style={{ position: 'absolute', left: 0, top: -500 }}>
     <div id="printThis">
       {
-        // _.map(chartPdfAry, (c,ckey) => (
-          <div class="printThiss">
-            {/* <p style={{fontWeight:'bold'}}>{c.resourceName}</p> */}
+        _.map(chartPdfAry, (c,ckey) => (
+          <div key={ckey}>
+            <p style={{fontWeight:'bold'}}>{c.resourceName}</p>
             <XYPlot width={700} height={300}  >
             <HorizontalGridLines />
             <VerticalGridLines />
@@ -79,11 +79,9 @@ const Prints = () => (
             
           </XYPlot>
           </div>
-          
-        // ))
+        ))
       }
     </div>
-  // </div> 
 );
 
 
@@ -136,23 +134,15 @@ print = () => {
       // pdf.text(150, 35, "출력일시:");
       pdf.text(170, 35, date)
       
-      // pdf.addImage(imgData, 'PNG', 15, 35, imgWidth, imgHeight-100  )
-      // // pdf.addPage();
-      // console.log(imgHeight);
-      // console.log(canvas.height);
-      // heightLeft -= pageHeight;  // -295만 빼서 나오는 값일텐데 
+      pdf.addImage(imgData, 'PNG', 15, 35, imgWidth, imgHeight-100  )
+      heightLeft -= pageHeight;  // -295만 빼서 나오는 값일텐데 
 
-      // while( heightLeft >= 0) {
-      //   position = heightLeft - imgHeight; // top padding for other pages
-      //   console.log(position);
-      //   console.log(heightLeft);
-      //   console.log(canvas.height);
-      //   pdf.addPage();
-      //   pdf.addImage(imgData, 'PNG', 15, position, imgWidth, imgHeight );
-      //   heightLeft -= pageHeight; 
-      //   console.log(pageHeight);
-      //   console.log(heightLeft);
-      // }
+      while( heightLeft >= 0) {
+        position = heightLeft - imgHeight; // top padding for other pages
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 15, position, imgWidth, imgHeight );
+        heightLeft -= pageHeight; 
+      }
 
       // pdf.html(document.getElementById('printThis'),{margin: 100}, pdf.save("download.pdf") )
       pdf.save('document.pdf')
