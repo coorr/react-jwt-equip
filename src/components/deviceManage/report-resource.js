@@ -292,12 +292,15 @@ setReportDataFormat(data) {
         let originValueAry = [];
         let partitionName = [];
         let partitionData = {};
+        let seriesDataAry = [];
 
         if(obj.resourceName === 'CPU Processor (%)') {
+          seriesDataAry.push(["Time",dobj.equipment])
           _.forEach(data[obj.resourceKey], (iobj) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
               valueAry.push(iobj.cpuProcessor);
+              seriesDataAry.push([iobj.generateTime,iobj.cpuProcessor+'%'])
             }
           });
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
@@ -306,11 +309,13 @@ setReportDataFormat(data) {
           chartOptions.series[0].data = [0, 0, 0,0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 0, 0, 0, 0, 0, 0];
           chartOptions.series[0].name = dobj.equipment;
 
+          
+          console.log(seriesDataAry);
           chartObj.resourceName = obj.resourceName;
           chartObj.deviceName = dobj.equipment;
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
-          chartObj.seriesData = [];
+          chartObj.seriesData = seriesDataAry;
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'CPU Used (%)') {
