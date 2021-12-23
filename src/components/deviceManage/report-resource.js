@@ -295,12 +295,13 @@ setReportDataFormat(data) {
         let seriesDataAry = [];
 
         if(obj.resourceName === 'CPU Processor (%)') {
+          // seriesData :  [ ["Time", 장비이름 ] , ["Time", 장비이름  ] , [ "Time", 장비이름 ] ]
           seriesDataAry.push(["Time",dobj.equipment])
           _.forEach(data[obj.resourceKey], (iobj) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
               valueAry.push(iobj.cpuProcessor);
-              seriesDataAry.push([iobj.generateTime,iobj.cpuProcessor+'%'])
+              seriesDataAry.push([_.replace(iobj.generateTime, 'T', ' '),iobj.cpuProcessor+'%'])
             }
           });
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
