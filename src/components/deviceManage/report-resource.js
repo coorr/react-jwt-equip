@@ -295,8 +295,8 @@ setReportDataFormat(data) {
         let seriesDataAry = [];
 
         if(obj.resourceName === 'CPU Processor (%)') {
-          // seriesData :  [ ["Time", 장비이름 ] , ["Time", 장비이름  ] , [ "Time", 장비이름 ] ]
           seriesDataAry.push(["Time",dobj.equipment])
+          let max = null;
           _.forEach(data[obj.resourceKey], (iobj) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
@@ -304,6 +304,11 @@ setReportDataFormat(data) {
               seriesDataAry.push([_.replace(iobj.generateTime, 'T', ' '),iobj.cpuProcessor+'%'])
             }
           });
+          seriesDataAry.push(['Max', Math.max(...valueAry)+'%']);
+          seriesDataAry.push(['min', Math.min(...valueAry)+'%']);
+          const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
+          seriesDataAry.push(['Avg', avg.toFixed(0)+'%']);
+          console.log(avg.toFixed(0));
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
           chartOptions.yAxis = {max:100, tickInterval:20 }
@@ -352,17 +357,24 @@ setReportDataFormat(data) {
           chartObj.deviceName = dobj.equipment;
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.partition = partitionName;
           chartObj.gridData = partitionData;
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'CPU Context Switch') {
+          seriesDataAry.push(["Time",dobj.equipment])
           _.forEach(data[obj.resourceKey], (iobj) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
               valueAry.push(iobj.cpuContextswitch);
+              seriesDataAry.push([_.replace(iobj.generateTime, 'T', ' '),iobj.cpuContextswitch])
             }
           });
+          seriesDataAry.push(['Max', Math.max(...valueAry)]);
+          seriesDataAry.push(['min', Math.min(...valueAry)]);
+          const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
+          seriesDataAry.push(['Avg', avg.toFixed(0)]);
           
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
@@ -372,16 +384,23 @@ setReportDataFormat(data) {
           chartObj.resourceName = obj.resourceName;
           chartObj.deviceName = dobj.equipment;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'CPU Run Queue') {
+          seriesDataAry.push(["Time",dobj.equipment])
           _.forEach(data[obj.resourceKey], (iobj) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
               valueAry.push(iobj.cpuIrq);
+              seriesDataAry.push([_.replace(iobj.generateTime, 'T', ' '),iobj.cpuIrq])
             }
           });
-          
+          seriesDataAry.push(['Max', Math.max(...valueAry)]);
+          seriesDataAry.push(['min', Math.min(...valueAry)]);
+          const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
+          seriesDataAry.push(['Avg', avg.toFixed(0)]);
+
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
           chartOptions.series[0].data = valueAry;
@@ -390,16 +409,23 @@ setReportDataFormat(data) {
           chartObj.resourceName = obj.resourceName;
           chartObj.deviceName = dobj.equipment;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Load Avg') {
+          seriesDataAry.push(["Time",dobj.equipment])
           _.forEach(data[obj.resourceKey], (iobj) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
               valueAry.push(iobj.cpuLoadavg);
+              seriesDataAry.push([_.replace(iobj.generateTime, 'T', ' '),iobj.cpuLoadavg])
             }
           });
-          
+          seriesDataAry.push(['Max', Math.max(...valueAry)]);
+          seriesDataAry.push(['min', Math.min(...valueAry)]);
+          const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
+          seriesDataAry.push(['Avg', avg.toFixed(0)]);
+
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
           chartOptions.series[0].data = valueAry;
@@ -408,6 +434,7 @@ setReportDataFormat(data) {
           chartObj.resourceName = obj.resourceName;
           chartObj.deviceName = dobj.equipment;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Used (%)') {
