@@ -294,6 +294,8 @@ setReportDataFormat(data) {
         let partitionData = {};
         let seriesDataAry = [];
         let gridTotalAry =[];
+        const mathAdd = ['Max', 'Min' , 'Avg']
+        const pdfPartitionName = ['Time'];
 
         if(obj.resourceName === 'CPU Processor (%)') {
           seriesDataAry.push(["Time",dobj.equipment])
@@ -306,7 +308,7 @@ setReportDataFormat(data) {
             }
           });
           seriesDataAry.push(['Max', Math.max(...valueAry)+'%']);
-          seriesDataAry.push(['min', Math.min(...valueAry)+'%']);
+          seriesDataAry.push(['Min', Math.min(...valueAry)+'%']);
           const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
           seriesDataAry.push(['Avg', avg.toFixed(0)+'%']);
           console.log(avg.toFixed(0));
@@ -373,7 +375,7 @@ setReportDataFormat(data) {
             }
           });
           seriesDataAry.push(['Max', Math.max(...valueAry)]);
-          seriesDataAry.push(['min', Math.min(...valueAry)]);
+          seriesDataAry.push(['Min', Math.min(...valueAry)]);
           const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
           seriesDataAry.push(['Avg', avg.toFixed(0)]);
           
@@ -381,7 +383,7 @@ setReportDataFormat(data) {
           chartOptions.xAxis.categories = categoryAry;
           chartOptions.series[0].data = valueAry;
           chartOptions.series[0].name = dobj.equipment;
-
+          
           chartObj.resourceName = obj.resourceName;
           chartObj.deviceName = dobj.equipment;
           chartObj.option = chartOptions;
@@ -423,7 +425,7 @@ setReportDataFormat(data) {
             }
           });
           seriesDataAry.push(['Max', Math.max(...valueAry)]);
-          seriesDataAry.push(['min', Math.min(...valueAry)]);
+          seriesDataAry.push(['Min', Math.min(...valueAry)]);
           const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
           seriesDataAry.push(['Avg', avg.toFixed(0)]);
 
@@ -439,12 +441,18 @@ setReportDataFormat(data) {
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Used (%)') {
+          seriesDataAry.push(["Time",dobj.equipment])
           _.forEach(data[obj.resourceKey], (iobj) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
               valueAry.push(iobj.usedMemoryPercentage);
+              seriesDataAry.push([_.replace(iobj.generateTime, 'T', ' '),iobj.usedMemoryPercentage+'%'])
             }
           });
+          seriesDataAry.push(['Max', Math.max(...valueAry)+'%']);
+          seriesDataAry.push(['Min', Math.min(...valueAry)+'%']);
+          const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
+          seriesDataAry.push(['Avg', avg.toFixed(0)+'%']);
           
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
@@ -456,20 +464,26 @@ setReportDataFormat(data) {
           chartOptions.yAxis = {max:100, tickInterval:20 }
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Bytes') {
           let byteVal = 'bps';
-          _.forEach(data[obj.resourceKey], (iobj) => {
+          seriesDataAry.push(["Time",dobj.equipment])
+          byteVal = this.autoConvertByte(obj,data[obj.resourceKey][0].usedMemory).unit;
+          _.forEach(data[obj.resourceKey], (iobj,ikey) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
               valueAry.push(this.autoConvertByte(obj,iobj.usedMemory).value);
               originValueAry.push(iobj.usedMemory);
+              seriesDataAry.push([_.replace(iobj.generateTime, 'T', ' '),this.autoConvertByte(obj,iobj.usedMemory).value+byteVal])
             }
           });
+          seriesDataAry.push(['Max', Math.max(...valueAry)+byteVal]);
+          seriesDataAry.push(['min', Math.min(...valueAry)+byteVal]);
+          const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
+          seriesDataAry.push(['Avg', avg.toFixed(0)+byteVal]);
           
-          byteVal = this.autoConvertByte(obj,data[obj.resourceKey][0].usedMemory).unit;
-
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
           chartOptions.series[0].data = valueAry;
@@ -481,15 +495,22 @@ setReportDataFormat(data) {
           chartObj.byteVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Buffers (%)') {
+          seriesDataAry.push(["Time",dobj.equipment])
           _.forEach(data[obj.resourceKey], (iobj) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
               valueAry.push(iobj.memoryBuffersPercentage);
+              seriesDataAry.push([_.replace(iobj.generateTime, 'T', ' '),iobj.memoryBuffersPercentage+'%'])
             }
           });
+          seriesDataAry.push(['Max', Math.max(...valueAry)+'%']);
+          seriesDataAry.push(['Min', Math.min(...valueAry)+'%']);
+          const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
+          seriesDataAry.push(['Avg', avg.toFixed(0)+'%']);
           
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
@@ -501,19 +522,25 @@ setReportDataFormat(data) {
           chartOptions.yAxis = {max:100, tickInterval:20 }
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Buffers Bytes') {
           let byteVal = 'bps';
-          _.forEach(data[obj.resourceKey], (iobj) => {
+          seriesDataAry.push(["Time",dobj.equipment])
+          byteVal = this.autoConvertByte(obj,data[obj.resourceKey][0].memoryBuffers).unit;
+          _.forEach(data[obj.resourceKey], (iobj,ikey) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
               valueAry.push(this.autoConvertByte(obj,iobj.memoryBuffers).value);
               originValueAry.push(iobj.memoryBuffers);
+              seriesDataAry.push([_.replace(iobj.generateTime, 'T', ' '),this.autoConvertByte(obj,iobj.memoryBuffers).value+byteVal])
             }
           });
-          
-          byteVal = this.autoConvertByte(obj,data[obj.resourceKey][0].memoryBuffers).unit;
+          seriesDataAry.push(['Max', Math.max(...valueAry)+byteVal]);
+          seriesDataAry.push(['Min', Math.min(...valueAry)+byteVal]);
+          const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
+          seriesDataAry.push(['Avg', avg.toFixed(0)+byteVal]);
 
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
@@ -526,15 +553,22 @@ setReportDataFormat(data) {
           chartObj.byteVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Cached (%)') {
+          seriesDataAry.push(["Time",dobj.equipment])
           _.forEach(data[obj.resourceKey], (iobj) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
               valueAry.push(iobj.memoryCachedPercentage);
+              seriesDataAry.push([_.replace(iobj.generateTime, 'T', ' '),iobj.memoryCachedPercentage+'%'])
             }
           });
+          seriesDataAry.push(['Max', Math.max(...valueAry)+'%']);
+          seriesDataAry.push(['Min', Math.min(...valueAry)+'%']);
+          const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
+          seriesDataAry.push(['Avg', avg.toFixed(0)+'%']);
           
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
@@ -546,20 +580,26 @@ setReportDataFormat(data) {
           chartOptions.yAxis = {max:100, tickInterval:20 }
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Cached Bytes') {
           let byteVal = 'bps';
-          _.forEach(data[obj.resourceKey], (iobj) => {
+          seriesDataAry.push(["Time",dobj.equipment])
+          byteVal = this.autoConvertByte(obj,data[obj.resourceKey][0].memoryCached).unit;
+          _.forEach(data[obj.resourceKey], (iobj,ikey) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
               valueAry.push(this.autoConvertByte(obj,iobj.memoryCached).value);
               originValueAry.push(iobj.memoryCached);
+              seriesDataAry.push([_.replace(iobj.generateTime, 'T', ' '),this.autoConvertByte(obj,iobj.memoryCached).value+byteVal])
             }
           });
+          seriesDataAry.push(['Max', Math.max(...valueAry)+byteVal]);
+          seriesDataAry.push(['Min', Math.min(...valueAry)+byteVal]);
+          const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
+          seriesDataAry.push(['Avg', avg.toFixed(0)+byteVal]);
           
-          byteVal = this.autoConvertByte(obj,data[obj.resourceKey][0].memoryCached).unit;
-
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
           chartOptions.series[0].data = valueAry;
@@ -571,16 +611,23 @@ setReportDataFormat(data) {
           chartObj.byteVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Shared (%)') {
+          seriesDataAry.push(["Time",dobj.equipment])
           _.forEach(data[obj.resourceKey], (iobj) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
               valueAry.push(iobj.memorySharedPercentage);
+              seriesDataAry.push([_.replace(iobj.generateTime, 'T', ' '),iobj.memorySharedPercentage+'%'])
             }
           });
-          
+          seriesDataAry.push(['Max', Math.max(...valueAry)+'%']);
+          seriesDataAry.push(['Min', Math.min(...valueAry)+'%']);
+          const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
+          seriesDataAry.push(['Avg', avg.toFixed(0)+'%']);
+
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
           chartOptions.series[0].data = valueAry;
@@ -591,20 +638,26 @@ setReportDataFormat(data) {
           chartOptions.yAxis = {max:100, tickInterval:20 }
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Shared Bytes') {
           let byteVal = 'bps';
-          _.forEach(data[obj.resourceKey], (iobj) => {
+          seriesDataAry.push(["Time",dobj.equipment])
+          byteVal = this.autoConvertByte(obj,data[obj.resourceKey][0].memoryShared).unit;
+          _.forEach(data[obj.resourceKey], (iobj,ikey) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
-              valueAry.push(iobj.memoryShared);
+              valueAry.push(this.autoConvertByte(obj,iobj.memoryShared).value);
               originValueAry.push(iobj.memoryShared);
+              seriesDataAry.push([_.replace(iobj.generateTime, 'T', ' '),this.autoConvertByte(obj,iobj.memoryShared).value+byteVal])
             }
           });
+          seriesDataAry.push(['Max', Math.max(...valueAry)+byteVal]);
+          seriesDataAry.push(['Min', Math.min(...valueAry)+byteVal]);
+          const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
+          seriesDataAry.push(['Avg', avg.toFixed(0)+byteVal]);
           
-          byteVal = this.autoConvertByte(obj,data[obj.resourceKey][0].memoryShared).unit;
-
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
           chartOptions.series[0].data = valueAry;
@@ -616,15 +669,22 @@ setReportDataFormat(data) {
           chartObj.byteVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Swap (%)') {
+          seriesDataAry.push(["Time",dobj.equipment])
           _.forEach(data[obj.resourceKey], (iobj) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
               valueAry.push(iobj.usedSwapPercentage);
+              seriesDataAry.push([_.replace(iobj.generateTime, 'T', ' '),iobj.usedSwapPercentage+'%'])
             }
           });
+          seriesDataAry.push(['Max', Math.max(...valueAry)+'%']);
+          seriesDataAry.push(['Min', Math.min(...valueAry)+'%']);
+          const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
+          seriesDataAry.push(['Avg', avg.toFixed(0)+'%']);
           
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
@@ -636,19 +696,21 @@ setReportDataFormat(data) {
           chartOptions.yAxis = {max:100, tickInterval:20 }
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Swap Bytes') {
           let byteVal = 'bps';
-          _.forEach(data[obj.resourceKey], (iobj) => {
+          seriesDataAry.push(["Time",dobj.equipment])
+          byteVal = this.autoConvertByte(obj,data[obj.resourceKey][0].usedSwap).unit;
+          _.forEach(data[obj.resourceKey], (iobj,ikey) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
               valueAry.push(this.autoConvertByte(obj,iobj.usedSwap).value);
               originValueAry.push(iobj.usedSwap);
+              seriesDataAry.push([_.replace(iobj.generateTime, 'T', ' '),this.autoConvertByte(obj,iobj.usedSwap).value+byteVal])
             }
           });
-          
-          byteVal = this.autoConvertByte(obj,data[obj.resourceKey][0].usedSwap).unit;
 
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
@@ -661,15 +723,22 @@ setReportDataFormat(data) {
           chartObj.byteVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Memory Pagefault') {
+          seriesDataAry.push(["Time",dobj.equipment])
           _.forEach(data[obj.resourceKey], (iobj) => {
             if(iobj.deviceId ===  dobj.id) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
               valueAry.push(iobj.memoryPagefault);
+              seriesDataAry.push([_.replace(iobj.generateTime, 'T', ' '),iobj.memoryPagefault])
             }
           });
+          seriesDataAry.push(['Max', Math.max(...valueAry)]);
+          seriesDataAry.push(['Min', Math.min(...valueAry)]);
+          const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
+          seriesDataAry.push(['Avg', avg.toFixed(0)]);
           
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
@@ -679,6 +748,7 @@ setReportDataFormat(data) {
           chartObj.resourceName = obj.resourceName;
           chartObj.deviceName = dobj.equipment;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.key = "chart_"+key+'_'+dkey
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Disk Total Used (%)') {
@@ -691,7 +761,7 @@ setReportDataFormat(data) {
             }
           });
           seriesDataAry.push(['Max', Math.max(...valueAry)]);
-          seriesDataAry.push(['min', Math.min(...valueAry)]);
+          seriesDataAry.push(['Min', Math.min(...valueAry)]);
           const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
           seriesDataAry.push(['Avg', avg.toFixed(0)]);
 
@@ -717,13 +787,15 @@ setReportDataFormat(data) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
               valueAry.push(this.autoConvertByte(obj,iobj.usedBytes).value);
               originValueAry.push(iobj.usedBytes);
-              seriesDataAry.push([_.replace(iobj.generateTime, 'T', ' '),valueAry[ikey]+byteVal])
+              seriesDataAry.push([_.replace(iobj.generateTime, 'T', ' '),this.autoConvertByte(obj,iobj.usedBytes).value+byteVal])
             }
           });
-          seriesDataAry.push(['Max', Math.max(...valueAry)]);
-          seriesDataAry.push(['min', Math.min(...valueAry)]);
+          console.log(valueAry);
+          seriesDataAry.push(['Max', Math.max(...valueAry)+byteVal]);
+          seriesDataAry.push(['Min', Math.min(...valueAry)+byteVal]);
           const avg =  valueAry.reduce((a,b) => a+b, 0) / valueAry.length;
-          seriesDataAry.push(['Avg', avg.toFixed(0)]);
+          seriesDataAry.push(['Avg', avg.toFixed(0)+byteVal]);
+          console.log(seriesDataAry);
 
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
@@ -731,7 +803,7 @@ setReportDataFormat(data) {
           chartOptions.series[0].name = data[obj.resourceKey][0].deviceName;
 
           chartObj.resourceName = obj.resourceName;
-          chartObj.deviceName = data[obj.resourceKey][0].deviceName;
+          chartObj.deviceName = dobj.equipment;
           chartObj.byteType = true;
           chartObj.byteVal = byteVal;
           chartObj.originValueAry = originValueAry;
@@ -741,10 +813,9 @@ setReportDataFormat(data) {
           chartData['chartOptions'+key+'_'+dkey] = chartObj;
         } else if(obj.resourceName === 'Disk Used (%)') {
           let diskPartitionAry = _.groupBy(data[obj.resourceKey], 'partitionLabel');
-          const pdfPartitionName = [];
           chartOptions.series = [];
           seriesDataAry.push(pdfPartitionName)
-          seriesDataAry[0].unshift("Time")
+          
           _.forEach(diskPartitionAry, (pobj, key) => {
             let partitionVal = [];
             
@@ -758,9 +829,6 @@ setReportDataFormat(data) {
               }
             });
             partitionData[key] = partitionVal;
-            console.log(diskPartitionAry);
-            console.log(seriesDataAry);
-            console.log(partitionVal);
 
             const obj = {};
             obj.data = partitionVal;
@@ -770,7 +838,6 @@ setReportDataFormat(data) {
             chartOptions.series.push(obj);
           });
          
-          console.log(partitionData);
           _.forEach(data[obj.resourceKey], (iobj,ikey) => {
             if(!categoryAry.includes(_.replace(iobj.generateTime, 'T',' '))) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
@@ -783,12 +850,24 @@ setReportDataFormat(data) {
             _.forEach(partitionData, (robj,rkey) => {
               arrays.push(partitionData[rkey][dkey]+'%');
             })
-            console.log(arrays);
             seriesDataAry.push(arrays);
           })
-          
-          console.log(seriesDataAry);
-          
+
+          _.forEach(mathAdd, (mobj,mkey) => {
+            const array = [];
+            array.push(mobj);
+            _.forEach(chartOptions.series , (cobj,ckey ) => {
+              if(mkey === 0) {
+                array.push(Math.max(...cobj.data)+'%')
+              } else if(mkey === 1) {
+                array.push(Math.min(...cobj.data)+'%')
+              } else if(mkey === 2) {
+                const avg =  cobj.data.reduce((a,b) => a+b, 0) / cobj.data.length;
+                array.push(avg.toFixed(0)+'%')
+              } 
+            })
+            seriesDataAry.push(array);
+          })
           
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
@@ -809,6 +888,7 @@ setReportDataFormat(data) {
 
           chartOptions.series = [];
           originValueAry = [];
+          seriesDataAry.push(pdfPartitionName)
           
           _.forEach(diskPartitionAry, (pobj, key) => {
             let partitionVal = [];
@@ -820,6 +900,7 @@ setReportDataFormat(data) {
               }
               if(!partitionName.includes(key)) {
                 partitionName.push(key);
+                pdfPartitionName.push(key);
               }
             });
             partitionData[key] = partitionVal;
@@ -840,6 +921,31 @@ setReportDataFormat(data) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
             }
           });
+
+          _.forEach(categoryAry, (dobj,dkey) => {
+            const arrays= [];
+            arrays.push(_.replace(dobj, 'T', ' '));
+            _.forEach(partitionData, (robj,rkey) => {
+              arrays.push(partitionData[rkey][dkey]+byteVal);
+            })
+            seriesDataAry.push(arrays);
+          })
+
+          _.forEach(mathAdd, (mobj,mkey) => {
+            const array = [];
+            array.push(mobj);
+            _.forEach(chartOptions.series , (cobj,ckey ) => {
+              if(mkey === 0) {
+                array.push(Math.max(...cobj.data)+byteVal)
+              } else if(mkey === 1) {
+                array.push(Math.min(...cobj.data)+byteVal)
+              } else if(mkey === 2) {
+                const avg =  cobj.data.reduce((a,b) => a+b, 0) / cobj.data.length;
+                array.push(avg.toFixed(0)+byteVal)
+              } 
+            })
+            seriesDataAry.push(array);
+          })
           
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
@@ -850,6 +956,7 @@ setReportDataFormat(data) {
           chartObj.byteVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.key = "chart_"+key+'_'+dkey
           chartObj.partition = partitionName;
           chartObj.gridData = partitionData;
@@ -857,6 +964,7 @@ setReportDataFormat(data) {
         } else if(obj.resourceName === 'Disk I/O (%)') {
           let diskPartitionAry = _.groupBy(data[obj.resourceKey], 'partitionLabel');
           chartOptions.series = [];
+          seriesDataAry.push(pdfPartitionName)
           
           _.forEach(diskPartitionAry, (pobj, key) => {
             let partitionVal = [];
@@ -866,6 +974,7 @@ setReportDataFormat(data) {
               }
               if(!partitionName.includes(key)) {
                 partitionName.push(key);
+                pdfPartitionName.push(key);
               }
             });
             partitionData[key] = partitionVal;
@@ -885,6 +994,29 @@ setReportDataFormat(data) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
             }
           });
+          _.forEach(categoryAry, (dobj,dkey) => {
+            const arrays= [];
+            arrays.push(_.replace(dobj, 'T', ' '));
+            _.forEach(partitionData, (robj,rkey) => {
+              arrays.push(partitionData[rkey][dkey]+"%");
+            })
+            seriesDataAry.push(arrays);
+          })
+          _.forEach(mathAdd, (mobj,mkey) => {
+            const array = [];
+            array.push(mobj);
+            _.forEach(chartOptions.series , (cobj,ckey ) => {
+              if(mkey === 0) {
+                array.push(Math.max(...cobj.data)+"%")
+              } else if(mkey === 1) {
+                array.push(Math.min(...cobj.data)+"%")
+              } else if(mkey === 2) {
+                const avg =  cobj.data.reduce((a,b) => a+b, 0) / cobj.data.length;
+                array.push(avg.toFixed(0)+"%")
+              } 
+            })
+            seriesDataAry.push(array);
+          })
           
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
@@ -894,6 +1026,7 @@ setReportDataFormat(data) {
           chartObj.deviceName = data[obj.resourceKey][0].deviceName;
           chartObj.percentMaxType = true;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.partition = partitionName;
           chartObj.gridData = partitionData;
           chartObj.key = "chart_"+key+'_'+dkey
@@ -902,6 +1035,7 @@ setReportDataFormat(data) {
           let diskPartitionAry = _.groupBy(data[obj.resourceKey], 'partitionLabel');
 
           chartOptions.series = [];
+          seriesDataAry.push(pdfPartitionName)
           
           _.forEach(diskPartitionAry, (pobj, key) => {
             let partitionVal = [];
@@ -911,6 +1045,7 @@ setReportDataFormat(data) {
               }
               if(!partitionName.includes(key)) {
                 partitionName.push(key);
+                pdfPartitionName.push(key);
               }
             });
             partitionData[key] = partitionVal;
@@ -930,6 +1065,29 @@ setReportDataFormat(data) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
             }
           });
+          _.forEach(categoryAry, (dobj,dkey) => {
+            const arrays= [];
+            arrays.push(_.replace(dobj, 'T', ' '));
+            _.forEach(partitionData, (robj,rkey) => {
+              arrays.push(partitionData[rkey][dkey]);
+            })
+            seriesDataAry.push(arrays);
+          })
+          _.forEach(mathAdd, (mobj,mkey) => {
+            const array = [];
+            array.push(mobj);
+            _.forEach(chartOptions.series , (cobj,ckey ) => {
+              if(mkey === 0) {
+                array.push(Math.max(...cobj.data))
+              } else if(mkey === 1) {
+                array.push(Math.min(...cobj.data))
+              } else if(mkey === 2) {
+                const avg =  cobj.data.reduce((a,b) => a+b, 0) / cobj.data.length;
+                array.push(avg.toFixed(0))
+              } 
+            })
+            seriesDataAry.push(array);
+          })
           
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
@@ -937,6 +1095,7 @@ setReportDataFormat(data) {
           chartObj.resourceName = obj.resourceName;
           chartObj.deviceName = data[obj.resourceKey][0].deviceName;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.partition = partitionName;
           chartObj.gridData = partitionData;
           chartObj.key = "chart_"+key+'_'+dkey
@@ -947,6 +1106,7 @@ setReportDataFormat(data) {
 
           chartOptions.series = [];
           originValueAry = [];
+          seriesDataAry.push(pdfPartitionName)
           
           _.forEach(diskPartitionAry, (pobj, key) => {
             let partitionVal = [];
@@ -958,6 +1118,7 @@ setReportDataFormat(data) {
               }
               if(!partitionName.includes(key)) {
                 partitionName.push(key);
+                pdfPartitionName.push(key);
               }
             });
             partitionData[key] = partitionVal;
@@ -980,6 +1141,30 @@ setReportDataFormat(data) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
             }
           });
+          _.forEach(categoryAry, (dobj,dkey) => {
+            const arrays= [];
+            arrays.push(_.replace(dobj, 'T', ' '));
+            _.forEach(partitionData, (robj,rkey) => {
+              arrays.push(partitionData[rkey][dkey]+byteVal);
+            })
+            seriesDataAry.push(arrays);
+          })
+          _.forEach(mathAdd, (mobj,mkey) => {
+            const array = [];
+            array.push(mobj);
+            _.forEach(chartOptions.series , (cobj,ckey ) => {
+              if(mkey === 0) {
+                array.push(Math.max(...cobj.data)+byteVal)
+              } else if(mkey === 1) {
+                array.push(Math.min(...cobj.data)+byteVal)
+              } else if(mkey === 2) {
+                const avg =  cobj.data.reduce((a,b) => a+b, 0) / cobj.data.length;
+                array.push(avg.toFixed(0)+byteVal)
+              } 
+            })
+            seriesDataAry.push(array);
+          })
+
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
 
@@ -989,6 +1174,7 @@ setReportDataFormat(data) {
           chartObj.byteVal = byteVal;
           chartObj.originValueAry = originValueAry;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.partition = partitionName;
           chartObj.gridData = partitionData;
           chartObj.key = "chart_"+key+'_'+dkey
@@ -996,6 +1182,7 @@ setReportDataFormat(data) {
         } else if(obj.resourceName === 'Disk Queue') {
           let diskPartitionAry = _.groupBy(data[obj.resourceKey], 'partitionLabel');
           chartOptions.series = [];
+          seriesDataAry.push(pdfPartitionName)
 
           _.forEach(diskPartitionAry, (pobj, key) => {
             let partitionVal = [];
@@ -1006,6 +1193,7 @@ setReportDataFormat(data) {
               }
               if(!partitionName.includes(key)) {
                 partitionName.push(key);
+                pdfPartitionName.push(key);
               }
             });
             partitionData[key] = partitionVal;
@@ -1024,6 +1212,29 @@ setReportDataFormat(data) {
               categoryAry.push(_.replace(iobj.generateTime, 'T', ' '));
             }
           });
+          _.forEach(categoryAry, (dobj,dkey) => {
+            const arrays= [];
+            arrays.push(_.replace(dobj, 'T', ' '));
+            _.forEach(partitionData, (robj,rkey) => {
+              arrays.push(partitionData[rkey][dkey]);
+            })
+            seriesDataAry.push(arrays);
+          })
+          _.forEach(mathAdd, (mobj,mkey) => {
+            const array = [];
+            array.push(mobj);
+            _.forEach(chartOptions.series , (cobj,ckey ) => {
+              if(mkey === 0) {
+                array.push(Math.max(...cobj.data))
+              } else if(mkey === 1) {
+                array.push(Math.min(...cobj.data))
+              } else if(mkey === 2) {
+                const avg =  cobj.data.reduce((a,b) => a+b, 0) / cobj.data.length;
+                array.push(avg.toFixed(0))
+              } 
+            })
+            seriesDataAry.push(array);
+          })
           
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
@@ -1031,6 +1242,7 @@ setReportDataFormat(data) {
           chartObj.resourceName = obj.resourceName;
           chartObj.deviceName = data[obj.resourceKey][0].deviceName;
           chartObj.option = chartOptions;
+          chartObj.seriesData = seriesDataAry;
           chartObj.partition = partitionName;
           chartObj.key = "chart_"+key+'_'+dkey;
           chartObj.gridData = partitionData;
@@ -1046,11 +1258,13 @@ setReportDataFormat(data) {
               let partitionTx = [];
               let originRxVal = [];
               let originTxVal = [];
+              let totalVal = [];
 
               _.forEach(pobj, (network) => {
                 if(network.deviceId === dobj.id) {
                   partitionRx.push(this.autoConvertByte(obj,network.inBytesPerSec).value);
                   partitionTx.push(this.autoConvertByte(obj,network.outBytesPerSec).value);
+                  totalVal.push(Number(parseFloat(this.autoConvertByte(obj,network.inBytesPerSec).value+ this.autoConvertByte(obj,network.outBytesPerSec).value).toFixed(2)));
                   originRxVal.push(network.inBytesPerSec);    
                   originTxVal.push(network.outBytesPerSec);          
                 }
@@ -1059,6 +1273,7 @@ setReportDataFormat(data) {
               const netObj = {};
               netObj.RX= partitionRx;
               netObj.TX = partitionTx;
+              netObj.Total = totalVal
               partitionData = netObj;
               gridTotalAry.push(partitionRx,partitionTx)
               byteVal = this.autoConvertByte(obj,pobj[0].inBytesPerSec).unit;
@@ -1111,11 +1326,13 @@ setReportDataFormat(data) {
               let partitionTx = [];
               let originRxVal = [];
               let originTxVal = [];
+              let totalVal = [];
 
               _.forEach(pobj, (network) => {
                 if(network.deviceId === dobj.id) {
                   partitionRx.push(this.autoConvertByte(obj,network.inPktsPerSec).value);
                   partitionTx.push(this.autoConvertByte(obj,network.outPktsPerSec).value);
+                  totalVal.push(Number(parseFloat(this.autoConvertByte(obj,network.inBytesPerSec).value+ this.autoConvertByte(obj,network.outBytesPerSec).value).toFixed(2)));
                   originRxVal.push(network.inPktsPerSec);    
                   originTxVal.push(network.outPktsPerSec);          
                 }
@@ -1124,6 +1341,7 @@ setReportDataFormat(data) {
               const netObj = {};
               netObj.RX= partitionRx;
               netObj.TX = partitionTx;
+              netObj.Total = totalVal;
               partitionData = netObj;
               byteVal = this.autoConvertByte(obj,pobj[0].inPktsPerSec).unit;
             
@@ -1175,11 +1393,13 @@ setReportDataFormat(data) {
               let partitionTx = [];
               let originRxVal = [];
               let originTxVal = [];
+              let totalVal = [];
 
               _.forEach(pobj, (network) => {
                 if(network.deviceId === dobj.id) {
                   partitionRx.push(this.autoConvertByte(obj,network.inPktsPerSec).value);
                   partitionTx.push(this.autoConvertByte(obj,network.outPktsPerSec).value);
+                  totalVal.push(Number(parseFloat(this.autoConvertByte(obj,network.inBytesPerSec).value+ this.autoConvertByte(obj,network.outBytesPerSec).value).toFixed(2)));
                   originRxVal.push(network.inPktsPerSec);    
                   originTxVal.push(network.outPktsPerSec);          
                 }
@@ -1188,6 +1408,7 @@ setReportDataFormat(data) {
               const netObj = {};
               netObj.RX= partitionRx;
               netObj.TX = partitionTx;
+              netObj.Total = totalVal;
               partitionData = netObj;
               byteVal = this.autoConvertByte(obj,pobj[0].inPktsPerSec).unit;
             
@@ -1239,11 +1460,13 @@ setReportDataFormat(data) {
               let partitionTx = [];
               let originRxVal = [];
               let originTxVal = [];
+              let totalVal = [];
 
               _.forEach(pobj, (network) => {
                 if(network.deviceId === dobj.id) {
                   partitionRx.push(this.autoConvertByte(obj,network.inBytesPerSec).value);
                   partitionTx.push(this.autoConvertByte(obj,network.outBytesPerSec).value);
+                  totalVal.push(Number(parseFloat(this.autoConvertByte(obj,network.inBytesPerSec).value+ this.autoConvertByte(obj,network.outBytesPerSec).value).toFixed(2)));
                   originRxVal.push(network.inBytesPerSec);    
                   originTxVal.push(network.outBytesPerSec);          
                 }
@@ -1252,6 +1475,7 @@ setReportDataFormat(data) {
               const netObj = {};
               netObj.RX= partitionRx;
               netObj.TX = partitionTx;
+              netObj.Total = totalVal;
               partitionData = netObj;
               byteVal = this.autoConvertByte(obj,pobj[0].inBytesPerSec).unit;
             
@@ -1358,7 +1582,7 @@ changeByteType = (e, obj, i) => {
       chartOptions[i].byteVal = e.target.value;
       chartOptions[i].option.series[0].data = valueAry;
     }
-      
+    // chartOptions[i].seriesData = this.gridDataChage(e, obj, i, valueAry);  
     
   } else if(chartOptions[i].resourceName === 'Disk Used Bytes' || chartOptions[i].resourceName === 'Disk I/O Bytes' || 
             chartOptions[i].resourceName === 'Network Traffic' || chartOptions[i].resourceName === 'Network PPS' || 
@@ -1378,10 +1602,8 @@ changeByteType = (e, obj, i) => {
     } else {
       chartOptions[i].byteVal = e.target.value;
       chartOptions[i].option.series = valueAry;
-      chartOptions[i].seriesData = this.gridDataChage(e, obj, i, valueGridAry);
-      
     }
-    
+    // chartOptions[i].seriesData = this.gridDataChage(e, obj, i, valueGridAry);
   }
 
   
@@ -1393,38 +1615,81 @@ changeByteType = (e, obj, i) => {
 }
 
 gridDataChage = ( e, obj, i, valueGridAry ) => {
-  const gridData = [];
-  let chartOptions = _.cloneDeep(this.state.chartData);
-  obj.partition.unshift("Time");
-  gridData.push(obj.partition);
-  console.log(valueGridAry);
+  // const gridData = [];
+  // let chartOptions = _.cloneDeep(this.state.chartData);
+  // console.log(valueGridAry);
 
   
-  if(chartOptions[i].resourceName === 'Network Traffic'   || chartOptions[i].resourceName === 'Network PPS' ||
-     chartOptions[i].resourceName === 'NIC Discards'   || chartOptions[i].resourceName === 'NIC Errors' ) {
-    _.forEach(obj.option.xAxis.categories, (pobj,pkey) => {
-      const array = [];
-      const total = [];
-      array.push(_.replace(pobj, 'T', ' '));
+  // if(chartOptions[i].resourceName === 'Network Traffic'   || chartOptions[i].resourceName === 'Network PPS' ||
+  //    chartOptions[i].resourceName === 'NIC Discards'   || chartOptions[i].resourceName === 'NIC Errors' ) {
+  //     // obj.partition.unshift("Time");
+  //     gridData.push(obj.partition);
+  //   _.forEach(obj.option.xAxis.categories, (pobj,pkey) => {
+  //     const array = [];
+  //     const total = [];
+  //     array.push(_.replace(pobj, 'T', ' '));
   
-      _.forEach(valueGridAry, (vobj,vkey) => {
-        total.push(valueGridAry[vkey][pkey]);
-        array.push(valueGridAry[vkey][pkey]+e.target.value);
-      })
+  //     _.forEach(valueGridAry, (vobj,vkey) => {
+  //       total.push(valueGridAry[vkey][pkey]);
+  //       array.push(valueGridAry[vkey][pkey]+e.target.value);
+  //     })
   
-      array.push(total[0]+total[1]+e.target.value)
-      gridData.push(array)
-    })
+  //     array.push(total[0]+total[1]+e.target.value)
+  //     gridData.push(array)
+  //   })
   
-    const avg1 = valueGridAry.RX.reduce((a,b) => a+b, 0) / valueGridAry.RX.length;
-    const avg2 = valueGridAry.TX.reduce((a,b) => a+b, 0) / valueGridAry.TX.length;
-    gridData.push(['Max', Math.max(...valueGridAry.RX)+e.target.value, Math.max(...valueGridAry.TX)+e.target.value,Number(Math.max(...valueGridAry.RX)+Math.max(...valueGridAry.TX)).toFixed(2)+e.target.value])
-    gridData.push(['Min', Math.min(...valueGridAry.RX)+e.target.value, Math.min(...valueGridAry.TX)+e.target.value,Number(Math.min(...valueGridAry.RX)+Math.min(...valueGridAry.TX)).toFixed(2)+e.target.value])
-    gridData.push(['Avg', Number(avg1.toFixed(2))+e.target.value,  Number(avg2.toFixed(2))+e.target.value, Number(avg1+avg2).toFixed(2) +e.target.value  ])
+  //   const avg1 = valueGridAry.RX.reduce((a,b) => a+b, 0) / valueGridAry.RX.length;
+  //   const avg2 = valueGridAry.TX.reduce((a,b) => a+b, 0) / valueGridAry.TX.length;
+  //   gridData.push(['Max', Math.max(...valueGridAry.RX)+e.target.value, Math.max(...valueGridAry.TX)+e.target.value,Number(Math.max(...valueGridAry.RX)+Math.max(...valueGridAry.TX)).toFixed(2)+e.target.value])
+  //   gridData.push(['Min', Math.min(...valueGridAry.RX)+e.target.value, Math.min(...valueGridAry.TX)+e.target.value,Number(Math.min(...valueGridAry.RX)+Math.min(...valueGridAry.TX)).toFixed(2)+e.target.value])
+  //   gridData.push(['Avg', Number(avg1.toFixed(2))+e.target.value,  Number(avg2.toFixed(2))+e.target.value, Number(avg1+avg2).toFixed(2) +e.target.value  ])
   
-  }
+  // } else if(chartOptions[i].resourceName === 'Disk Used Bytes' || chartOptions[i].resourceName === "Disk I/O Bytes") {
+  //   const mathAdd = ['Max' , 'Min' , 'Avg']
+  //   // obj.partition.unshift("Time");
+  //   gridData.push(obj.partition);
+  //   _.forEach(obj.option.xAxis.categories, (pobj,pkey) => {
+  //     const array = [];
+  //     array.push(_.replace(pobj, 'T', ' '));
   
-  return gridData;
+  //     _.forEach(valueGridAry, (vobj,vkey) => {
+  //       array.push(valueGridAry[vkey][pkey]+e.target.value);
+  //     })
+  //     gridData.push(array)
+  //   })
+
+  //   _.forEach(mathAdd, (mobj,mkey) => {
+  //     const array = [];
+  //     array.push(mobj);
+  //     _.forEach(valueGridAry , (cobj,ckey ) => {
+  //       if(mkey === 0) {
+  //         array.push(Math.max(...valueGridAry[ckey])+e.target.value)
+  //       } else if(mkey === 1) {
+  //         array.push(Math.min(...valueGridAry[ckey])+e.target.value)
+  //       } else if(mkey === 2) {
+  //         const avg =  valueGridAry[ckey].reduce((a,b) => a+b, 0) / valueGridAry[ckey].length;
+  //         array.push(avg.toFixed(0)+e.target.value)
+  //       } 
+  //     })
+  //     gridData.push(array);
+  //   })
+    
+  // } else if(chartOptions[i].resourceName === 'Disk Total Used Bytes'      || chartOptions[i].resourceName === 'Memory Bytes' || 
+  //           chartOptions[i].resourceName === 'Memory Buffers Bytes'       || chartOptions[i].resourceName === 'Memory Cached Bytes' || 
+  //           chartOptions[i].resourceName === 'Memory Shared Bytes'        || chartOptions[i].resourceName === 'Memory Swap Bytes')  {
+  //   gridData.push(['Time', obj.deviceName]);
+    
+  //   _.forEach(obj.option.xAxis.categories, (pobj,pkey) => { 
+  //     gridData.push([pobj,Math.sqrt(Math.pow(valueGridAry[pkey],2))+e.target.value])
+  //   })
+  //   gridData.push(['Max', Math.max(...valueGridAry)+e.target.value]);
+  //   gridData.push(['Min', Math.min(...valueGridAry)+e.target.value]);
+  //   const avg =  valueGridAry.reduce((a,b) => a+b, 0) / valueGridAry.length;
+  //   gridData.push(['Avg', avg.toFixed(0)+e.target.value]);
+  // }
+
+  // console.log(gridData);
+  // return gridData;
 }
 
 /* 단위 자동 변경 */
@@ -1587,7 +1852,7 @@ chartTotalCheck = (e, obj , i) => {
     })
     seriesGrid.push(array)
     console.log(array);
-    chartOptions[i].seriesData=array;
+    // chartOptions[i].seriesData=array;
 
     const columnDefs = [
       {headerName:'시간' ,field:'time',maxWidth:180, cellStyle: { textAlign: 'center' } },
@@ -1701,6 +1966,7 @@ chartTotalCheckSecond = (e,i,obj,valueAry) => {
   // 초기화 변수
   let dataLength = 0;
   let gridDataLength = 0;
+
   if(obj.gridData === undefined) {
     _.forEach(obj.option.series, (dobj) => {
         data.push(dobj.data)
@@ -1712,6 +1978,7 @@ chartTotalCheckSecond = (e,i,obj,valueAry) => {
     })
     gridDataLength = gridDatas[0].length
   }
+  
   
   let maxVal = '';
   let minVal = '';
@@ -1735,8 +2002,7 @@ chartTotalCheckSecond = (e,i,obj,valueAry) => {
       minValAry[obj.partition[w]] = Math.min(...gridDatas[w])
     }
   }
-  console.log(data);
-  console.log(gridDatas);
+  
   
   if(chartOptions[i].resourceName === 'CPU Processor (%)'     || chartOptions[i].resourceName === 'CPU Context Switch' || 
     chartOptions[i].resourceName  === 'CPU Run Queue'         || chartOptions[i].resourceName === 'Load Avg'           || 
@@ -1752,7 +2018,7 @@ chartTotalCheckSecond = (e,i,obj,valueAry) => {
       _.forEach(sobj.data , (tobj, tkey) => {
         const obj = {};
         obj.time = timeChart[tkey];
-        obj.value = tobj
+        obj.value = tobj;
         array.push(obj);
       })
     })
@@ -1780,15 +2046,18 @@ chartTotalCheckSecond = (e,i,obj,valueAry) => {
             chartOptions[i].resourceName === 'CPU Used (%)'    || chartOptions[i].resourceName === 'Network Traffic' || 
             chartOptions[i].resourceName === 'Network PPS'     || chartOptions[i].resourceName === 'NIC Discards'      || 
             chartOptions[i].resourceName === 'NIC Errors') {
+    chartOptions[i].gridData = obj.gridData;
+    console.log(gridDatas);
     const array = [];
     _.forEach(timeChart, (tobj,tkey) => {
       const gridObj = {};
       gridObj.time= tobj
-      _.forEach(obj.gridData, (dobj,dkey) => {
-        gridObj[dkey] = dobj[tkey];
+      _.forEach(chartOptions[i].option.series, (dobj,dkey) => {
+        gridObj[dobj.name] = gridDatas[tkey];
       })
       array.push(gridObj);
     })
+    console.log(array);
     seriesGrid.push(array)
 
     const columnDefs=[]
@@ -1813,12 +2082,10 @@ chartTotalCheckSecond = (e,i,obj,valueAry) => {
     seriesColumn.push(columnDefs)
   } 
   
- 
   chartOptions[i].byteVal = e.target.value;
   chartOptions[i].option.series.data = data;
-  console.log(chartOptions[i].seriesData);
-  chartOptions[i].seriesData = null;
-
+  // chartOptions[i].gridData = obj.gridData;
+  
   this.setState({ 
     totalData: seriesGrid,
     chartColumnDefs: seriesColumn,
