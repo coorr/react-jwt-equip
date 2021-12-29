@@ -9,11 +9,11 @@ class ReportService {
     }
 
     getStatistics(id, sys, disk, nic, startDate, endDate) {
-      return axios.get(API_URL + "getStatistics/"+id+"?sys="+sys+"&disk="+disk+"&nic="+nic+"&startDate="+startDate+"&endDate="+endDate);
+      return axios.get(API_URL + "getStatistics/"+id+"?sys="+sys+"&disk="+disk+"&nic="+nic+"&startDate="+startDate+"&endDate="+endDate, null);
     }
 
-    getReportDownloadPdf(chartData) {
-      return axios.post(API_URL + "getReportDownloadPdf", chartData, {responseType:'arraybuffer' , headers: { Authorization:  authHeader() }})
+    getReportDownloadPdf(chartData,requestURL) {
+      return axios.post(API_URL + "getReportDownloadPdf", chartData, {responseType:'arraybuffer' ,headers: { Authorization:  authHeader(), Referers:requestURL }})
     }
 }
 
