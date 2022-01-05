@@ -17,10 +17,12 @@ import ManageEquipmentList from "./components/deviceManage/equipment-group-manag
 import Modify from './modals/modify.component';
 import HistoryRecord from "./components/deviceManage/history-record";
 import ReportResoruce from "./components/deviceManage/report-resource";
+import DiagramView from "./components/deviceManage/diagramView";
+import {TopogolyEquipment}  from './components/deviceManage/topology/topogolyEquipment.tsx';
 
 import test from "./components/deviceManage/test";
 
-import EventBus from "./common/EventBus";
+import EventBus from "./common/user/EventBus";
 import "rc-tree/assets/index.less";
 import "./styles.css";
 
@@ -89,7 +91,8 @@ class App extends Component {
 
     return (
       <>
-      {!window.localStorage.getItem('user') && ( <Redirect to="/login" />) }
+      {/* 로그인 정보가 없을 경우 login 페이지로 자동이동 */}
+      {!window.localStorage.getItem('user') && ( <Redirect to="/login" />) } 
      
       <div className="ContainerBox"> 
         <nav className="rootNavBarArea" >
@@ -126,7 +129,6 @@ class App extends Component {
                 </Link>
               </li>
             )}
-          
 
             {showAdminBoard && (
               <li className="rootNavBarList">
@@ -146,7 +148,15 @@ class App extends Component {
 
             {currentUser && (
               <li className="rootNavBarList">
-                <Link to={"/test"} className="rootNavBarText">
+                <Link to={"/DiagramView"} className="rootNavBarText">
+                  topology
+                </Link>
+              </li>
+            )}
+
+            {currentUser && (
+              <li className="rootNavBarList">
+                <Link to={"/TopogolyEquipment"} className="rootNavBarText">
                   User
                 </Link>
               </li>
@@ -207,7 +217,7 @@ class App extends Component {
           
             <Switch>
               <Route exact path={["/", "/home"]} component={Home} />
-              <Route exact path="/test" component={test} />
+              <Route exact path="/test"component={showAdminBoard ? test : () => <div>Loading posts...</div>  }  />
 
               <Route exact path="/login" component={Login} />
               <Route exact path="/register" component={Register} />
@@ -218,6 +228,8 @@ class App extends Component {
               <Route exact path="/equipmentGroupManage" component={showAdminBoard ? ManageEquipmentList : () => <div>Loading posts...</div>  } />
               <Route exact path="/historyRecord"        component={showAdminBoard ? HistoryRecord : () => <div>Loading posts...</div>} />
               <Route exact path="/reportResoruce"        component={showAdminBoard ? ReportResoruce : () => <div>Loading posts...</div>} />
+              <Route exact path="/DiagramView"        component={showAdminBoard ? DiagramView : () => <div>Loading posts...</div>} />
+              <Route exact path="/TopogolyEquipment"     component={showAdminBoard ? TopogolyEquipment : () => <div>Loading posts...</div>} />
             </Switch>
           
         </div>

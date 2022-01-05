@@ -10,13 +10,13 @@ body{
 /* // 937 */
 .ContainerBox{width: 1920px; height: 937px; }   
 .rootNavBarArea{ width: 100%; height: 5%;  background-color: #2d2c33; display: flex; position: fixed;  z-index: 9999;}
-.rootNavBarTitle{color: white; font-size: 1.5em; text-decoration: none; margin-left: 2%; }
+.rootNavBarTitle{color: white; font-size: 1.5em; text-decoration: none; margin-left: 2%; margin-top: 0.2%; }
 .rootNavBarTitle:hover{color: white; font-size: 1.5em; text-decoration: none; margin-left: 2%; }
-.rootNavBar{ width: 30%; height: 100%; display: flex; }
-.rootNavBarList{ margin-top: 1.8%; list-style:none;  margin-left: 5%;}
+.rootNavBar{ width: 40%;  display: flex; }
+.rootNavBarList{ margin-top: 1.43%; list-style:none;  margin-left: 5%;}
 .rootNavBarText{color: #93939b; text-decoration: none;}
 .rootNavBarText:hover{color: #93939b; text-decoration: none;}
-.rootNavBarLogin{margin-left: 50%;  width: 10%; height: 100%; display: flex; list-style:none;}
+.rootNavBarLogin{margin-left: auto; margin-right: 0;  width: 10%; height: 100%; display: flex; list-style:none;}
 .rootNavBarListLogin{ margin-top: 5%; margin-left: 10%; }
 .rootNavBarTextLogin{color: #93939b; text-decoration: none; }
 .rootNavBarTextLogin:hover{color: #93939b; text-decoration: none;}

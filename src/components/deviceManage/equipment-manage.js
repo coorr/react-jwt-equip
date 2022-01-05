@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import UserService from '../../services/user.service';
-import EventBus from '../../common/EventBus';
+import EventBus from '../../common/user/EventBus';
 import Modals from '../../modals/modal.component';
 import Modify from '../../modals/modify.component';
 import Upload from '../../modals/upload.component';

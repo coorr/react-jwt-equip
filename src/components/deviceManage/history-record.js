@@ -638,7 +638,6 @@ infiniteData = (data) => {
                     <Loader />
                   )
                 }  
-                
                     <AgGridReact
                     headerHeight='30'
                     floatingFiltersHeight='23'
@@ -648,27 +647,10 @@ infiniteData = (data) => {
                     rowModelType={'infinite'} 
                     cacheBlockSize='30'
                     onGridReady={params => { this.gridApis = params.api;}}
-                 
-                  />
-                  
-                  
-                    
-                
-                  
-                  
-                    
-                 
-                   
-                           
+                  />    
                </div>
             </div>
           </div>
-
-
-         
-
-        
     );
-   
   }
 }

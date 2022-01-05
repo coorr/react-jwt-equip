@@ -5,11 +5,11 @@ import { saveAs } from 'file-saver';
 import AiwacsService from '../../services/equipment.service';
 import ReportService from '../../services/report.service';
 import AuthService from "../../services/auth.service";
+import FilterButton from '../../common/components/filterButton';
 
 import Search from '../../images/search.png'
 import Loader from '../loader';
 import ChartComponent from './ChartComponent';
-import CreatePdf from './chart/createPdf.js'
 
 import {Button, Modal, Form } from "react-bootstrap";
 
@@ -26,7 +26,6 @@ import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import "react-datepicker/dist/react-datepicker.css";
 
 import '../../css/reportResource.css';
-import { isFor } from '@babel/types';
 
 const time = [
   {value:'00'}, {value:'01'}, {value:'02'}, {value:'03'}, {value:'04'}, {value:'05'},
@@ -124,7 +123,7 @@ const modalOptions = {
 };
 
 // 하루 초 86400000
-const oneMonth = new Date(new Date().getTime() - 36979200000 );
+const oneMonth = new Date(new Date().getTime() - 38707200000 );
 
 const seriesGrid = [];
 const seriesColumn = [];
@@ -151,6 +150,7 @@ class ReportResoruce extends Component {
       secondTimeFormat: '23',
       calendarCheckSecond:false,
       calendarCheckFirst:false,
+      filterCheck:true
     };
   }
 
@@ -314,7 +314,7 @@ setReportDataFormat(data) {
           chartOptions.title.text = '<span style="font-weight: bold; font-size:18px;">'+obj.resourceName+'</span> / '+startDate+'∽'+endDate+', '+dobj.equipment;
           chartOptions.xAxis.categories = categoryAry;
           chartOptions.yAxis = {max:100, tickInterval:20 }
-          chartOptions.series[0].data = [0, 0, 0,0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 0, 0, 0, 0, 0, 0];
+          chartOptions.series[0].data = valueAry;
           chartOptions.series[0].name = dobj.equipment;
           
           chartObj.resourceName = obj.resourceName;
@@ -2232,16 +2232,26 @@ calenderFirstChange = (date) => {
 
   ReportService.getReportDownloadPdf(chartDatas, window.location.pathname) 
     .then((res) => {
+      console.log(res);
       const blob =new Blob([res.data],{type: 'application/pdf'});
-      saveAs(blob,"AIWACS_Report.pdf")
+      console.log(blob);
+      saveAs(blob,"AiWACS.Report.pdf")
     })
  }
 
+ clickFilter = () => {
+  const { filterCheck } = this.state;
+  if(filterCheck) {
+    this.setState({filterCheck:false})
+  } else {
+    this.setState({filterCheck:true})
+  }
+}
 
 
   render() {
     const { loader, chartData, isResourceModal, isDeviceModal, selectedResourceName, selectedDeviceName, deviceData, calendarCheckFirst, calendarCheckSecond, 
-            date, totalKey, totalData, chartColumnDefs, firstDateFormat, secondDateFormat,firstTimeFormat,secondTimeFormat } = this.state;
+            date, totalKey, totalData, chartColumnDefs, firstDateFormat, secondDateFormat,firstTimeFormat,secondTimeFormat, filterCheck} = this.state;
            
     const firstDateFormatInput = Moment(firstDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
     const secondDateFormatInput = Moment(secondDateFormat, "YYYY.MM.DD").format("YYYY-MM-DD");
@@ -2255,7 +2265,9 @@ calenderFirstChange = (date) => {
     return (
       <>
         <div className="reportResourceContainer">
-          <div className="reportFilterArea">
+          {
+            filterCheck ? (
+<div className="reportFilterArea">
             <div className="reportFilterBox">
               <div className="reportFilterFirstDiv">
                 <div className="reportFilterLeftBox">
@@ -2421,6 +2433,17 @@ calenderFirstChange = (date) => {
               </div>
             </div>
           </div>
+            ) : ( null )
+          }
+          
+          <div className="reportFilterButtonBox">
+            <button type="button" className="input-group-addon reportFilterButtonBtn" onClick={()=> this.clickFilter()}>
+              <label className="reportFilterLabel">
+              ▲ Filter
+              </label>
+            </button>
+          </div>
+
           {
              Object.keys(chartData).length !== 0 && (
               // <CreatePdf option={chartData} />
