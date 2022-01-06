@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import * as go from 'gojs';
 import { ReactDiagram } from 'gojs-react';
 import styles from '../../../css/diagramEquipment.module.css'
+import EquipmentLogo from '../../../images/equipment.png';
 
 interface WrapperProps {
   nodeDataArray: Array<go.ObjectData>;
@@ -34,67 +35,96 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
     if (diagram instanceof go.Diagram) {
       diagram.removeDiagramListener('ChangedSelection', this.props.onDiagramEvent);
     }
-  }
+  }  
+
 
   private initDiagram(): go.Diagram {
     const $ = go.GraphObject.make;
-    // set your license key here before creating the diagram: go.Diagram.licenseKey = "...";
+
     const diagram =
       $(go.Diagram,
         {
           'undoManager.isEnabled': true,  // 모델 변경 수신을 허용하도록 설정해야 합니다. 
-          // 'undoManager.maxHistoryLength': 0,  // uncomment disable undo/redo functionality
           'clickCreatingTool.archetypeNodeData': { text: 'new node', color: 'lightblue' },
           model: $(go.GraphLinksModel,
             {
-              linkKeyProperty: 'key',  // IMPORTANT! must be defined for merges and data sync when using GraphLinksModel
-              // positive keys for nodes
+              linkKeyProperty: 'id',  
               makeUniqueKeyFunction: (m: go.Model, data: any) => {
-                let k = data.key || 1;
+                let k = data.id || 1;
                 while (m.findNodeDataForKey(k)) k++;
-                data.key = k;
+                data.id = k;
                 return k;
               },
-              // negative keys for links
+
               makeUniqueLinkKeyFunction: (m: go.GraphLinksModel, data: any) => {
-                let k = data.key || -1;
+                let k = data.id || -1;
                 while (m.findLinkDataForKey(k)) k--;
-                data.key = k;
+                data.id = k;
                 return k;
               }
             })
         });
 
-    // define a simple Node template
+    
     diagram.nodeTemplate =
-      $(go.Node, 'Auto',  // the Shape will go around the TextBlock
+      $(go.Node, 'Vertical',  
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-        $(go.Shape, 'RoundedRectangle',
-          {
-            name: 'SHAPE', fill: 'white', strokeWidth: 0,
-            // set the port properties:
-            portId: '', fromLinkable: true, toLinkable: true, cursor: 'pointer'
-          },
-          // Shape.fill is bound to Node.data.color
-          new go.Binding('fill', 'color')),
-        $(go.TextBlock,
-          { margin: 8, editable: true, font: '400 .875rem Roboto, sans-serif' },  // some room around the text
-          new go.Binding('text').makeTwoWay()
-          )
+        $(go.Panel,"Auto",
+          $(go.Shape, 'RoundedRectangle',
+            {
+              name: 'SHAPE', fill: 'white', strokeWidth: 2, stroke: 'skyblue',
+              portId: '', fromLinkable: true, toLinkable: true, cursor: 'pointer'
+            },
+            new go.Binding('fill', 'color')),
+            $(go.Picture,
+              {maxSize: new go.Size(50, 50), source: EquipmentLogo},
+              new go.Binding("source" , "img")),
+          ),
+          $(go.TextBlock,
+            { margin: 1, editable: true, font: '400 .775rem Roboto, sans-serif' },  
+            new go.Binding('text','equipment').makeTwoWay()
+            ),
+          $(go.TextBlock,
+            { margin: 1, editable: true, font: '400 .775rem Roboto, sans-serif' },  
+            new go.Binding('text','settingIp').makeTwoWay()
+            )
         );
 
-    // relinking depends on modelData
     diagram.linkTemplate =
       $(go.Link,
         new go.Binding('relinkableFrom', 'canRelink').ofModel(),
         new go.Binding('relinkableTo', 'canRelink').ofModel(),
-        $(go.Shape),
-        $(go.Shape, { toArrow: 'Standard' })
+        $(go.Shape,
+          {strokeWidth: 2},
+          new go.Binding('stroke' , 'borderColor', function(type) {
+            switch(type) {
+              case 1:
+                return "skyblue";
+              case 2:
+                return "green";
+              case 3:
+                return "yellow";
+              case 4:
+                return "orange";
+              case 5:
+                return "red";
+              default:
+                return 'skyblue';
+            }
+          })
+          ), 
       );
-
+      diagram.toolManager.mouseWheelBehavior = go.ToolManager.WheelZoom;   // 스크롤 zoom 활성화
+      diagram.allowInsert=false;   // 클릭 시 node 생성 방지
+      diagram.model.nodeKeyProperty= function(nodeData , id) {   // key 속성 -> id 변경
+        return nodeData.id;
+      }
     return diagram;
   }
 
+  
+
+  
   public render() {
     return (
       <ReactDiagram

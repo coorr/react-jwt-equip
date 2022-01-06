@@ -2267,7 +2267,7 @@ calenderFirstChange = (date) => {
         <div className="reportResourceContainer">
           {
             filterCheck ? (
-<div className="reportFilterArea">
+          <div className="reportFilterArea">
             <div className="reportFilterBox">
               <div className="reportFilterFirstDiv">
                 <div className="reportFilterLeftBox">

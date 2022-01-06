@@ -5,7 +5,7 @@ import {  AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import "ag-grid-enterprise";
-import styles from '../../css/diagramEquipment.module.css';
+import styles from '../../../css/diagramEquipment.module.css';
 
 
 const modalOptions = {

@@ -1,10 +1,5 @@
-.diagram_component {
-  width: 1000px;
-  height: 700px;
-  border: solid 1px black;
-  background-color: white;
-}
-
+/* diagramView.js */
+/* search */
 .diagram_container{ width: 100%; height: 100%; background-color: #E5E4EA; overflow: hidden; margin-left: 50px; margin-top: 2.4%;}
 .diagram_searchArea{width: 99.5%; height: 13%;  background-color: #fff; margin-left: 0.25%;}
 .diagram_searchTitleBox{width: 100%; height: 35%;   display: flex; }
@@ -13,9 +8,18 @@
 .diagram_searchTitleRightArea{width: 90%; border: 1px solid #999999; height: 70%; margin-top: 0.3%; background-color: #F3F3F5;}
 .diagram_searchTitleRightInput{  margin-left: 0.5%; width: 90%; height: 90%; border: 0; margin-top: 0.1%; background-color: #F3F3F5;}
 
+/* 조회하기 */
 .diagram_selectArea{text-align: center;  margin-top: 2.1%;  margin-right: 4%; }
 .diagram_selectBtn{  font-size: 0.9em; border: 1px solid #29363d; background-color: #29363d; color: white; border-radius: 0;}
 .diagram_selectBtn:hover {border:1px solid black; background-color: black; color: white;}
 
+/* Grid */
 .diagram_gridArea{width: 99.5%; height: 72%;  background-color: #fff; margin-left: 0.25%;}
 .diagram_gridBtnBox{text-align: right; width: 99%; height: 9%; }
+
+/* topogolyEquipment.tsx */
+.topogoly_container{width: 100%; height: 100%; background-color: #E5E4EA;  margin-left: 50px; margin-top: 2.4%;}
+.topogoly_topMenu{width: 99.5%; margin: 0.25% 0.25% 0 0.25%; background-color: white; height: 4%; }
+
+/* DiagraWraaper.tsx */
+.diagram_component {width: 99.5%; height: 85%;  background-color: white; margin-left: 0.25%;}

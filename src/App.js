@@ -17,7 +17,7 @@ import ManageEquipmentList from "./components/deviceManage/equipment-group-manag
 import Modify from './modals/modify.component';
 import HistoryRecord from "./components/deviceManage/history-record";
 import ReportResoruce from "./components/deviceManage/report-resource";
-import DiagramView from "./components/deviceManage/diagramView";
+import DiagramView from "./components/deviceManage/topology/diagramView";
 import {TopogolyEquipment}  from './components/deviceManage/topology/topogolyEquipment.tsx';
 
 import test from "./components/deviceManage/test";

@@ -1,44 +1,79 @@
 import React, { Component} from 'react';
 import * as go from 'gojs';
-import { DiagramWrapper } from './DiagramWrapper';
+import { DiagramWrapper } from './diagramWrapper';
+import EquipmentLogo from '../../../images/equipment.png';
+import styles from '../../../css/diagramEquipment.module.css';
+import AiwacsService from '../../../services/equipment.service'
+import DiagramViewService from '../../../services/diagramView.service';
 
+import {Button, Modal, Form } from "react-bootstrap";
+import {  AgGridReact } from 'ag-grid-react';
+
+import "ag-grid-enterprise";
+import 'ag-grid-community/dist/styles/ag-grid.css';
+import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
+
+
+const modalOptions = {
+  deviceDefaultColDef: {
+    sortable:true,  
+    resizable:true,  
+    floatingFilter: true,
+    filter:'agTextColumnFilter', 
+    flex:1,
+    maxWidth:210,
+    cellStyle: {fontSize: '12px'}
+  },
+  deviceColumnDefs: [
+    { headerName: '별칭', field:'nickname', headerCheckboxSelection: true, checkboxSelection:true },
+    { headerName: '장비 명', field:'equipment' },
+    { headerName: 'IP', field:'settingIp' },
+    { headerName: 'GUID', field:'settingIp' },
+  ],
+}
 
 interface AppState {
-  // ...
   nodeDataArray: Array<go.ObjectData>;
   linkDataArray: Array<go.ObjectData>;
   modelData: go.ObjectData;
   selectedKey: number | null;
   skipsDiagramUpdate: boolean;
-  test: Array<object>;
+  isDeviceModal: boolean;
+  isDeviceData: Array<object>;
 }
 
 export class TopogolyEquipment extends Component<{}, AppState> {
+  deviceGridApi: any;
   constructor(props: object) {
     super(props);
     this.state = {
-      nodeDataArray: [
-        { key: 0, text: 'Alpha', color: 'white', loc: '0 0' },
-        { key: 1, text: 'Beta', color: 'white', loc: '150 0' },
-        { key: 2, text: 'Gamma', color: 'white', loc: '0 150' },
-        { key: 3, text: 'Delta', color: 'white', loc: '150 150' }
-      ],
+      nodeDataArray: [],
       linkDataArray: [
-        { key: -1, from: 0, to: 1 },
-        { key: -2, from: 0, to: 2 },
-        { key: -3, from: 1, to: 1 },
-        { key: -4, from: 2, to: 3 },
-        { key: -5, from: 3, to: 0 }
+        { id: -1, from: 1, to: 2 , borderColor:1},
+        { id: -2, from: 1, to: 3 , borderColor:1},
+        { id: -3, from: 2, to: 2 , borderColor:1},
+        { id: -4, from: 3, to: 4 , borderColor:1},
+        { id: -5, from: 4, to: 1 , borderColor:5}
       ],
       modelData: {
         canRelink: true
       },
       selectedKey: null,
       skipsDiagramUpdate: false,
-      test: []
+      isDeviceModal:false,
+      isDeviceData : [], 
 
     };
     
+  }
+
+  public componentDidMount(): void {
+      
+    DiagramViewService.getTopologyNode()
+      .then(res => {
+        console.log(res.data);
+        this.setState({nodeDataArray:res.data})
+      })
   }
 
   public handleDiagramEvent = (e: go.DiagramEvent)  => {
@@ -65,11 +100,10 @@ export class TopogolyEquipment extends Component<{}, AppState> {
     const insertedLinkKeys = obj.insertedLinkKeys;   // 삽입된 링크키
     const modifiedLinkData = obj.modifiedLinkData;    // 수정된 링크키
     const removedLinkKeys = obj.removedLinkKeys;      // 삭제된 링크키
-    const modifiedModelData = obj.modelData;  // 모델 데이터
+    const modifiedModelData = obj.modelData;      // 모델 데이터
 
     console.log(obj)
     
-    this.setState({nodeDataArray :this.state.nodeDataArray.concat(modifiedNodeData[0])})
   }
 
   public handleRelinkChange = (e: any) => {
@@ -80,16 +114,92 @@ export class TopogolyEquipment extends Component<{}, AppState> {
     this.setState({ modelData: { canRelink: value }, skipsDiagramUpdate: false });
   }
 
+  public addNodeBtn = () => {
+    AiwacsService.getEquipmentSnmp() 
+      .then(res => {
+        this.setState({isDeviceData:res.data, isDeviceModal: true})
+      })
+    // this.setState({isDeviceModal:true})
+    // const user = { id: 7, name: 'Alphasssssssss',  loc: '-700 30' ,  ip:'10.10.10.80'}
+    // this.setState({ nodeDataArray: this.state.nodeDataArray.concat(user)})
+  }
+
+  public applyDeviceModal = () => {
+    let selectedDeviceNode = this.deviceGridApi.getSelectedNodes();
+    let selectedDeviceName:Array<object> = [];
+
+    if(selectedDeviceNode.length === 0) {
+      alert("장비를 선택해 주세요.");
+      return;
+    } else {
+      selectedDeviceNode.forEach((v: any, i:any) => {
+        i = i*80;
+        let obj:any = {};
+        let xAxis:any = -700+i;
+        obj.id = v.data.id
+        obj.name= v.data.equipment
+        obj.ip=v.data.settingIp
+        obj.loc=xAxis+' '+"30"
+        selectedDeviceName.push(obj);
+      });
+      this.setState({ isDeviceModal:false, nodeDataArray: this.state.nodeDataArray.concat(selectedDeviceName)  });
+    }
+  }
+
+  public saveBtn = () => {
+    const { nodeDataArray } = this.state;
+    // console.log(selectedDeviceName);
+    
+  }
+
   public render = () => {
     let selKey;
     if (this.state.selectedKey !== null) {
       selKey = <p>Selected key: {this.state.selectedKey}</p>;
     }
-  const { nodeDataArray } = this.state;
+  const { nodeDataArray,selectedKey, isDeviceModal, isDeviceData } = this.state;
   console.log(nodeDataArray);
+  console.log(selectedKey);
+  console.log(isDeviceData);
+  
+  
   
     return (
-      <div style={{marginLeft:'200px', marginTop:'100px'}}>
+      <div className={styles.topogoly_container}>
+        <div className={styles.topogoly_topMenu}>
+          <Button onClick={this.addNodeBtn}>장비 추가</Button>
+          <Button onClick={this.saveBtn}>저장</Button>
+          { isDeviceModal && 
+             <>
+             <Modal show={isDeviceModal} onHide={() => this.setState({ isDeviceModal: false })} dialogClassName="userModel" className="reportModelHw">
+               <Modal.Header className="header-Area">
+                 <Modal.Title id="contained-modal-title-vcenter" className="header_Text">장비</Modal.Title>
+               </Modal.Header>
+               <Modal.Body>
+                 <div className="ag-theme-alpine" style={{ width: "43vw", height: "40vh" }}>
+                   <AgGridReact
+                     headerHeight={30}
+                     floatingFiltersHeight={27}
+                     rowHeight={30}
+                     rowSelection="multiple"
+                     rowData={isDeviceData}
+                     columnDefs={modalOptions.deviceColumnDefs}
+                     defaultColDef={modalOptions.deviceDefaultColDef}
+                     onGridReady={params => {
+                       this.deviceGridApi = params.api; }
+                     } 
+                   />
+                 </div>
+               </Modal.Body>
+
+               <Form.Group className="reportDeviceFooter">
+                 <Button onClick={() => this.applyDeviceModal()} className="reportActiveBtn">적용</Button>
+                 <Button onClick={() => this.setState({ isDeviceModal: false })} className="reporthideBtn">닫기</Button>
+               </Form.Group>
+             </Modal>
+           </>
+          }
+        </div>
         <DiagramWrapper
           nodeDataArray={this.state.nodeDataArray}
           linkDataArray={this.state.linkDataArray}
@@ -98,15 +208,7 @@ export class TopogolyEquipment extends Component<{}, AppState> {
           onDiagramEvent={this.handleDiagramEvent}
           onModelChange={this.handleModelChange}
         />
-        <label>
-          Allow Relinking?
-          <input
-            type='checkbox'
-            id='relink'
-            checked={this.state.modelData.canRelink}
-            onChange={this.handleRelinkChange} />
-        </label>
-        {selKey}
+
       </div>
     );
   }
