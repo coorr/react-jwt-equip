@@ -12,6 +12,7 @@ import {  AgGridReact } from 'ag-grid-react';
 import "ag-grid-enterprise";
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
+import diagramViewService from '../../../services/diagramView.service';
 
 
 const modalOptions = {
@@ -137,8 +138,8 @@ export class TopogolyEquipment extends Component<{}, AppState> {
         let obj:any = {};
         let xAxis:any = -700+i;
         obj.id = v.data.id
-        obj.name= v.data.equipment
-        obj.ip=v.data.settingIp
+        obj.equipment= v.data.equipment
+        obj.settingIp=v.data.settingIp
         obj.loc=xAxis+' '+"30"
         selectedDeviceName.push(obj);
       });
@@ -149,6 +150,14 @@ export class TopogolyEquipment extends Component<{}, AppState> {
   public saveBtn = () => {
     const { nodeDataArray } = this.state;
     // console.log(selectedDeviceName);
+    const data = {
+      nodeDataArray: nodeDataArray
+    }
+    const ddata = [{ equipment : "아아아" }]
+    DiagramViewService.insertTopologyNode(data) 
+      .then(() => { console.log("data")})
+      .catch((err) => console.log(err))
+      
     
   }
 

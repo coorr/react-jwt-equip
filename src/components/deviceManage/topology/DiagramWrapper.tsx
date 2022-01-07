@@ -119,6 +119,37 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
       diagram.model.nodeKeyProperty= function(nodeData , id) {   // key 속성 -> id 변경
         return nodeData.id;
       }
+      // diagram.model.link
+      // diagram.model = $(go.GraphLinksModel,
+      //   {linkFromKeyProperty: 'froms'}  
+      // )
+
+      // diagram.model = $(go.GraphLinksModel, { linkFromPortIdProperty: 'from' });
+
+      // diagram.model.l
+      // diagram.model.linkFromPortIdProperty = (data:any, newval:any)  => {
+      //   console.log(data);
+        
+      //   return data.edge.froms
+      // }
+
+      // diagram.model.linkFromKeyProperty
+      // m.setFromKeyForLinkData = function(linkdata, froms) {
+      //   console.log(linkdata);
+      //   console.log(froms);
+        
+        
+      //   return linkdata.froms;
+      // }
+
+      // m.linkFromKeyProperty = function(linkdata, froms) {
+      //   console.log(linkdata);
+        
+      //   return linkdata.froms;
+      // }
+      // // diagram.model=m
+      // m.linkToPortIdProperty= 'tos';
+
     return diagram;
   }
 
