@@ -37,7 +37,7 @@ interface AppState {
   nodeDataArray: Array<go.ObjectData>;
   linkDataArray: Array<go.ObjectData>;
   modelData: go.ObjectData;
-  selectedKey: number | null;
+  selectedKey: Array<Number>;
   skipsDiagramUpdate: boolean;
   isDeviceModal: boolean;
   isDeviceData: Array<object>;
@@ -50,16 +50,16 @@ export class TopogolyEquipment extends Component<{}, AppState> {
     this.state = {
       nodeDataArray: [],
       linkDataArray: [
-        { id: -1, from: 1, to: 2 , borderColor:1},
-        { id: -2, from: 1, to: 3 , borderColor:1},
-        { id: -3, from: 2, to: 2 , borderColor:1},
-        { id: -4, from: 3, to: 4 , borderColor:1},
-        { id: -5, from: 4, to: 1 , borderColor:5}
+        { id: -1, froms: 1, tos: 2 , borderColor:1},
+        { id: -2, froms: 1, tos: 3 , borderColor:1},
+        { id: -3, froms: 2, tos: 2 , borderColor:1},
+        { id: -4, froms: 3, tos: 4 , borderColor:1},
+        { id: -5, froms: 4, tos: 1 , borderColor:5}
       ],
       modelData: {
         canRelink: true
       },
-      selectedKey: null,
+      selectedKey: [],
       skipsDiagramUpdate: false,
       isDeviceModal:false,
       isDeviceData : [], 
@@ -72,19 +72,27 @@ export class TopogolyEquipment extends Component<{}, AppState> {
       
     DiagramViewService.getTopologyNode()
       .then(res => {
-        console.log(res.data);
+        console.log(res.data);        
         this.setState({nodeDataArray:res.data})
+        console.log();
+        
       })
   }
+
+  
 
   public handleDiagramEvent = (e: go.DiagramEvent)  => {
     console.log(e);
     const name = e.name;
+    const keys = [];
     switch (name) {
       case 'ChangedSelection': {
         const sel = e.subject.first();
+        
         if (sel) {
-          this.setState({ selectedKey: sel.key });
+          keys.push(sel.key);
+          console.log(keys)
+          this.setState({ selectedKey: this.state.selectedKey.concat(sel.key)});
         } else {
           this.setState({ selectedKey: null });
         }
@@ -102,14 +110,34 @@ export class TopogolyEquipment extends Component<{}, AppState> {
     const modifiedLinkData = obj.modifiedLinkData;    // 수정된 링크키
     const removedLinkKeys = obj.removedLinkKeys;      // 삭제된 링크키
     const modifiedModelData = obj.modelData;      // 모델 데이터
+    const midifiedNodeData = obj.modifiedNodeData;  // loc 변화
 
     console.log(obj)
+    console.log(midifiedNodeData);
+    console.log(modifiedModelData);
+
+    const { selectedKey, nodeDataArray } = this.state;
+
+    
+    if(obj.modifiedNodeData !== undefined ) {
+      console.log(selectedKey);
+      
+      // nodeDataArray.filter((v) => v.id === selectedKey)
+      // console.log(midifiedNodeData);
+      
+      
+      // modifiedModelData.filter((v:any) => v.id === selectedKey)
+      // console.log(midifiedNodeData);
+      // const data:Array<Object> =  nodeDataArray.concat(midifiedNodeData[0])
+      // console.log(data);
+      
+      // this.setState({ nodeDataArray: data})
+      
+    }
     
   }
 
   public handleRelinkChange = (e: any) => {
-    console.log(e);
-    
     const target = e.target;
     const value = target.checked;
     this.setState({ modelData: { canRelink: value }, skipsDiagramUpdate: false });
@@ -120,9 +148,6 @@ export class TopogolyEquipment extends Component<{}, AppState> {
       .then(res => {
         this.setState({isDeviceData:res.data, isDeviceModal: true})
       })
-    // this.setState({isDeviceModal:true})
-    // const user = { id: 7, name: 'Alphasssssssss',  loc: '-700 30' ,  ip:'10.10.10.80'}
-    // this.setState({ nodeDataArray: this.state.nodeDataArray.concat(user)})
   }
 
   public applyDeviceModal = () => {
@@ -142,6 +167,8 @@ export class TopogolyEquipment extends Component<{}, AppState> {
         obj.settingIp=v.data.settingIp
         obj.loc=xAxis+' '+"30"
         selectedDeviceName.push(obj);
+        console.log(selectedDeviceName);
+        
       });
       this.setState({ isDeviceModal:false, nodeDataArray: this.state.nodeDataArray.concat(selectedDeviceName)  });
     }
@@ -155,17 +182,16 @@ export class TopogolyEquipment extends Component<{}, AppState> {
     }
     const ddata = [{ equipment : "아아아" }]
     DiagramViewService.insertTopologyNode(data) 
-      .then(() => { console.log("data")})
+      .then(() => {
+         console.log("data")
+        })
       .catch((err) => console.log(err))
       
     
   }
 
   public render = () => {
-    let selKey;
-    if (this.state.selectedKey !== null) {
-      selKey = <p>Selected key: {this.state.selectedKey}</p>;
-    }
+
   const { nodeDataArray,selectedKey, isDeviceModal, isDeviceData } = this.state;
   console.log(nodeDataArray);
   console.log(selectedKey);

@@ -41,11 +41,21 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
   private initDiagram(): go.Diagram {
     const $ = go.GraphObject.make;
 
+    
+
     const diagram =
       $(go.Diagram,
         {
           'undoManager.isEnabled': true,  // 모델 변경 수신을 허용하도록 설정해야 합니다. 
           'clickCreatingTool.archetypeNodeData': { text: 'new node', color: 'lightblue' },
+          initialContentAlignment:go.Spot.Center,
+          contentAlignment:go.Spot.None,
+          // autoScale:go.Spot.None,
+          // setSize
+          layout: $(go.ForceDirectedLayout, {
+            randomNumberGenerator:null
+          }),
+
           model: $(go.GraphLinksModel,
             {
               linkKeyProperty: 'id',  
@@ -61,10 +71,20 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
                 while (m.findLinkDataForKey(k)) k--;
                 data.id = k;
                 return k;
-              }
-            })
+              },
+              linkFromKeyProperty: 'froms',
+              linkToKeyProperty: 'tos',
+              
+            }),
+          
         });
-
+    diagram.layout.isInitial =false;
+    diagram.layout.isOngoing =false;
+    diagram.addDiagramListener('InitialLayoutCompleted', function(e) {
+      if (e.diagram.nodes.all(function(n) { return (n.location.x === 0 && n.location.y === 0) })) {
+          e.diagram.layoutDiagram(true);
+      }
+  });
     
     diagram.nodeTemplate =
       $(go.Node, 'Vertical',  
@@ -119,37 +139,6 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
       diagram.model.nodeKeyProperty= function(nodeData , id) {   // key 속성 -> id 변경
         return nodeData.id;
       }
-      // diagram.model.link
-      // diagram.model = $(go.GraphLinksModel,
-      //   {linkFromKeyProperty: 'froms'}  
-      // )
-
-      // diagram.model = $(go.GraphLinksModel, { linkFromPortIdProperty: 'from' });
-
-      // diagram.model.l
-      // diagram.model.linkFromPortIdProperty = (data:any, newval:any)  => {
-      //   console.log(data);
-        
-      //   return data.edge.froms
-      // }
-
-      // diagram.model.linkFromKeyProperty
-      // m.setFromKeyForLinkData = function(linkdata, froms) {
-      //   console.log(linkdata);
-      //   console.log(froms);
-        
-        
-      //   return linkdata.froms;
-      // }
-
-      // m.linkFromKeyProperty = function(linkdata, froms) {
-      //   console.log(linkdata);
-        
-      //   return linkdata.froms;
-      // }
-      // // diagram.model=m
-      // m.linkToPortIdProperty= 'tos';
-
     return diagram;
   }
 
@@ -157,6 +146,8 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
 
   
   public render() {
+    console.log("2323");
+    
     return (
       <ReactDiagram
         ref={this.diagramRef}
