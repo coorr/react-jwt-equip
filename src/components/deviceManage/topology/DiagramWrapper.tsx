@@ -26,6 +26,7 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
     const diagram = this.diagramRef.current.getDiagram();
     if (diagram instanceof go.Diagram) {
       diagram.addDiagramListener('ChangedSelection', this.props.onDiagramEvent);
+      // this.diagramRef.current.clear();
     }
   }
 
@@ -41,20 +42,14 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
   private initDiagram(): go.Diagram {
     const $ = go.GraphObject.make;
 
-    
-
     const diagram =
       $(go.Diagram,
         {
           'undoManager.isEnabled': true,  // 모델 변경 수신을 허용하도록 설정해야 합니다. 
           'clickCreatingTool.archetypeNodeData': { text: 'new node', color: 'lightblue' },
-          initialContentAlignment:go.Spot.Center,
-          contentAlignment:go.Spot.None,
-          // autoScale:go.Spot.None,
-          // setSize
-          layout: $(go.ForceDirectedLayout, {
-            randomNumberGenerator:null
-          }),
+          // layout: $(go.Layout, {
+          //   isL
+          // })
 
           model: $(go.GraphLinksModel,
             {
@@ -74,20 +69,13 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
               },
               linkFromKeyProperty: 'froms',
               linkToKeyProperty: 'tos',
-              
             }),
-          
         });
-    diagram.layout.isInitial =false;
-    diagram.layout.isOngoing =false;
-    diagram.addDiagramListener('InitialLayoutCompleted', function(e) {
-      if (e.diagram.nodes.all(function(n) { return (n.location.x === 0 && n.location.y === 0) })) {
-          e.diagram.layoutDiagram(true);
-      }
-  });
+    
     
     diagram.nodeTemplate =
       $(go.Node, 'Vertical',  
+      // { isLayoutPositioned: false,},
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
         $(go.Panel,"Auto",
           $(go.Shape, 'RoundedRectangle',
@@ -143,6 +131,7 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
   }
 
   
+  
 
   
   public render() {
@@ -158,6 +147,7 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
         modelData={this.props.modelData}
         onModelChange={this.props.onModelChange}
         skipsDiagramUpdate={this.props.skipsDiagramUpdate}
+        
       />
     );
   }
