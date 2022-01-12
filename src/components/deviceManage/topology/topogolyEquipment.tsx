@@ -43,10 +43,11 @@ interface AppState {
   isDeviceModal: boolean;
   isDeviceData: Array<object>;
   nodeEvent: object;
+  changeDiagramUpdate: boolean;
 }
 
 export class TopogolyEquipment extends Component<{}, AppState> {
-  private diagramRef: React.RefObject<ReactDiagram>;
+  // private diagramRef: React.RefObject<ReactDiagram>;
   deviceGridApi: any;
   constructor(props: object) {
     super(props);
@@ -59,17 +60,17 @@ export class TopogolyEquipment extends Component<{}, AppState> {
       // ],
       nodeDataArray: [],
       linkDataArray: [
-        { id: -1, froms: 1, tos: 2 , borderColor:1},
-        { id: -2, froms: 1, tos: 3 , borderColor:1},
-        { id: -3, froms: 2, tos: 2 , borderColor:1},
-        { id: -4, froms: 3, tos: 4 , borderColor:1},
-        { id: -5, froms: 4, tos: 1 , borderColor:5}
+        { id: 1, froms: 1, tos: 2 , borderColor:1},
+        { id: 2, froms: 1, tos: 3 , borderColor:1},
+        { id: 4, froms: 3, tos: 4 , borderColor:1},
+        { id: 5, froms: 4, tos: 1 , borderColor:5}
       ],
       modelData: {
         canRelink: true
       },
       selectedKey: [],
       skipsDiagramUpdate: false,
+      changeDiagramUpdate: false,
       isDeviceModal:false,
       isDeviceData : [], 
       nodeEvent: null,
@@ -81,37 +82,39 @@ export class TopogolyEquipment extends Component<{}, AppState> {
     
     DiagramViewService.getTopologyNode()
       .then(res => {   
-        this.setState({nodeDataArray:res.data})
-        
+        this.setState({
+          nodeDataArray:res.data.nodeDataArray, 
+          linkDataArray: res.data.linkDataArray, 
+        })
       })
-      // this.reinitModel();
+      console.log("componentDidMount");
+      
   }
 
 
 
   public handleDiagramEvent = (e: go.DiagramEvent)  => {
-    console.log(e);
-    const name = e.name;
-    const keys = [];
-    switch (name) {
-      case 'ChangedSelection': {
-        // const sel = e.subject.first();
+    // console.log(e);
+    // const name = e.name;
+    // const keys = [];
+    // switch (name) {
+    //   case 'ChangedSelection': {
+    //     // const sel = e.subject.first();
         
-        // if (!this.state.selectedKey.includes(sel.key)) {
-        //   keys.push(sel.key);
-        //   console.log(sel.key)
-        //   this.setState({ selectedKey: this.state.selectedKey.concat(sel.key)});
-        // } else {
-        //   this.setState({ selectedKey: this.state.selectedKey.filter((v) => v !== sel.key)});
-        // }
-        break;
-      }
-      default: break;
-    }
+    //     // if (!this.state.selectedKey.includes(sel.key)) {
+    //     //   keys.push(sel.key);
+    //     //   console.log(sel.key)
+    //     //   this.setState({ selectedKey: this.state.selectedKey.concat(sel.key)});
+    //     // } else {
+    //     //   this.setState({ selectedKey: this.state.selectedKey.filter((v) => v !== sel.key)});
+    //     // }
+    //     break;
+    //   }
+    //   default: break;
+    // }
   }
 
-  public handleModelChange = (obj: go.IncrementalData)  => {
-    
+  public handleModelChange= (obj: go.IncrementalData) => {
     const insertedNodeKeys = obj.insertedNodeKeys;  // 삽입된 노드키
     const modifiedNodeData = obj.modifiedNodeData;  // loc 변화
     const removedNodeKeys = obj.removedNodeKeys;      // 삭제된 노드키
@@ -121,40 +124,58 @@ export class TopogolyEquipment extends Component<{}, AppState> {
     const modifiedModelData = obj.modelData;      // 모델 데이터
 
     console.log(obj)
-    console.log(modifiedNodeData);
-    console.log(modifiedModelData);
-    console.log(obj.modifiedNodeData);
     
-
-    const { selectedKey, nodeDataArray, skipsDiagramUpdate } = this.state;
-    this.setState({ nodeEvent: obj})
-
     this.setState({skipsDiagramUpdate: true})
+    const { selectedKey, nodeDataArray, linkDataArray, changeDiagramUpdate, skipsDiagramUpdate } = this.state;
     
-    if(obj.modifiedNodeData !== undefined && skipsDiagramUpdate ) {
+    if(obj.modifiedNodeData !== undefined && skipsDiagramUpdate) {
+      console.log("노드 이동");
+      
       const key:Array<Number> = [];
       modifiedNodeData.forEach((v) => {
         key.push(v.id)
       })
+
+      
+      
       const keyDelete = nodeDataArray.filter((x,i) => {
-        return x.id != key[i]
+        return !key.includes(x.id);
         }
       );
+      console.log("keyDelete" , keyDelete);
+      
       const keyInsert = keyDelete.concat(modifiedNodeData);
-      this.setState({ nodeDataArray : keyInsert})
-    }
+      console.log("keyInsert", keyInsert);
+      
+      this.setState({ nodeDataArray: modifiedNodeData })
+    } 
+
+    // if(obj.removedNodeKeys !== undefined) {
+    //   console.log("노드 삭제");
+    //   const key:Array<Number> = [];
+    //   removedNodeKeys.forEach((v:any) => {
+    //     key.push(v);
+    //   })
+      
+    //   const keyDelete = nodeDataArray.filter((x,i) => {
+    //     return !key.includes(x.id);
+    //     }
+    //   );
+    //   console.log(keyDelete);
+      
+    //   this.setState({ nodeDataArray: keyDelete })
+    // }
+
+    // if(obj.modifiedLinkData !== undefined) {
+    //     console.log("링크 추가");
+    //     console.log(modifiedLinkData);
+        
+    //     const modifiedLinkDatas =  linkDataArray.concat(modifiedLinkData);
+    //     this.setState({linkDataArray: modifiedLinkDatas })
+    //  }
+
   }
 
-  public reinitModel() {
-    console.log("reinitModel");
-    
-    this.diagramRef.current.clear();
-    this.setState({
-      nodeDataArray: [],
-      linkDataArray: [],
-      skipsDiagramUpdate: false
-    });
-  }
 
   public handleRelinkChange = (e: any) => {
     const target = e.target;
@@ -163,9 +184,20 @@ export class TopogolyEquipment extends Component<{}, AppState> {
   }
 
   public addNodeBtn = () => {
+    const { nodeDataArray } = this.state;
     AiwacsService.getEquipmentSnmp() 
       .then(res => {
-        this.setState({isDeviceData:res.data, isDeviceModal: true})
+        const nodeKey:Array<Number> = [];
+        nodeDataArray.forEach((n) => {
+          nodeKey.push(n.id);
+        })
+        const deviceData = res.data.filter((v:any) => {
+          return !nodeKey.includes(v.id)
+        })
+        
+        console.log(deviceData);
+        
+        this.setState({isDeviceData:deviceData, isDeviceModal: true})
       })
   }
 
@@ -186,7 +218,6 @@ export class TopogolyEquipment extends Component<{}, AppState> {
         obj.settingIp=v.data.settingIp
         obj.loc=xAxis+' '+"30"
         selectedDeviceName.push(obj);
-        console.log(selectedDeviceName);
         
       });
       this.setState({ isDeviceModal:false, nodeDataArray: this.state.nodeDataArray.concat(selectedDeviceName)  });
@@ -195,14 +226,13 @@ export class TopogolyEquipment extends Component<{}, AppState> {
 
   public saveBtn = () => {
     const { nodeDataArray } = this.state;
-    // console.log(selectedDeviceName);
     const data = {
       nodeDataArray: nodeDataArray
     }
     const ddata = [{ equipment : "아아아" }]
     DiagramViewService.insertTopologyNode(data) 
       .then(() => {
-         console.log("data")
+         console.log("저장하기 버튼 누르기")
         })
       .catch((err) => console.log(err))
       
@@ -211,11 +241,11 @@ export class TopogolyEquipment extends Component<{}, AppState> {
 
   public render = () => {
 
-  const { nodeDataArray,selectedKey, isDeviceModal, isDeviceData,skipsDiagramUpdate } = this.state;
-  console.log(nodeDataArray);
-  console.log(selectedKey);
-  console.log(isDeviceData);
-  console.log(skipsDiagramUpdate);
+  const { nodeDataArray, linkDataArray, selectedKey, isDeviceModal, isDeviceData,skipsDiagramUpdate,changeDiagramUpdate } = this.state;
+  console.log("1" ,nodeDataArray);
+  console.log("2" ,linkDataArray);
+  
+  
   
   
   
@@ -261,8 +291,8 @@ export class TopogolyEquipment extends Component<{}, AppState> {
           linkDataArray={this.state.linkDataArray}
           modelData={this.state.modelData}
           skipsDiagramUpdate={this.state.skipsDiagramUpdate}
-          onDiagramEvent={this.handleDiagramEvent}
-          onModelChange={this.handleModelChange}
+          onDiagramEvent={(e) => this.handleDiagramEvent(e)}
+          onModelChange={(obj) => this.handleModelChange(obj)}
           
         />
       </div>

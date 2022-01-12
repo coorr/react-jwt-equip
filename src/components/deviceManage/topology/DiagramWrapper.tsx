@@ -26,7 +26,6 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
     const diagram = this.diagramRef.current.getDiagram();
     if (diagram instanceof go.Diagram) {
       diagram.addDiagramListener('ChangedSelection', this.props.onDiagramEvent);
-      // this.diagramRef.current.clear();
     }
   }
 
@@ -72,11 +71,14 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
             }),
         });
     
+        function ConvertitToInt(a:any) {
+          return Math.round(a.x).toString()+" "+Math.round(a.y).toString();
+        }
     
     diagram.nodeTemplate =
       $(go.Node, 'Vertical',  
       // { isLayoutPositioned: false,},
-        new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+        new go.Binding('location', 'loc',go.Point.parse).makeTwoWay(ConvertitToInt),
         $(go.Panel,"Auto",
           $(go.Shape, 'RoundedRectangle',
             {
@@ -135,7 +137,6 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
 
   
   public render() {
-    console.log("2323");
     
     return (
       <ReactDiagram
