@@ -59,12 +59,13 @@ export class TopogolyEquipment extends Component<{}, AppState> {
       //   { id: 4, equipment: 'Delta', settingIp: 'white', loc: '-1792 303' }
       // ],
       nodeDataArray: [],
-      linkDataArray: [
-        { id: 1, froms: 1, tos: 2 , borderColor:1},
-        { id: 2, froms: 1, tos: 3 , borderColor:1},
-        { id: 4, froms: 3, tos: 4 , borderColor:1},
-        { id: 5, froms: 4, tos: 1 , borderColor:5}
-      ],
+      linkDataArray:[],
+      // linkDataArray: [
+      //   { id: 1, froms: 1, tos: 2 , borderColor:1},
+      //   { id: 2, froms: 1, tos: 3 , borderColor:1},
+      //   { id: 4, froms: 3, tos: 4 , borderColor:1},
+      //   { id: 5, froms: 4, tos: 1 , borderColor:5}
+      // ],
       modelData: {
         canRelink: true
       },
@@ -126,18 +127,18 @@ export class TopogolyEquipment extends Component<{}, AppState> {
     console.log(obj)
     
     this.setState({skipsDiagramUpdate: true})
+    console.log(this.state.skipsDiagramUpdate);
+    
     const { selectedKey, nodeDataArray, linkDataArray, changeDiagramUpdate, skipsDiagramUpdate } = this.state;
     
-    if(obj.modifiedNodeData !== undefined && skipsDiagramUpdate) {
+
+    if(obj.modifiedNodeData !== undefined &&  skipsDiagramUpdate) {
       console.log("노드 이동");
       
       const key:Array<Number> = [];
       modifiedNodeData.forEach((v) => {
         key.push(v.id)
       })
-
-      
-      
       const keyDelete = nodeDataArray.filter((x,i) => {
         return !key.includes(x.id);
         }
@@ -147,32 +148,45 @@ export class TopogolyEquipment extends Component<{}, AppState> {
       const keyInsert = keyDelete.concat(modifiedNodeData);
       console.log("keyInsert", keyInsert);
       
-      this.setState({ nodeDataArray: modifiedNodeData })
+      this.setState({ nodeDataArray: keyInsert })
     } 
 
-    // if(obj.removedNodeKeys !== undefined) {
-    //   console.log("노드 삭제");
-    //   const key:Array<Number> = [];
-    //   removedNodeKeys.forEach((v:any) => {
-    //     key.push(v);
-    //   })
-      
-    //   const keyDelete = nodeDataArray.filter((x,i) => {
-    //     return !key.includes(x.id);
-    //     }
-    //   );
-    //   console.log(keyDelete);
-      
-    //   this.setState({ nodeDataArray: keyDelete })
-    // }
+    if(obj.removedNodeKeys !== undefined && skipsDiagramUpdate ) {
+      console.log("노드 삭제");
+      const key:Array<Number> = [];
+      removedNodeKeys.forEach((v:any) => {
+        key.push(v);
+      })
 
-    // if(obj.modifiedLinkData !== undefined) {
-    //     console.log("링크 추가");
-    //     console.log(modifiedLinkData);
-        
-    //     const modifiedLinkDatas =  linkDataArray.concat(modifiedLinkData);
-    //     this.setState({linkDataArray: modifiedLinkDatas })
-    //  }
+      const keyDelete = nodeDataArray.filter((x,i) => {
+        return !key.includes(x.id);
+        }
+      );
+      console.log(keyDelete);
+      
+      this.setState({ nodeDataArray: keyDelete })
+    }
+
+    if(obj.modifiedLinkData !== undefined && skipsDiagramUpdate ) {
+      console.log("링크 추가");
+      
+      this.setState({linkDataArray: linkDataArray.concat(modifiedLinkData) })
+     }
+
+     if(obj.removedLinkKeys !== undefined && skipsDiagramUpdate ) {
+      console.log("링크 삭제");
+      const key:Array<Number> = [];
+      removedLinkKeys.forEach((v:any) => {
+        key.push(v);
+      })
+
+      const keyDelete = linkDataArray.filter((x,i) => {
+        return !key.includes(x.id);
+        }
+      );
+      console.log(keyDelete);
+      this.setState({ linkDataArray: keyDelete })
+   }
 
   }
 
@@ -220,34 +234,28 @@ export class TopogolyEquipment extends Component<{}, AppState> {
         selectedDeviceName.push(obj);
         
       });
-      this.setState({ isDeviceModal:false, nodeDataArray: this.state.nodeDataArray.concat(selectedDeviceName)  });
+      this.setState({ isDeviceModal:false, nodeDataArray: this.state.nodeDataArray.concat(selectedDeviceName), skipsDiagramUpdate:false  });
     }
   }
 
   public saveBtn = () => {
-    const { nodeDataArray } = this.state;
+    const { nodeDataArray, linkDataArray } = this.state;
     const data = {
-      nodeDataArray: nodeDataArray
+      nodeDataArray: nodeDataArray,
+      linkDataArray: linkDataArray,
     }
-    const ddata = [{ equipment : "아아아" }]
     DiagramViewService.insertTopologyNode(data) 
       .then(() => {
-         console.log("저장하기 버튼 누르기")
+         console.log("저장하기 성공")
         })
       .catch((err) => console.log(err))
-      
-    
   }
 
   public render = () => {
 
   const { nodeDataArray, linkDataArray, selectedKey, isDeviceModal, isDeviceData,skipsDiagramUpdate,changeDiagramUpdate } = this.state;
-  console.log("1" ,nodeDataArray);
-  console.log("2" ,linkDataArray);
-  
-  
-  
-  
+  console.log("node" ,nodeDataArray);
+  console.log("link" ,linkDataArray);
   
   
     return (

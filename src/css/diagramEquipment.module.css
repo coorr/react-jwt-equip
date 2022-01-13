@@ -15,6 +15,7 @@
 
 /* Grid */
 .diagram_gridArea{width: 99.5%; height: 72%;  background-color: #fff; margin-left: 0.25%;}
+.diagram_gridArea_Second{width: 99.5%; height: 85%;  background-color: #fff; margin-left: 0.25%;}
 .diagram_gridBtnBox{text-align: right; width: 99%; height: 9%; }
 
 /* topogolyEquipment.tsx */

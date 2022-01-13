@@ -95,96 +95,42 @@ componentDidMount() { }
       if(form.checkValidity() === false) {   // valid Check
         e.preventDefault();
         e.stopPropagation();   // 이벤트 멈춤
-
-        console.log("체크 걸림");
       } else {
-        console.log("체크에 풀림")
-        const equipment = {
-          equipment: this.state.equipment,
-          nickname: this.state.nickname,
-          settingType: this.state.settingType.value,
-          settingTemplate: this.state.settingTemplate.value,
-          settingIp: this.state.settingIp,
-          settingCatagory: this.state.settingCatagory,
-          settingOs: this.state.settingOs,
-          settingPerson: this.state.settingPerson,
-          settingProxy: this.state.settingProxy.value,
-          settingActive: this.state.settingActive,
-          hwCpu:this.state.hwCpu.value,
-          hwDisk:this.state.hwDisk.value,
-          hwNic:this.state.hwNic.value,
-          hwSensor:this.state.hwSensor.value,
-          deletedFlag:this.state.deletedFlag,
-
-        }
+      const equipment = {
+        equipment: this.state.equipment,
+        nickname: this.state.nickname,
+        settingType: this.state.settingType.value,
+        settingTemplate: this.state.settingTemplate.value,
+        settingIp: this.state.settingIp,
+        settingCatagory: this.state.settingCatagory,
+        settingOs: this.state.settingOs,
+        settingPerson: this.state.settingPerson,
+        settingProxy: this.state.settingProxy.value,
+        settingActive: this.state.settingActive,
+        hwCpu:this.state.hwCpu.value,
+        hwDisk:this.state.hwDisk.value,
+        hwNic:this.state.hwNic.value,
+        hwSensor:this.state.hwSensor.value,
+        deletedFlag:this.state.deletedFlag,
+      }
 
       console.log("equipment : " +JSON.stringify(equipment));
-      const userDetail = JSON.parse(localStorage.getItem('user'))
-      console.log(userDetail);
-        const historyRecord = {
-          actionType: '',
-          userName: userDetail.username,
-          settingIp: '',
-          menuDepth1: '장비 관리',
-          menuDepth2: '',
-          menuDepth3: '',
-          menuDepth4: '',
-          pageURL: '/equipmentManage',
-          targetName: userDetail.username
-        }
-        console.log("historyRecord : " +JSON.stringify(historyRecord));
-        const requestURL = window.location.pathname;
-        AiwacsService.createEquipment(equipment,requestURL)
+      AiwacsService.createEquipment(equipment,window.location.pathname)
         .then(
           res => {
-          console.log("응답받는곳")
           this.setState({redirect: "/equipmentManage" })
           alert("저장되었습니다.")
           window.location.reload();
-        },
-          // error => {
-          //   const resMessage =
-          //     (error.response &&
-          //       error.response.data &&
-          //       error.response.data.message) ||
-          //     error.message ||
-          //     error.toString();
-
-          //     console.log(resMessage);
-          //   alert("중복된 IP를 가진 장비가 존재합니다.");
-          // }
-        )
-        .catch(err =>  {
-          console.log(err) 
         })
-      }
-
-      
-
+          .catch(err =>  {
+            console.log(err) 
+          })
+        }
       this.setState({
         validated:true   
       });
       e.preventDefault();
       e.stopPropagation();  
-
-      
-      console.log(this.state.group);
-      console.log(this.state.equipment);
-      console.log(this.state.nickname);
-      console.log(this.state.settingType.value);
-      console.log(this.state.settingTemplate.value);
-      console.log(this.state.settingIp);
-      console.log(this.state.settingCatagory);
-      console.log(this.state.settingOs);
-      console.log(this.state.settingPerson);
-      console.log(this.state.settingProxy.value);
-      console.log(this.state.settingActive);
-      console.log(this.state.hwTitle);
-      console.log(this.state.hwCpu);
-      console.log(this.state.hwDisk);
-      console.log(this.state.hwNic);
-      console.log(this.state.hwSensor);
-      console.log(this.state.deletedFlag);
     }
 
 

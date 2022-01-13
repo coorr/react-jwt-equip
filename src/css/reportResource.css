@@ -83,12 +83,13 @@
 .reportModelDeviceLabelAction{ color:#20a8d8; font-size: 1em;}
 
 .reportHwFooter{ text-align: center;  width: 100%; padding:1%; margin-top: 10px; border-top: 1px solid #ddd; }
-.reportDeviceFooter{ text-align: center;  width: 100%; padding:1%; margin-top: 60px; border-top: 1px solid #ddd; }
+.reportDeviceFooter{ text-align: center;  width: 100%; padding:1%; margin-top: 10px; border-top: 1px solid #ddd; }
 .reporthideBtn{background-color: #ddd;border: 1px solid #ddd;color:black; }
 .reporthideBtn:hover{background-color: rgb(233, 222, 222); border: 1px solid #ddd; color: black;} 
 .reportActiveBtn{ border: 1px solid #6693D7; background-color: #6693D7;  color: #fff; font-size: 1em; margin-right: 1%;}
 .reportActiveBtn:hover{background-color: #3f7bd4; border: 1px solid #5c8fdb}
 .reportDeviceSelect{ width: 100%; height: 20px;}
+.diagram_model_body{padding: 1rem 1rem 1rem 2rem !important}
 
 /* Hight Chart */
 .highcharts-tooltip-box { fill: #222 !important; fill-opacity: 0.6 !important; stroke-width: 0 !important; }
