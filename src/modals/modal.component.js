@@ -4,7 +4,7 @@ import '../css/modal.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Select from 'react-select'
 import AiwacsService from '../services/equipment.service';
-import { Redirect } from 'react-router';
+// import { Redirect } from 'react-router';
 
 
 const Type = [ {label: 'SNMP',value:'SNMP'},{label:'ICMP', value:'ICMP'} ]
@@ -137,9 +137,9 @@ componentDidMount() { }
   render() {
     const userDetail = JSON.parse(localStorage.getItem('user'))
     console.log(userDetail);
-    if (this.state.redirect) {
-      return <Redirect to={this.state.redirect} />
-    }
+    // if (this.state.redirect) {
+    //   return <Redirect to={this.state.redirect} />
+    // }
     const {equipment,nickname,settingType,settingTemplate,settingIp,settingCatagory,settingOs,settingPerson,settingProxy,settingActive,
       hwTitle,hwNumber,hwCpu,hwDisk,hwNic,hwSensor,checkList} = this.state;
 

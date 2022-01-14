@@ -229,7 +229,7 @@ class App extends Component {
               <Route exact path="/historyRecord"        component={showAdminBoard ? HistoryRecord : () => <div>Loading posts...</div>} />
               <Route exact path="/reportResoruce"        component={showAdminBoard ? ReportResoruce : () => <div>Loading posts...</div>} />
               <Route exact path="/DiagramView"        component={showAdminBoard ? DiagramView : () => <div>Loading posts...</div>} />
-              <Route exact path="/TopogolyEquipment"     component={showAdminBoard ? TopogolyEquipment : () => <div>Loading posts...</div>} />
+              <Route exact path="/DiagramView/:no"     component={showAdminBoard ? TopogolyEquipment : () => <div>Loading posts...</div>} />
             </Switch>
           
         </div>

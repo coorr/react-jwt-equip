@@ -2,6 +2,8 @@ import React, { Component} from 'react';
 import * as go from 'gojs';
 import { DiagramWrapper } from './diagramWrapper';
 import { ReactDiagram } from 'gojs-react';
+// import { RouteProps } from 'react-router';
+
 import EquipmentLogo from '../../../images/equipment.png';
 import styles from '../../../css/diagramEquipment.module.css';
 import AiwacsService from '../../../services/equipment.service'
@@ -44,12 +46,22 @@ interface AppState {
   isDeviceData: Array<object>;
   nodeEvent: object;
   changeDiagramUpdate: boolean;
+  no: Number;
 }
 
-export class TopogolyEquipment extends Component<{}, AppState> {
+export interface Props {
+  match: {
+    params: {
+      no: Number
+    }
+  }
+}
+
+export class TopogolyEquipment extends Component<Props , AppState> {
   // private diagramRef: React.RefObject<ReactDiagram>;
+
   deviceGridApi: any;
-  constructor(props: object) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       // nodeDataArray: [
@@ -75,6 +87,7 @@ export class TopogolyEquipment extends Component<{}, AppState> {
       isDeviceModal:false,
       isDeviceData : [], 
       nodeEvent: null,
+      no:this.props.match.params.no
     };
     
   }
@@ -256,6 +269,8 @@ export class TopogolyEquipment extends Component<{}, AppState> {
   const { nodeDataArray, linkDataArray, selectedKey, isDeviceModal, isDeviceData,skipsDiagramUpdate,changeDiagramUpdate } = this.state;
   console.log("node" ,nodeDataArray);
   console.log("link" ,linkDataArray);
+  console.log(this.props.match.params.no);
+  
   
   
     return (

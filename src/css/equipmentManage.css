@@ -91,7 +91,7 @@ select {  width: 60px; height: 30px; }
 .bottomAreaDisk{width: 210px; height: 35px;  display: flex; margin-top: 10px; }
 .ag-cell-focus, .ag-cell { border: none !important; }
 .extraClass { pointer-events: auto !important;}
-.hwTooltipBtn{line-height:normal; border: 1px solid #6693D7; background-color: #fff;  color: #6693D7; height: 22px;width: 40px; }
+.hwTooltipBtn{line-height:normal; border: 1px solid #6693D7; background-color: #fff;  color: #6693D7; height: 22px;width: 40px; margin-left: 25%; }
 .hwTooltipBtn:hover{background-color: #6693D7; border: 1px solid #6693D7; color:#fff;}
 .hwTooltipBtn:focus{border: 1px solid #6693D7; background-color: #fff; color: #6693D7; }
 .hideHwTooltip{ border-radius: 50%; border:1px solid #267dff; background-color: #222; color:white; margin-left: 190px;margin-bottom: 5px; width: 22px; height: 22px; }
@@ -112,5 +112,5 @@ select {  width: 60px; height: 30px; }
 .hideHwTooltipTwo{ border-radius: 50%; border:1px solid #267dff; background-color: #222; color:white; margin-left: 220px;margin-bottom: 5px; width: 22px; height: 22px; }
 
 /* button 간격 조절 */
-.ag-theme-alpine .ag-cell {line-height:30px }
+/* .ag-theme-alpine .ag-cell {line-height:30px !important } */
 
