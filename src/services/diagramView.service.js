@@ -3,13 +3,12 @@ import authHeader from './auth-header';
 const API_URL = 'http://localhost:8080/api/manage/';
 
 class diagramViewService {
-  getTopologyNode() {
-    return axios.get(API_URL + "topology/getTopologyNode");
+  getTopologyNode(diagramId) {
+    return axios.get(API_URL + "topology/getTopologyNode/"+diagramId);
   }
-  insertTopologyNode(data) {
-    return axios.post(API_URL + "topology/insertTopologyNode", data);
+  insertTopologyNode(diagramId,data) {
+    return axios.post(API_URL + "topology/insertTopologyNode/"+diagramId, data);
   }
-
   getDiagramGroup() {
     return axios.get(API_URL + "topology/getDiagramGroup");
   }
@@ -18,6 +17,9 @@ class diagramViewService {
   }
   updateDiagramGroup(data) {
     return axios.post(API_URL + "topology/updateDiagramGroup", data ,{ headers: { Authorization:  authHeader() }});
+  }
+  deleteDiagramGroup(groupId) {
+    return axios.post(API_URL + "topology/deleteDiagramGroup/"+groupId);
   }
 }
 

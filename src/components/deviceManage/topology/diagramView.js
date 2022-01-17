@@ -74,8 +74,10 @@ class diagramView extends Component {
     // console.log(params);
       return ( <button className={styles.edit_topology_style} onClick={() => this.editReadTopology(params.data.id)}>변경</button> )
   } 
-  editReadTopology = (no) => {
-    this.props.history.push(`/DiagramView/${no}`)
+  editReadTopology = (diagramId) => {
+    this.props.history.push(`/DiagramView/${diagramId}`)
+
+
   }
   // <Route exact path="/DiagramView/:no"     component={showAdminBoard ? TopogolyEquipment : () => <div>Loading posts...</div>} />
 
@@ -143,6 +145,24 @@ class diagramView extends Component {
      })
   }
 
+  onRemoveClick = () => {
+    // const {  } = this.state;
+    const activeNodes = this.diagram.getSelectedRows();
+    console.log(activeNodes);
+    const groupIdAry = [];
+      activeNodes.map(c => {
+        groupIdAry.push(c.id);
+    });
+    const equipId = groupIdAry.join('|');
+    console.log("Remove : " + equipId); 
+    DiagramViewService.deleteDiagramGroup(equipId)
+    .then(res => {
+      this.setState({diagramGroupData: res.data})
+      alert("삭제되었습니다.");
+    })
+    .catch(err => alert("삭제 실패되었습니다."))
+  }
+
 
   render() {
     const { filterCheck, modelCreatedCheck,validatedCheck, groupName, content, diagramGroupData, diagramColumnDefs, modelUpdateCheck, formData 
@@ -182,7 +202,7 @@ class diagramView extends Component {
           <div className={filterCheck ? styles.diagram_gridArea : styles.diagram_gridArea_Second}>
             <div className={styles.diagram_gridBtnBox}>
                 <Button className="SaveBtn" onClick={() => this.setState({modelCreatedCheck: true})}>등록</Button>
-                <Button className="SaveBtnRemove" onClick={this.onRemoveClick}>삭제</Button>
+                <Button className="SaveBtnRemove" onClick={() => this.onRemoveClick()}>삭제</Button>
 
                 { modelCreatedCheck && (
                   <>
@@ -241,6 +261,7 @@ class diagramView extends Component {
               columnDefs={diagramColumnDefs}  
               defaultColDef={modalOptions.diagramDefaultColDef}
               rowData={diagramGroupData}
+              rowSelection='multiple'
               // rowModelType={'infinite'} 
               // cacheBlockSize='30'
               onGridReady={params => { this.diagram = params.api;}}

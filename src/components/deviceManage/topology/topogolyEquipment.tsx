@@ -46,7 +46,7 @@ interface AppState {
   isDeviceData: Array<object>;
   nodeEvent: object;
   changeDiagramUpdate: boolean;
-  no: Number;
+  diagramId: Number;
 }
 
 export interface Props {
@@ -87,14 +87,16 @@ export class TopogolyEquipment extends Component<Props , AppState> {
       isDeviceModal:false,
       isDeviceData : [], 
       nodeEvent: null,
-      no:this.props.match.params.no
+      diagramId:this.props.match.params.no
     };
     
   }
 
   public componentDidMount(): void {
+    const { diagramId } = this.state; 
     
-    DiagramViewService.getTopologyNode()
+    
+    DiagramViewService.getTopologyNode(diagramId)
       .then(res => {   
         this.setState({
           nodeDataArray:res.data.nodeDataArray, 
@@ -229,6 +231,7 @@ export class TopogolyEquipment extends Component<Props , AppState> {
   }
 
   public applyDeviceModal = () => {
+    const { diagramId } = this.state;
     let selectedDeviceNode = this.deviceGridApi.getSelectedNodes();
     let selectedDeviceName:Array<object> = [];
 
@@ -240,7 +243,7 @@ export class TopogolyEquipment extends Component<Props , AppState> {
         i = i*80;
         let obj:any = {};
         let xAxis:any = -700+i;
-        obj.id = v.data.id
+        obj.id = v.data.id+"_"+diagramId
         obj.equipment= v.data.equipment
         obj.settingIp=v.data.settingIp
         obj.loc=xAxis+' '+"30"
@@ -252,12 +255,12 @@ export class TopogolyEquipment extends Component<Props , AppState> {
   }
 
   public saveBtn = () => {
-    const { nodeDataArray, linkDataArray } = this.state;
+    const { nodeDataArray, linkDataArray, diagramId } = this.state;
     const data = {
       nodeDataArray: nodeDataArray,
       linkDataArray: linkDataArray,
     }
-    DiagramViewService.insertTopologyNode(data) 
+    DiagramViewService.insertTopologyNode(diagramId, data) 
       .then(() => {
          console.log("저장하기 성공")
         })
@@ -269,7 +272,6 @@ export class TopogolyEquipment extends Component<Props , AppState> {
   const { nodeDataArray, linkDataArray, selectedKey, isDeviceModal, isDeviceData,skipsDiagramUpdate,changeDiagramUpdate } = this.state;
   console.log("node" ,nodeDataArray);
   console.log("link" ,linkDataArray);
-  console.log(this.props.match.params.no);
   
   
   
