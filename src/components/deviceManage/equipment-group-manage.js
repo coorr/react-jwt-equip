@@ -119,8 +119,10 @@ class manageEquipmentList extends React.Component {
 
   componentDidUpdate(prevProps,prevState) {
     const { EquipArray,searchRight, search,groupArray} =this.state;
-
+    console.log(search);
+    console.log(prevState.search);
     if(search !== prevState.search) {
+      console.log("asdasdasdasdasdasd");
       const resData = [];
       groupArray.filter((v) => {
         const children = [];
@@ -235,8 +237,6 @@ class manageEquipmentList extends React.Component {
         })
         this.setState({equipment:EquipArray, EquipArray:EquipDatas})
       })   
-
-    
   }
   
   pathEquipmentGroupManage = () => { this.props.history.push("/equipmentManage") }
@@ -481,7 +481,7 @@ addTreeNameBtn = () => {
         
       })
   }
-  
+
    updateOnKeyPress = (e) => {
     if(e.key === 'Enter') {
       this.updateTreeNameBtn();

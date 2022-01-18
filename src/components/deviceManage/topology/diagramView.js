@@ -36,7 +36,9 @@ class diagramView extends Component {
       groupName: '',
       content: '',
       diagramGroupData: [],
+      diagramGroupSearchData: [],
       formData: [],
+      search: "",
 
       diagramColumnDefs: [
         { headerName: '그룹 명', field:'groupName' , headerCheckboxSelection: true, checkboxSelection:true, onCellClicked: this.onUpdateClick },
@@ -51,12 +53,40 @@ class diagramView extends Component {
     }
   }
 
+  componentDidUpdate(prevProps,prevState) {
+    const { search, diagramGroupSearchData } = this.state;
+    if(search !== prevState.search) {
+      const searchData = [];
+      diagramGroupSearchData.filter((d) => {
+        if(search === "") {
+          return d;
+        } else if(d.groupName?.toLowerCase().includes(search.toLowerCase()) ||
+                 d.content?.toLowerCase().includes(search.toLowerCase()) ||
+                 d.startCreatedName?.toLowerCase().includes(search.toLowerCase()) ||
+                 d.endCreatedName?.toLowerCase().includes(search.toLowerCase())) {
+          return d;
+        }
+      }).map((d) => {
+        searchData.push(d);
+      })
+      this.setState({ diagramGroupData: searchData  })
+    }
+  }
+
   componentDidMount() {
     DiagramViewService.getDiagramGroup()
       .then(res => {
-        this.setState({diagramGroupData: res.data})
+        res.data.map((d) => {
+          d.createdAt = d.createdAt.replace("T", " ");
+          if(d.updatedAt !== null) {
+            d.updatedAt = d.updatedAt.replace("T" ," ");
+          }
+        })
+        this.setState({diagramGroupData: res.data, diagramGroupSearchData: res.data})
       })
   }
+
+  
 
   
   onUpdateClick = (params) => {
@@ -113,6 +143,12 @@ class diagramView extends Component {
       DiagramViewService.insertDiagramGroup(diagramData)
         .then(res => {
           alert("그룹이 추가되었습니다.")
+          res.data.map((d) => {
+            d.createdAt = d.createdAt.replace("T", " ");
+            if(d.updatedAt !== null) {
+              d.updatedAt = d.updatedAt.replace("T" ," ");
+            }
+          })
           this.setState({diagramGroupData: res.data, modelCreatedCheck:false, groupName: '', content: '', groupId:'' })
         }).catch(err => alert(err)) 
     } else if(modelUpdateCheck === true) {   // 그룹 수정
@@ -125,6 +161,12 @@ class diagramView extends Component {
       DiagramViewService.updateDiagramGroup(updateData)
       .then(res => {
         alert("그룹이 수정되었습니다.")
+        res.data.map((d) => {
+          d.createdAt = d.createdAt.replace("T", " ");
+          if(d.updatedAt !== null) {
+            d.updatedAt = d.updatedAt.replace("T" ," ");
+          }
+        })
         this.setState({diagramGroupData: res.data, modelCreatedCheck:false,modelUpdateCheck:false, groupName: '', content: '', groupId:'' })
       }).catch(err => console.log(err)) 
     }
@@ -146,7 +188,6 @@ class diagramView extends Component {
   }
 
   onRemoveClick = () => {
-    // const {  } = this.state;
     const activeNodes = this.diagram.getSelectedRows();
     console.log(activeNodes);
     const groupIdAry = [];
@@ -157,15 +198,25 @@ class diagramView extends Component {
     console.log("Remove : " + equipId); 
     DiagramViewService.deleteDiagramGroup(equipId)
     .then(res => {
-      this.setState({diagramGroupData: res.data})
       alert("삭제되었습니다.");
+      res.data.map((d) => {
+        d.createdAt = d.createdAt.replace("T", " ");
+        if(d.updatedAt !== null) {
+          d.updatedAt = d.updatedAt.replace("T" ," ");
+        }
+      })
+      this.setState({diagramGroupData: res.data})
     })
     .catch(err => alert("삭제 실패되었습니다."))
   }
 
+  onChangeSearch = (e) => {
+    this.setState({ search: e.target.value})
+  }
+
 
   render() {
-    const { filterCheck, modelCreatedCheck,validatedCheck, groupName, content, diagramGroupData, diagramColumnDefs, modelUpdateCheck, formData 
+    const { filterCheck, modelCreatedCheck,validatedCheck, groupName, content, diagramGroupData, diagramColumnDefs, modelUpdateCheck, formData ,search
     } = this.state; 
     console.log(diagramGroupData);
     return (
@@ -179,7 +230,7 @@ class diagramView extends Component {
                     <label className={styles.diagram_searchTitleLeftFont}>이름</label>
                 </div>
                 <div className={styles.diagram_searchTitleRightArea}>
-                  <input className={styles.diagram_searchTitleRightInput} />
+                  <input className={styles.diagram_searchTitleRightInput} type="text" placeholder="검색" onChange={(e)=> this.onChangeSearch(e)} />
                 </div>
               </div>
 

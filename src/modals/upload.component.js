@@ -140,14 +140,7 @@ export default class upload extends Component  {
               }
             },
               error  => {
-              const resMessage =
-              (error.response &&
-                error.response.data &&
-                error.response.data.message) ||
-              error.message ||
-              error.toString();
-
-              console.log(resMessage);
+              console.log(error);
               alert("등록 실패했습니다.");
             })
           } else {

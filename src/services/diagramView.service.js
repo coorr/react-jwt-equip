@@ -7,7 +7,7 @@ class diagramViewService {
     return axios.get(API_URL + "topology/getTopologyNode/"+diagramId);
   }
   insertTopologyNode(diagramId,data) {
-    return axios.post(API_URL + "topology/insertTopologyNode/"+diagramId, data);
+    return axios.post(API_URL + "topology/insertTopologyNode/"+diagramId, data, { headers: { Authorization:  authHeader() }});
   }
   getDiagramGroup() {
     return axios.get(API_URL + "topology/getDiagramGroup");

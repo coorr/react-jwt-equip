@@ -19,9 +19,15 @@
 .diagram_gridBtnBox{text-align: right; width: 99%; height: 9%; }
 
 /* topogolyEquipment.tsx */
-.topogoly_container{width: 100%; height: 100%; background-color: #E5E4EA;  margin-left: 50px; margin-top: 2.4%;}
-.topogoly_topMenu{width: 99.5%; margin: 0.25% 0.25% 0 0.25%; background-color: white; height: 4%; }
-
+.topogolgy_container{width: 100%; height: 100%; background-color: #E5E4EA;  margin-left: 50px; margin-top: 2.4%;}
+.topogolgy_topMenu{width: 99.5%; margin: 0.25% 0.25% 0 0.25%; background-color: white; height: 4%; }
+.topogolgy_topButton{ background-color: white; color: black; border: 1px solid black; font-size: 0.8rem; height: 90%; margin-left: 0.3%; border-radius: 0.5rem; padding: 0.25rem; }
+.topogolgy_topButton:hover{ background-color: white; color: rgb(145, 145, 145); border: 1px solid black; font-size: 0.8rem; height: 90%; margin-left: 0.3%; border-radius: 0.5rem; padding: 0.25rem; }
+.topogolgy_topButton:focus{ background-color: white; color: black; border: 1px solid black; font-size: 0.8rem; height: 90%; margin-left: 0.3%; border-radius: 0.5rem; padding: 0.25rem; }
+.topogolgy_addLogo{margin-bottom: 5%;}
+.topogolgy_topButton_right{ float: right; margin-right: 0.3rem; background-color: white; color: black; border: 1px solid black; font-size: 0.8rem; height: 90%; border-radius: 0.5rem; padding: 0.35rem;}
+.topogolgy_addLogo_save{ margin-right: 5px;}
+.topogolgy_addLogo_list{ margin-bottom: 5px;}
 /* DiagraWraaper.tsx */
 .diagram_component { width: 99.5%; height: 85%;  background-color: white; margin-left: 0.25%; }
 
