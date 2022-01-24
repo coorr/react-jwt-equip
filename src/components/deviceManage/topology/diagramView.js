@@ -190,6 +190,9 @@ class diagramView extends Component {
   onRemoveClick = () => {
     const activeNodes = this.diagram.getSelectedRows();
     console.log(activeNodes);
+    if(activeNodes.length === 0) {
+      return alert("삭제할 대상을 체크해주세요.")
+    }
     const groupIdAry = [];
       activeNodes.map(c => {
         groupIdAry.push(c.id);

@@ -141,7 +141,7 @@ export default class upload extends Component  {
             },
               error  => {
               console.log(error);
-              alert("등록 실패했습니다.");
+              return alert("등록 실패했습니다.");
             })
           } else {
             return false;
@@ -150,9 +150,7 @@ export default class upload extends Component  {
     }
     if (rABS && file !== null ) {
       reader.readAsBinaryString(file);
-    } else if(!rABS && file !== null ) {
-      reader.readAsArrayBuffer(file);
-    }
+    } 
     
   }
 

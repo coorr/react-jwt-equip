@@ -50,9 +50,8 @@ interface AppState {
   nodeEvent: object;
   changeDiagramUpdate: boolean;
   diagramId: Number;
-  file: {
-    name: String
-  };
+  imagePreviewUrl: any;
+  file: any;
 }
 
 export interface Props {
@@ -85,15 +84,14 @@ export class TopogolyEquipment extends Component<Props , AppState> {
       isDeviceData : [], 
       isImageAddModel: false,
       nodeEvent: null,
-      diagramId:this.props.match.params.no
+      diagramId:this.props.match.params.no,
+      imagePreviewUrl: null,
     };
     
   }
 
   public componentDidMount(): void {
     const { diagramId } = this.state; 
-    
-    
     DiagramViewService.getTopologyNode(diagramId)
       .then(res => {   
         this.setState({
@@ -108,7 +106,7 @@ export class TopogolyEquipment extends Component<Props , AppState> {
 
 
   public handleDiagramEvent = (e: go.DiagramEvent)  => {
-    // console.log(e);
+    console.log(e);
     // const name = e.name;
     // const keys = [];
     // switch (name) {
@@ -261,28 +259,32 @@ export class TopogolyEquipment extends Component<Props , AppState> {
   }
 
   public imageAddBackground = () => {
-    
     this.setState({isImageAddModel: true})
   }
 
+  public imageRemoveBackground = () => {
+    this.setState({ imagePreviewUrl:null })
+  }
+
   public fileChange = (e:any) => {
-    console.log(e.target.files);
     this.setState({ file: e.target.files[0]})
   }
 
   public filePost = () => {
-    const { file } = this.state; 
+    const { file,imagePreviewUrl } = this.state; 
+    if(file === null ) {
+      return alert("파일을 선택해주세요.")
+    } 
+    
     const reader = new FileReader();
     const rABS = !!reader.readAsBinaryString;
-
     const fileExtension = file.name.split('.').pop();
-    console.log(file.name);
-    console.log(fileExtension);
-
-    if(file === null ) {
-      return alert("파일을 선택해주세요")
-    } else if(fileExtension === 'jpg' || fileExtension === 'png' ) {
-      
+    
+    if(fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'PNG' ) {
+      reader.onloadend  = (e) => {
+         this.setState({imagePreviewUrl : reader.result, isImageAddModel:false })
+      }
+      reader.readAsDataURL(file);
     } else {
       return alert("이미지 파일만 업로드 가능합니다.")
     }
@@ -301,12 +303,14 @@ export class TopogolyEquipment extends Component<Props , AppState> {
       .catch((err) => console.log(err))
   }
 
+  
+
   public render = () => {
 
-  const { nodeDataArray, linkDataArray, selectedKey, isDeviceModal, isDeviceData,skipsDiagramUpdate,changeDiagramUpdate, isImageAddModel,file } = this.state;
+  const { nodeDataArray, linkDataArray, selectedKey, isDeviceModal, isDeviceData,skipsDiagramUpdate,changeDiagramUpdate, isImageAddModel,file,imagePreviewUrl } = this.state;
   console.log("node" ,nodeDataArray);
   console.log("link" ,linkDataArray);
-  console.log(file);
+  
   
   
   
@@ -315,34 +319,44 @@ export class TopogolyEquipment extends Component<Props , AppState> {
       <div className={styles.topogolgy_container}>
         <div className={styles.topogolgy_topMenu}>
           <button className={styles.topogolgy_topButton} >
-            <IoIosAddCircleOutline className={styles.topogolgy_addLogo} size="24" color='green' />오브젝트 추가
+            <IoIosAddCircleOutline className={styles.topogolgy_addLogo} size="24" color='green' />
+            오브젝트 추가
           </button>
           <button className={styles.topogolgy_topButton} onClick={this.addNodeBtn}>
-            <IoIosAddCircleOutline className={styles.topogolgy_addLogo} size="24" color='green' />장비 추가
+            <IoIosAddCircleOutline className={styles.topogolgy_addLogo} size="24" color='green' />
+            장비 추가
           </button>
           <button className={styles.topogolgy_topButton} onClick={this.saveBtn}>
-            <IoIosAddCircleOutline className={styles.topogolgy_addLogo} size="24" color='green' />장비 그룹 추가
+            <IoIosAddCircleOutline className={styles.topogolgy_addLogo} size="24" color='green' />
+            장비 그룹 추가
           </button>
           <button className={styles.topogolgy_topButton} onClick={this.saveBtn}>
-            <IoIosAddCircleOutline className={styles.topogolgy_addLogo} size="24" color='green' />그룹 추가
+            <IoIosAddCircleOutline className={styles.topogolgy_addLogo} size="24" color='green' />
+            그룹 추가
           </button>
           <button className={styles.topogolgy_topButton} onClick={() => this.imageAddBackground()}>
-            <IoIosAddCircleOutline className={styles.topogolgy_addLogo} size="24" color='green' />배경 이미지 추가
+            <IoIosAddCircleOutline className={styles.topogolgy_addLogo} size="24" color='green' />
+            배경 이미지 추가
           </button>
-          <button className={styles.topogolgy_topButton} onClick={this.saveBtn}>
-            <IoIosAddCircleOutline className={styles.topogolgy_addLogo} size="24" color='orange' />배경 이미지 삭제
+          <button className={styles.topogolgy_topButton} onClick={() => this.imageRemoveBackground()}>
+            <IoIosAddCircleOutline className={styles.topogolgy_addLogo} size="24" color='orange' />
+            배경 이미지 삭제
           </button>
           <button className={styles.topogolgy_topButton} onClick={() => this.removeAll()}>
-            <IoIosAddCircleOutline className={styles.topogolgy_addLogo} size="24" color='orange' />전체 삭제
+            <IoIosAddCircleOutline className={styles.topogolgy_addLogo} size="24" color='orange' />
+            전체 삭제
           </button>
           <button className={styles.topogolgy_topButton} onClick={() => this.removeLinkAll()} >
-            <IoIosAddCircleOutline className={styles.topogolgy_addLogo} size="24" color='orange' />전체 링크 삭제
+            <IoIosAddCircleOutline className={styles.topogolgy_addLogo} size="24" color='orange' />
+            전체 링크 삭제
           </button>
           <button className={styles.topogolgy_topButton_right} onClick={this.saveBtn}>
-            <BsSave2 className={styles.topogolgy_addLogo_save} size="20" color='purple' />저장
+            <BsSave2 className={styles.topogolgy_addLogo_save} size="20" color='purple' />
+            저장
           </button>
           <button className={styles.topogolgy_topButton_right} onClick={()=> this.props.history.push('/DiagramView')}>
-            <IoMdArrowRoundBack className={styles.topogolgy_addLogo_list} size="20" color='skyblue' />목록
+            <IoMdArrowRoundBack className={styles.topogolgy_addLogo_list} size="20" color='skyblue' />
+            목록
           </button>
           { isDeviceModal && 
              <>
@@ -397,7 +411,7 @@ export class TopogolyEquipment extends Component<Props , AppState> {
                 </Form.Group>
               </Container>
             </Modal.Body>
-            
+
                 <Form.Group className="ButtonArea">
                   <Button className="saveBtn" onClick={()=> {this.filePost()}} > 추가 </Button>
                   <Button onClick={()=> this.setState({isImageAddModel: false})} className="hideBtn"  >닫기</Button>
@@ -413,6 +427,7 @@ export class TopogolyEquipment extends Component<Props , AppState> {
           skipsDiagramUpdate={this.state.skipsDiagramUpdate}
           onDiagramEvent={(e) => this.handleDiagramEvent(e)}
           onModelChange={(obj) => this.handleModelChange(obj)}
+          formData={imagePreviewUrl}
           
         />
       </div>

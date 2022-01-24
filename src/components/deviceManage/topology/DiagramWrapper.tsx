@@ -11,13 +11,24 @@ interface WrapperProps {
   skipsDiagramUpdate: boolean;
   onDiagramEvent: (e: go.DiagramEvent) => void;
   onModelChange: (e: go.IncrementalData) => void;
+  formData: string;
+  
+}
+interface AppState {
+  image: string;
 }
 
-export class DiagramWrapper extends Component<WrapperProps, {}> {
+let imageData:any = null;
+const $ = go.GraphObject.make;
+
+export class DiagramWrapper extends Component<WrapperProps,AppState, {}> {
   private diagramRef: React.RefObject<ReactDiagram>;
 
   constructor(props: WrapperProps) {
     super(props);
+    this.state = {
+      image: null,
+    }
     this.diagramRef = React.createRef();
   }
 
@@ -27,6 +38,8 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
     if (diagram instanceof go.Diagram) {
       diagram.addDiagramListener('ChangedSelection', this.props.onDiagramEvent);
     }
+    
+    
   }
 
   public componentWillUnmount() {
@@ -37,19 +50,33 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
     }
   }  
 
+  public componentDidUpdate(prevProps: Readonly<WrapperProps>, prevState: Readonly<AppState>, snapshot?: {}): void {
+    const diagram = this.diagramRef.current.getDiagram();
+      if(this.props.formData !== prevProps.formData) {
+        if(diagram.parts.first() !== null) {
+          diagram.remove(diagram.parts.first());
+        }
+        diagram.add(
+          $(go.Part, {
+            width: 840, height:570,
+            layerName:"Background", position: new go.Point(0,0),
+            selectable:false, pickable:false
+          }, 
+          $(go.Picture, {
+            source: this.props.formData
+          },
+          ))
+        )
+      }
+  }
+
 
   private initDiagram(): go.Diagram {
-    const $ = go.GraphObject.make;
-
     const diagram =
       $(go.Diagram,
         {
           'undoManager.isEnabled': true,  // 모델 변경 수신을 허용하도록 설정해야 합니다. 
           'clickCreatingTool.archetypeNodeData': { text: 'new node', color: 'lightblue' },
-          // layout: $(go.Layout, {
-          //   isL
-          // })
-
           model: $(go.GraphLinksModel,
             {
               linkKeyProperty: 'id',  
@@ -75,21 +102,53 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
           return Math.round(a.x).toString()+" "+Math.round(a.y).toString();
         }
     
+    //     console.log(imageData);
+        
+    // if(imageData !== null) {
+    //   console.log("imageDataimageDataimageDataimageDataimageData");
+      
+    //   diagram.add(
+    //     $(go.Part, {
+    //       width: 840, height:570,
+    //       layerName:"Background", position: new go.Point(0,0),
+    //       selectable:false, pickable:false
+    //     }, 
+    //     $(go.Picture, {
+    //       source: EquipmentLogo
+    //     },
+    //     ))
+    //   )
+    // }
+    function changeZOrder(amt:Number, obj:any) {
+      diagram.commit(function(d) {
+        var data = obj.part.data;
+        d.model.set(data, "zOrder", data.zOrder + amt);
+      }, 'modified zOrder');
+    }
+    
+
     diagram.nodeTemplate =
       $(go.Node, 'Vertical',  
-      // { isLayoutPositioned: false,},
         new go.Binding('location', 'loc',go.Point.parse).makeTwoWay(ConvertitToInt),
-        $(go.Panel,"Auto",
+        $(go.Panel,"Auto", 
+        { width: 80 },
+        // $("Button",
+        // { alignment: go.Spot.BottomLeft, alignmentFocus: go.Spot.BottomLeft,
+        //   click: function (e, obj) { changeZOrder(-1, obj); } },
+        //   ),
           $(go.Shape, 'RoundedRectangle',
             {
               name: 'SHAPE', fill: 'white', strokeWidth: 2, stroke: 'skyblue',
-              portId: '', fromLinkable: true, toLinkable: true, cursor: 'pointer'
+              portId: '', fromLinkable: true, toLinkable: true, cursor: 'pointer',
+              width:60,
             },
             new go.Binding('fill', 'color')),
             $(go.Picture,
               {maxSize: new go.Size(50, 50), source: EquipmentLogo},
               new go.Binding("source" , "img")),
-          ),
+         
+        
+          $(go.Shape, "LineH", { width: 14, height: 14 })),
           $(go.TextBlock,
             { margin: 1, editable: true, font: '400 .775rem Roboto, sans-serif' },  
             new go.Binding('text','equipment').makeTwoWay()
@@ -97,7 +156,7 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
           $(go.TextBlock,
             { margin: 1, editable: true, font: '400 .775rem Roboto, sans-serif' },  
             new go.Binding('text','settingIp').makeTwoWay()
-            )
+            ),
         );
 
     diagram.linkTemplate =
@@ -122,7 +181,7 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
                 return 'skyblue';
             }
           })
-          ), 
+        ), 
       );
       diagram.toolManager.mouseWheelBehavior = go.ToolManager.WheelZoom;   // 스크롤 zoom 활성화
       diagram.allowInsert=false;   // 클릭 시 node 생성 방지
@@ -131,12 +190,15 @@ export class DiagramWrapper extends Component<WrapperProps, {}> {
       }
     return diagram;
   }
-
+  
+  
   
   
 
   
   public render() {
+    console.log(imageData);
+    
     
     return (
       <ReactDiagram
