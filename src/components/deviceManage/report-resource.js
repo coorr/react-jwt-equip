@@ -123,7 +123,7 @@ const modalOptions = {
 };
 
 // 하루 초 86400000
-const oneMonth = new Date(new Date().getTime() - 38707200000 );
+const oneMonth = new Date(new Date().getTime() - 40435200000 );
 
 const seriesGrid = [];
 const seriesColumn = [];

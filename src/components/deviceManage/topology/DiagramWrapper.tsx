@@ -52,6 +52,8 @@ export class DiagramWrapper extends Component<WrapperProps,AppState, {}> {
 
   public componentDidUpdate(prevProps: Readonly<WrapperProps>, prevState: Readonly<AppState>, snapshot?: {}): void {
     const diagram = this.diagramRef.current.getDiagram();
+    console.log(imageData);
+    
       if(this.props.formData !== prevProps.formData) {
         if(diagram.parts.first() !== null) {
           diagram.remove(diagram.parts.first());
@@ -62,9 +64,7 @@ export class DiagramWrapper extends Component<WrapperProps,AppState, {}> {
             layerName:"Background", position: new go.Point(0,0),
             selectable:false, pickable:false
           }, 
-          $(go.Picture, {
-            source: this.props.formData
-          },
+          $(go.Picture, `http://localhost:8080/static/${this.props.formData}`
           ))
         )
       }
@@ -101,30 +101,25 @@ export class DiagramWrapper extends Component<WrapperProps,AppState, {}> {
         function ConvertitToInt(a:any) {
           return Math.round(a.x).toString()+" "+Math.round(a.y).toString();
         }
-    
-    //     console.log(imageData);
-        
-    // if(imageData !== null) {
-    //   console.log("imageDataimageDataimageDataimageDataimageData");
+
       
-    //   diagram.add(
-    //     $(go.Part, {
-    //       width: 840, height:570,
-    //       layerName:"Background", position: new go.Point(0,0),
-    //       selectable:false, pickable:false
-    //     }, 
-    //     $(go.Picture, {
-    //       source: EquipmentLogo
-    //     },
-    //     ))
-    //   )
+      // diagram.add(
+      // $(go.Part,  // this Part is not bound to any model data
+      //   {
+      //     width: 840, height: 570,
+      //     layerName: "Background", position: new go.Point(0, 0),
+      //     selectable: false, pickable: false
+      //   },
+      //   $(go.Picture, "http://localhost:8080/static/16430934867374003.png")
+      // ));
+
+    
+    // function changeZOrder(amt:Number, obj:any) {
+    //   diagram.commit(function(d) {
+    //     var data = obj.part.data;
+    //     d.model.set(data, "zOrder", data.zOrder + amt);
+    //   }, 'modified zOrder');
     // }
-    function changeZOrder(amt:Number, obj:any) {
-      diagram.commit(function(d) {
-        var data = obj.part.data;
-        d.model.set(data, "zOrder", data.zOrder + amt);
-      }, 'modified zOrder');
-    }
     
 
     diagram.nodeTemplate =
@@ -197,7 +192,6 @@ export class DiagramWrapper extends Component<WrapperProps,AppState, {}> {
 
   
   public render() {
-    console.log(imageData);
     
     
     return (

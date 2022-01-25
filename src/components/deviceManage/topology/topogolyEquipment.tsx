@@ -52,6 +52,7 @@ interface AppState {
   diagramId: Number;
   imagePreviewUrl: any;
   file: any;
+  imageData: string;
 }
 
 export interface Props {
@@ -86,20 +87,37 @@ export class TopogolyEquipment extends Component<Props , AppState> {
       nodeEvent: null,
       diagramId:this.props.match.params.no,
       imagePreviewUrl: null,
+      imageData: null,
     };
     
   }
 
   public componentDidMount(): void {
-    const { diagramId } = this.state; 
+    const { diagramId, file } = this.state; 
+    // const reader = new FileReader();
+    
+    // if(fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'PNG' ) {
+    //   reader.onloadend  = (e) => {
+    //     console.log(reader);
+    //      this.setState({imagePreviewUrl : reader.result, isImageAddModel:false })
+    //   }
+    //   reader.readAsDataURL(file);
     DiagramViewService.getTopologyNode(diagramId)
       .then(res => {   
+        const reader = new FileReader();
         this.setState({
           nodeDataArray:res.data.nodeDataArray, 
-          linkDataArray: res.data.linkDataArray, 
+          linkDataArray: res.data.linkDataArray,
+          imageData: res.data.image 
         })
-      })
-      console.log("componentDidMount");
+        // if(file !== null) {
+        //   reader.onloadend  = (e) => {
+        //     console.log(reader);
+        //      this.setState({imagePreviewUrl : reader.result  })
+        //    }
+        //    reader.readAsDataURL(file);
+        //   }
+        })
       
   }
 
@@ -270,7 +288,8 @@ export class TopogolyEquipment extends Component<Props , AppState> {
     this.setState({ file: e.target.files[0]})
   }
 
-  public filePost = () => {
+  public filePost = (e:any) => {
+    e.preventDefault();
     const { file,imagePreviewUrl } = this.state; 
     if(file === null ) {
       return alert("파일을 선택해주세요.")
@@ -282,6 +301,7 @@ export class TopogolyEquipment extends Component<Props , AppState> {
     
     if(fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'PNG' ) {
       reader.onloadend  = (e) => {
+        console.log(reader);
          this.setState({imagePreviewUrl : reader.result, isImageAddModel:false })
       }
       reader.readAsDataURL(file);
@@ -291,14 +311,25 @@ export class TopogolyEquipment extends Component<Props , AppState> {
   }
 
   public saveBtn = () => {
-    const { nodeDataArray, linkDataArray, diagramId } = this.state;
+    const { nodeDataArray, linkDataArray, diagramId, file } = this.state;
+    console.log(file);
+    
+    const formData = new FormData();
+    formData.append('file', file);
     const data = {
       nodeDataArray: nodeDataArray,
       linkDataArray: linkDataArray,
     }
     DiagramViewService.insertTopologyNode(diagramId, data) 
       .then(() => {
-         console.log("저장하기 성공")
+         alert("저장되었습니다.")
+        })
+      .catch((err) => alert("실패했습니다."))  
+    console.log(formData);
+    DiagramViewService.diagramInsertImage(diagramId,formData) 
+      .then(() => {
+        console.log("이미지 서버로 가기");
+        
         })
       .catch((err) => console.log(err))
   }
@@ -307,12 +338,9 @@ export class TopogolyEquipment extends Component<Props , AppState> {
 
   public render = () => {
 
-  const { nodeDataArray, linkDataArray, selectedKey, isDeviceModal, isDeviceData,skipsDiagramUpdate,changeDiagramUpdate, isImageAddModel,file,imagePreviewUrl } = this.state;
+  const { nodeDataArray, linkDataArray, selectedKey, isDeviceModal, isDeviceData,skipsDiagramUpdate,changeDiagramUpdate, isImageAddModel,file,imagePreviewUrl, imageData } = this.state;
   console.log("node" ,nodeDataArray);
   console.log("link" ,linkDataArray);
-  
-  
-  
   
   
     return (
@@ -413,13 +441,14 @@ export class TopogolyEquipment extends Component<Props , AppState> {
             </Modal.Body>
 
                 <Form.Group className="ButtonArea">
-                  <Button className="saveBtn" onClick={()=> {this.filePost()}} > 추가 </Button>
+                  <Button className="saveBtn" onClick={(e)=> {this.filePost(e)}} > 추가 </Button>
                   <Button onClick={()=> this.setState({isImageAddModel: false})} className="hideBtn"  >닫기</Button>
                 </Form.Group>
               </Modal>
             </>
           }
         </div>
+
         <DiagramWrapper
           nodeDataArray={this.state.nodeDataArray}
           linkDataArray={this.state.linkDataArray}
@@ -427,7 +456,7 @@ export class TopogolyEquipment extends Component<Props , AppState> {
           skipsDiagramUpdate={this.state.skipsDiagramUpdate}
           onDiagramEvent={(e) => this.handleDiagramEvent(e)}
           onModelChange={(obj) => this.handleModelChange(obj)}
-          formData={imagePreviewUrl}
+          formData={imageData}
           
         />
       </div>
