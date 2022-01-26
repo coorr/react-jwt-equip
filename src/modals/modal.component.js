@@ -288,7 +288,7 @@ componentDidMount() { }
           프록시 설정
         </Form.Label>
         <Col sm={9}>
-            <Select 
+         <Select 
             options={Proxy}
            defaultValue={settingProxy} 
            onChange={value => this.onChangeProxy(value)} 
@@ -374,7 +374,7 @@ componentDidMount() { }
         {/* <Modal.Footer> */}
         <Form.Group className="ButtonArea">
             <Button variant="primary" type="submit" className="saveBtn"> 저장 </Button>
-            <Button onClick={this.props.onHide} className="hideBtn"  >닫기</Button>
+            <Button onClick={this.props.onHide}  className="hideBtn"  >닫기</Button>
         </Form.Group>
         {/* </Modal.Footer> */}
         </Form>

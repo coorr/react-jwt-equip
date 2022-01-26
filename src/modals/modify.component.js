@@ -251,16 +251,16 @@ componentDidMount() {
         </Form.Label>
         <Col sm={9} className="CheckBox"  >
         <div className="radioBox"> 
-              <input type="radio" value="Server" checked={settingCatagory=== 'Server'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">Server  </span>
-              <input type="radio" value="Network" checked={settingCatagory=== 'Network'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">Network</span>
-              <input type="radio" value="L2 Switch" checked={settingCatagory=== 'L2 Switch'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">L2 Switch</span>
-              <input type="radio" value="L3 Switch" checked={settingCatagory=== 'L3 Switch'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">L3 Switch</span>
-              <input type="radio" value="L4 Switch" checked={settingCatagory=== 'L4 Switch'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">L4 Switch</span>
-              <input type="radio" value="L7 Switch" checked={settingCatagory=== 'L7 Switch'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">L7 Switch</span>
-              <input type="radio" value="Firewall" checked={settingCatagory=== 'Firewall'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">Firewall</span>
-              <input type="radio" value="Security" checked={settingCatagory=== 'Security'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">Security</span>
-              <input type="radio" value="Air Conditioner" checked={settingCatagory=== 'Air Conditioner'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">Air Conditioner</span>
-              <input type="radio" value="UPS" checked={settingCatagory=== 'UPS'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">UPS</span>
+          <input type="radio" value="Server" checked={settingCatagory=== 'Server'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">Server  </span>
+          <input type="radio" value="Network" checked={settingCatagory=== 'Network'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">Network</span>
+          <input type="radio" value="L2 Switch" checked={settingCatagory=== 'L2 Switch'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">L2 Switch</span>
+          <input type="radio" value="L3 Switch" checked={settingCatagory=== 'L3 Switch'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">L3 Switch</span>
+          <input type="radio" value="L4 Switch" checked={settingCatagory=== 'L4 Switch'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">L4 Switch</span>
+          <input type="radio" value="L7 Switch" checked={settingCatagory=== 'L7 Switch'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">L7 Switch</span>
+          <input type="radio" value="Firewall" checked={settingCatagory=== 'Firewall'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">Firewall</span>
+          <input type="radio" value="Security" checked={settingCatagory=== 'Security'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">Security</span>
+          <input type="radio" value="Air Conditioner" checked={settingCatagory=== 'Air Conditioner'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">Air Conditioner</span>
+          <input type="radio" value="UPS" checked={settingCatagory=== 'UPS'} onChange={(e)=> this.setState({settingCatagory:e.target.value})}/><span className="CatagoryFont">UPS</span>
        </div>
         
         </Col>

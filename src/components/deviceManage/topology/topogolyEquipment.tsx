@@ -15,7 +15,6 @@ import {  AgGridReact } from 'ag-grid-react';
 import "ag-grid-enterprise";
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
-import diagramViewService from '../../../services/diagramView.service';
 import { IoIosAddCircleOutline, IoMdArrowRoundBack } from "react-icons/io"
 import { BsSave2 } from "react-icons/bs"
 
@@ -42,17 +41,17 @@ interface AppState {
   nodeDataArray: Array<go.ObjectData>;
   linkDataArray: Array<go.ObjectData>;
   modelData: go.ObjectData;
-  selectedKey: Array<Number>;
   skipsDiagramUpdate: boolean;
   isDeviceModal: boolean;
   isDeviceData: Array<object>;
   isImageAddModel:boolean;
-  nodeEvent: object;
-  changeDiagramUpdate: boolean;
   diagramId: Number;
   imagePreviewUrl: any;
   file: any;
   imageData: string;
+  isObjectAddModel: boolean;
+  isIconKey:Number;
+  isIconValue: any;
 }
 
 export interface Props {
@@ -66,25 +65,37 @@ export interface Props {
   }
 }
 
-export class TopogolyEquipment extends Component<Props , AppState> {
-  // private diagramRef: React.RefObject<ReactDiagram>;
+const iconArr:Array<object> = [
+  {id:1 ,img:'http://localhost:8080/static/marker-blue.png', size:'30 30', borderColor: 'white', loc:'-700 80'   },
+  {id:2 ,img:'http://localhost:8080/static/marker-green.png', size:'30 30', borderColor: 'white', loc:'-700 80'  },
+  {id:3 ,img:'http://localhost:8080/static/marker-red.png',  size:'30 30', borderColor: 'white', loc:'-700 80' },
+];
 
+export class TopogolyEquipment extends Component<Props , AppState> {
   deviceGridApi: any;
   constructor(props: Props) {
     super(props);
     this.state = {
-      nodeDataArray: [],
+      nodeDataArray: [
+        { key: 0, text: 'Alpha', color: 'white', loc: '0 0' },
+        { key: 1, text: 'Beta', color: 'white', loc: '150 0' },
+        { key: 2, text: 'Gamma', color: 'white', loc: '0 150' },
+        { key: 3, text: 'Delta', color: 'white', loc: '150 150' , size:'30 30' , borderColor: 'white', img: 'http://localhost:8080/static/marker-green.png' }
+      ],
+      // nodeDataArray: [],
       linkDataArray:[],
       modelData: { canRelink: true },
       file: null,
       
-      selectedKey: [],
       skipsDiagramUpdate: false,
-      changeDiagramUpdate: false,
+
       isDeviceModal:false,
-      isDeviceData : [], 
       isImageAddModel: false,
-      nodeEvent: null,
+      isObjectAddModel: false,
+      isDeviceData : [], 
+      isIconKey:1,
+      isIconValue: null,
+      
       diagramId:this.props.match.params.no,
       imagePreviewUrl: null,
       imageData: null,
@@ -94,54 +105,25 @@ export class TopogolyEquipment extends Component<Props , AppState> {
 
   public componentDidMount(): void {
     const { diagramId, file } = this.state; 
-    // const reader = new FileReader();
-    
-    // if(fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'PNG' ) {
-    //   reader.onloadend  = (e) => {
-    //     console.log(reader);
-    //      this.setState({imagePreviewUrl : reader.result, isImageAddModel:false })
-    //   }
-    //   reader.readAsDataURL(file);
     DiagramViewService.getTopologyNode(diagramId)
       .then(res => {   
         const reader = new FileReader();
         this.setState({
-          nodeDataArray:res.data.nodeDataArray, 
+          // nodeDataArray:res.data.nodeDataArray, 
           linkDataArray: res.data.linkDataArray,
-          imageData: res.data.image 
+          
         })
-        // if(file !== null) {
-        //   reader.onloadend  = (e) => {
-        //     console.log(reader);
-        //      this.setState({imagePreviewUrl : reader.result  })
-        //    }
-        //    reader.readAsDataURL(file);
-        //   }
-        })
+        if(res.data.image !== undefined) {
+          this.setState({ imageData: res.data.image })
+        }
+      })
       
   }
 
 
 
   public handleDiagramEvent = (e: go.DiagramEvent)  => {
-    console.log(e);
-    // const name = e.name;
-    // const keys = [];
-    // switch (name) {
-    //   case 'ChangedSelection': {
-    //     // const sel = e.subject.first();
-        
-    //     // if (!this.state.selectedKey.includes(sel.key)) {
-    //     //   keys.push(sel.key);
-    //     //   console.log(sel.key)
-    //     //   this.setState({ selectedKey: this.state.selectedKey.concat(sel.key)});
-    //     // } else {
-    //     //   this.setState({ selectedKey: this.state.selectedKey.filter((v) => v !== sel.key)});
-    //     // }
-    //     break;
-    //   }
-    //   default: break;
-    // }
+
   }
 
   public handleModelChange= (obj: go.IncrementalData) => {
@@ -158,7 +140,7 @@ export class TopogolyEquipment extends Component<Props , AppState> {
     this.setState({skipsDiagramUpdate: true})
     console.log(this.state.skipsDiagramUpdate);
     
-    const { selectedKey, nodeDataArray, linkDataArray, changeDiagramUpdate, skipsDiagramUpdate } = this.state;
+    const { nodeDataArray, linkDataArray, skipsDiagramUpdate } = this.state;
     
 
     if(obj.modifiedNodeData !== undefined &&  skipsDiagramUpdate) {
@@ -228,14 +210,18 @@ export class TopogolyEquipment extends Component<Props , AppState> {
 
   public addNodeBtn = () => {
     const { nodeDataArray } = this.state;
+    console.log(nodeDataArray);
+    
     AiwacsService.getEquipmentSnmp() 
       .then(res => {
-        const nodeKey:Array<Number> = [];
+        console.log(res.data);
+        
+        const nodeIp:Array<Number> = [];
         nodeDataArray.forEach((n) => {
-          nodeKey.push(n.id);
+          nodeIp.push(n.settingIp);
         })
         const deviceData = res.data.filter((v:any) => {
-          return !nodeKey.includes(v.id)
+          return !nodeIp.includes(v.settingIp)
         })
         
         console.log(deviceData);
@@ -261,8 +247,8 @@ export class TopogolyEquipment extends Component<Props , AppState> {
         obj.equipment= v.data.equipment
         obj.settingIp=v.data.settingIp
         obj.loc=xAxis+' '+"30"
+        obj.category='device'
         selectedDeviceName.push(obj);
-        
       });
       this.setState({ isDeviceModal:false, nodeDataArray: this.state.nodeDataArray.concat(selectedDeviceName), skipsDiagramUpdate:false  });
     }
@@ -281,7 +267,7 @@ export class TopogolyEquipment extends Component<Props , AppState> {
   }
 
   public imageRemoveBackground = () => {
-    this.setState({ imagePreviewUrl:null })
+    this.setState({ imagePreviewUrl:null , imageData: null })
   }
 
   public fileChange = (e:any) => {
@@ -301,17 +287,40 @@ export class TopogolyEquipment extends Component<Props , AppState> {
     
     if(fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'PNG' ) {
       reader.onloadend  = (e) => {
-        console.log(reader);
-         this.setState({imagePreviewUrl : reader.result, isImageAddModel:false })
+        this.setState({imagePreviewUrl : reader.result, isImageAddModel:false , imageData:null})
       }
       reader.readAsDataURL(file);
+      
     } else {
       return alert("이미지 파일만 업로드 가능합니다.")
     }
   }
 
+  objectAddBtn = () => {
+    this.setState({isObjectAddModel : true})
+  }
+
+  iconChange = (e:any,v:any) => {
+    
+    console.log(v);
+    this.setState({isIconKey: v.id , isIconValue: v})
+    
+  }
+
+  objectPost = (e:any) => {
+    e.preventDefault();
+    console.log(this.state.isIconValue);
+    const { isIconValue } = this.state; 
+    this.setState({ isObjectAddModel:false, nodeDataArray: this.state.nodeDataArray.concat(isIconValue), skipsDiagramUpdate:false })
+    
+    // { key: 3, text: 'Delta', color: 'white', loc: '150 150' , size:'30 30' , borderColor: 'white', img: 'http://localhost:8080/static/marker-green.png' }
+    // { img : ww.png, id: 0_1,  loc: 'random' , size: '30 30', borderColor: 'white', }
+    // 선택된 아이콘의 모양과 색깔
+    // nodeDataArray concat 배열 값을 추가해야함
+  }
+
   public saveBtn = () => {
-    const { nodeDataArray, linkDataArray, diagramId, file } = this.state;
+    const { nodeDataArray, linkDataArray, diagramId, file, imageData, imagePreviewUrl } = this.state;
     console.log(file);
     
     const formData = new FormData();
@@ -326,19 +335,36 @@ export class TopogolyEquipment extends Component<Props , AppState> {
         })
       .catch((err) => alert("실패했습니다."))  
     console.log(formData);
-    DiagramViewService.diagramInsertImage(diagramId,formData) 
-      .then(() => {
-        console.log("이미지 서버로 가기");
-        
-        })
-      .catch((err) => console.log(err))
+
+    console.log(imageData);
+    console.log(imagePreviewUrl);
+    
+    if(imageData === null) {
+      if(imagePreviewUrl !== null) {
+        DiagramViewService.diagramInsertImage(diagramId,formData) 
+        .then(() => {
+          console.log("이미지 서버로 가기");
+          
+          })
+        .catch((err) => console.log(err))
+      } else {
+        DiagramViewService.diagramDeleteImage(diagramId) 
+        .then(() => {
+          console.log("이미지 서버로 가기");
+          
+          })
+        .catch((err) => console.log(err))
+      }
+    }
+    
+    
   }
 
   
 
   public render = () => {
 
-  const { nodeDataArray, linkDataArray, selectedKey, isDeviceModal, isDeviceData,skipsDiagramUpdate,changeDiagramUpdate, isImageAddModel,file,imagePreviewUrl, imageData } = this.state;
+  const { nodeDataArray, linkDataArray, isDeviceModal, isDeviceData, isImageAddModel,imagePreviewUrl, imageData, isObjectAddModel,isIconKey } = this.state;
   console.log("node" ,nodeDataArray);
   console.log("link" ,linkDataArray);
   
@@ -346,7 +372,7 @@ export class TopogolyEquipment extends Component<Props , AppState> {
     return (
       <div className={styles.topogolgy_container}>
         <div className={styles.topogolgy_topMenu}>
-          <button className={styles.topogolgy_topButton} >
+          <button className={styles.topogolgy_topButton} onClick={() => this.objectAddBtn()}>
             <IoIosAddCircleOutline className={styles.topogolgy_addLogo} size="24" color='green' />
             오브젝트 추가
           </button>
@@ -447,16 +473,69 @@ export class TopogolyEquipment extends Component<Props , AppState> {
               </Modal>
             </>
           }
+          {
+            isObjectAddModel && 
+            <>
+            <Modal show={isObjectAddModel} onHide={()=> this.setState({isObjectAddModel:false})} size="lg" aria-labelledby="contained-modal-title-vcenter"   >
+              <Modal.Header  className="header-Area">
+              <Modal.Title id="contained-modal-title-vcenter" className="header_Text">
+                장비
+              </Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+              <Container>
+                <Form.Group as={Row} className="mb-3" controlId="formHorizontalEquip">
+                    <Form.Label column sm={3}>  
+                    <span className="list_square">■</span>
+                      카테고리
+                    </Form.Label>
+
+                    <div className="fileArea">
+                      <select name="changeType" className="diagramChartSelect" >
+                          <option value="icon">아이콘</option>
+                          <option value="text">텍스트</option>
+                      </select>
+                    </div>
+                </Form.Group>
+
+                <Form.Group as={Row} className="mb-3" controlId="formHorizontalEquip">
+                    <Form.Label column sm={3}>  
+                    <span className="list_square">■</span>
+                      유형
+                    </Form.Label>
+
+                    <div className="fileArea">
+                      {
+                        iconArr.map((v:any,i) => (
+                          <div key={v}>
+                            <input type="radio" checked={v.id === isIconKey} onChange={(e) => this.iconChange(e,v)} />
+                            <img src={v.img} className={styles.diagram_category_icon} />
+                          </div>
+                        ))
+                      }
+                    </div>
+                </Form.Group>
+              </Container>
+            </Modal.Body>
+                <Form.Group className="ButtonArea">
+                  <Button className="saveBtn" onClick={(e)=> {this.objectPost(e)}} > 추가 </Button>
+                  <Button onClick={()=> this.setState({isObjectAddModel: false})} className="hideBtn"  >닫기</Button>
+                </Form.Group>
+              </Modal>
+            </>
+          }
         </div>
 
         <DiagramWrapper
-          nodeDataArray={this.state.nodeDataArray}
-          linkDataArray={this.state.linkDataArray}
-          modelData={this.state.modelData}
-          skipsDiagramUpdate={this.state.skipsDiagramUpdate}
-          onDiagramEvent={(e) => this.handleDiagramEvent(e)}
-          onModelChange={(obj) => this.handleModelChange(obj)}
-          formData={imageData}
+          nodeDataArray={this.state.nodeDataArray }
+          linkDataArray={this.state.linkDataArray }
+          modelData={this.state.modelData } 
+          skipsDiagramUpdate={this.state.skipsDiagramUpdate }
+          onDiagramEvent={(e) => this.handleDiagramEvent(e) }
+          onModelChange={(obj) => this.handleModelChange(obj) }
+          dbImage={imageData }
+          currentImage={imagePreviewUrl }
           
         />
       </div>

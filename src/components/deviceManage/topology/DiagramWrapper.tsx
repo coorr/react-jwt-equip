@@ -11,11 +11,13 @@ interface WrapperProps {
   skipsDiagramUpdate: boolean;
   onDiagramEvent: (e: go.DiagramEvent) => void;
   onModelChange: (e: go.IncrementalData) => void;
-  formData: string;
+  dbImage: string;
+  currentImage: string;
   
 }
 interface AppState {
   image: string;
+  currentImage: string;
 }
 
 let imageData:any = null;
@@ -28,6 +30,7 @@ export class DiagramWrapper extends Component<WrapperProps,AppState, {}> {
     super(props);
     this.state = {
       image: null,
+      currentImage: null,
     }
     this.diagramRef = React.createRef();
   }
@@ -52,22 +55,51 @@ export class DiagramWrapper extends Component<WrapperProps,AppState, {}> {
 
   public componentDidUpdate(prevProps: Readonly<WrapperProps>, prevState: Readonly<AppState>, snapshot?: {}): void {
     const diagram = this.diagramRef.current.getDiagram();
-    console.log(imageData);
-    
-      if(this.props.formData !== prevProps.formData) {
+
+      if(this.props.dbImage !== prevProps.dbImage) {
+        console.log(this.props.dbImage);
+        console.log(prevProps.dbImage);
         if(diagram.parts.first() !== null) {
           diagram.remove(diagram.parts.first());
         }
         diagram.add(
           $(go.Part, {
-            width: 840, height:570,
-            layerName:"Background", position: new go.Point(0,0),
-            selectable:false, pickable:false
+            layerName:"Background", 
+            selectable:false, pickable:false,
+            location: new go.Point(-250,-350),
           }, 
-          $(go.Picture, `http://localhost:8080/static/${this.props.formData}`
+          $(go.Picture, {
+            width: 500, 
+            height:700,
+          }, `http://localhost:8080/static/${this.props.dbImage}`
           ))
         )
       }
+
+      if(this.props.currentImage !== prevProps.currentImage) {
+        console.log("currentImage");
+        
+        if(diagram.parts.first() !== null) {
+          diagram.remove(diagram.parts.first());
+        }
+        diagram.add(
+          $(go.Part, {
+            layerName:"Background", 
+            selectable:false, pickable:false,
+            location: new go.Point(-250,-350),
+          }, 
+          $(go.Picture, {
+            width: 500, 
+            height:700,
+            source: this.props.currentImage
+          }
+          ))
+        )
+      }
+
+      
+
+
   }
 
 
@@ -75,6 +107,7 @@ export class DiagramWrapper extends Component<WrapperProps,AppState, {}> {
     const diagram =
       $(go.Diagram,
         {
+          
           'undoManager.isEnabled': true,  // 모델 변경 수신을 허용하도록 설정해야 합니다. 
           'clickCreatingTool.archetypeNodeData': { text: 'new node', color: 'lightblue' },
           model: $(go.GraphLinksModel,
@@ -126,7 +159,7 @@ export class DiagramWrapper extends Component<WrapperProps,AppState, {}> {
       $(go.Node, 'Vertical',  
         new go.Binding('location', 'loc',go.Point.parse).makeTwoWay(ConvertitToInt),
         $(go.Panel,"Auto", 
-        { width: 80 },
+        { width: 65 },
         // $("Button",
         // { alignment: go.Spot.BottomLeft, alignmentFocus: go.Spot.BottomLeft,
         //   click: function (e, obj) { changeZOrder(-1, obj); } },
@@ -135,15 +168,17 @@ export class DiagramWrapper extends Component<WrapperProps,AppState, {}> {
             {
               name: 'SHAPE', fill: 'white', strokeWidth: 2, stroke: 'skyblue',
               portId: '', fromLinkable: true, toLinkable: true, cursor: 'pointer',
-              width:60,
+              width:60, 
             },
-            new go.Binding('fill', 'color')),
+            new go.Binding('fill', 'color'),
+            new go.Binding('stroke', 'borderColor'),
+            ),
             $(go.Picture,
               {maxSize: new go.Size(50, 50), source: EquipmentLogo},
-              new go.Binding("source" , "img")),
-         
-        
-          $(go.Shape, "LineH", { width: 14, height: 14 })),
+              new go.Binding("source" , "img"),
+              new go.Binding("maxSize" , "size", go.Size.parse).makeTwoWay(),
+              ),
+          ),
           $(go.TextBlock,
             { margin: 1, editable: true, font: '400 .775rem Roboto, sans-serif' },  
             new go.Binding('text','equipment').makeTwoWay()

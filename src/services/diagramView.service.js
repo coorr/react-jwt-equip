@@ -9,6 +9,9 @@ class diagramViewService {
   insertTopologyNode(diagramId,data) {
     return axios.post(API_URL + "topology/insertTopologyNode/"+diagramId, data, { headers: { Authorization:  authHeader() }});
   } 
+  diagramDeleteImage(diagramId) {
+    return axios.post(API_URL + "topology/diagramDeleteImage/"+diagramId, { headers: { Authorization:  authHeader() }});
+  }
   diagramInsertImage(diagramId,formData) {
     return axios.post(API_URL + "topology/diagramInsertImage/"+diagramId, formData, { headers: { Authorization:  authHeader(), 'Content-Type' : 'multipart/form-data' }});
   } 

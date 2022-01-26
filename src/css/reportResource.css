@@ -70,6 +70,7 @@
 .reportChartInput{margin-top: 4%; background-color: #E5E4EA; float: right; margin-right: 2%;}
 .reportChartLabel{font-size: 0.9em;  float: right; margin-top: 1%; margin-right: 6%;}
 .reportChartSelect{float: right; margin-left: 3%;}
+.diagramChartSelect{width: 100%; background-color: #F3F3F5; border-color: #ddd; font-size: 0.9em; }
 
 /* 보고서 자원 model */
 .reportModelHw{margin-top: -5%;}
