@@ -66,9 +66,10 @@ export interface Props {
 }
 
 const iconArr:Array<object> = [
-  {id:1 ,img:'http://localhost:8080/static/marker-blue.png', size:'30 30', borderColor: 'white', loc:'-700 80'   },
-  {id:2 ,img:'http://localhost:8080/static/marker-green.png', size:'30 30', borderColor: 'white', loc:'-700 80'  },
-  {id:3 ,img:'http://localhost:8080/static/marker-red.png',  size:'30 30', borderColor: 'white', loc:'-700 80' },
+  
+  {id:7 ,img:'http://localhost:8080/static/marker-green.png', size:'30 30', nodeBorder: 'white', loc:'-700 80'  , category:'icon'},
+  {id:6 ,img:'http://localhost:8080/static/marker-blue.png', size:'30 30', nodeBorder: 'white', loc:'-700 80' , category:'icon' },
+  {id:8 ,img:'http://localhost:8080/static/marker-red.png',  size:'30 30', nodeBorder: 'white', loc:'-700 80', category:'icon' },
 ];
 
 export class TopogolyEquipment extends Component<Props , AppState> {
@@ -76,13 +77,13 @@ export class TopogolyEquipment extends Component<Props , AppState> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      nodeDataArray: [
-        { key: 0, text: 'Alpha', color: 'white', loc: '0 0' },
-        { key: 1, text: 'Beta', color: 'white', loc: '150 0' },
-        { key: 2, text: 'Gamma', color: 'white', loc: '0 150' },
-        { key: 3, text: 'Delta', color: 'white', loc: '150 150' , size:'30 30' , borderColor: 'white', img: 'http://localhost:8080/static/marker-green.png' }
-      ],
-      // nodeDataArray: [],
+      // nodeDataArray: [
+      //   { key: 0, text: 'Alpha', color: 'white', loc: '0 0' },
+      //   { key: 1, text: 'Beta', color: 'white', loc: '150 0' },
+      //   { key: 2, text: 'Gamma', color: 'white', loc: '0 150' },
+      //   // { key: 3, text: 'Delta', color: 'white', loc: '150 150' , size:'30 30' , nodeBorder: 'white', img: 'http://localhost:8080/static/marker-green.png' }
+      // ],
+      nodeDataArray: [],
       linkDataArray:[],
       modelData: { canRelink: true },
       file: null,
@@ -93,8 +94,8 @@ export class TopogolyEquipment extends Component<Props , AppState> {
       isImageAddModel: false,
       isObjectAddModel: false,
       isDeviceData : [], 
-      isIconKey:1,
-      isIconValue: null,
+      isIconKey:7,
+      isIconValue: {id:7 ,img:'http://localhost:8080/static/marker-green.png', size:'30 30', nodeBorder: 'white', loc:'-700 80' , category:'icon' },
       
       diagramId:this.props.match.params.no,
       imagePreviewUrl: null,
@@ -109,7 +110,7 @@ export class TopogolyEquipment extends Component<Props , AppState> {
       .then(res => {   
         const reader = new FileReader();
         this.setState({
-          // nodeDataArray:res.data.nodeDataArray, 
+          nodeDataArray:res.data.nodeDataArray, 
           linkDataArray: res.data.linkDataArray,
           
         })
@@ -309,14 +310,9 @@ export class TopogolyEquipment extends Component<Props , AppState> {
 
   objectPost = (e:any) => {
     e.preventDefault();
-    console.log(this.state.isIconValue);
     const { isIconValue } = this.state; 
     this.setState({ isObjectAddModel:false, nodeDataArray: this.state.nodeDataArray.concat(isIconValue), skipsDiagramUpdate:false })
-    
-    // { key: 3, text: 'Delta', color: 'white', loc: '150 150' , size:'30 30' , borderColor: 'white', img: 'http://localhost:8080/static/marker-green.png' }
-    // { img : ww.png, id: 0_1,  loc: 'random' , size: '30 30', borderColor: 'white', }
-    // 선택된 아이콘의 모양과 색깔
-    // nodeDataArray concat 배열 값을 추가해야함
+
   }
 
   public saveBtn = () => {
@@ -329,15 +325,6 @@ export class TopogolyEquipment extends Component<Props , AppState> {
       nodeDataArray: nodeDataArray,
       linkDataArray: linkDataArray,
     }
-    DiagramViewService.insertTopologyNode(diagramId, data) 
-      .then(() => {
-         alert("저장되었습니다.")
-        })
-      .catch((err) => alert("실패했습니다."))  
-    console.log(formData);
-
-    console.log(imageData);
-    console.log(imagePreviewUrl);
     
     if(imageData === null) {
       if(imagePreviewUrl !== null) {
@@ -356,6 +343,11 @@ export class TopogolyEquipment extends Component<Props , AppState> {
         .catch((err) => console.log(err))
       }
     }
+    DiagramViewService.insertTopologyNode(diagramId, data) 
+      .then(() => {
+         alert("저장되었습니다.")
+        })
+      .catch((err) => alert("실패했습니다."))  
     
     
   }
@@ -364,7 +356,7 @@ export class TopogolyEquipment extends Component<Props , AppState> {
 
   public render = () => {
 
-  const { nodeDataArray, linkDataArray, isDeviceModal, isDeviceData, isImageAddModel,imagePreviewUrl, imageData, isObjectAddModel,isIconKey } = this.state;
+  const { nodeDataArray, linkDataArray, isDeviceModal, isDeviceData, isImageAddModel,imagePreviewUrl, imageData, isObjectAddModel,isIconKey, isIconValue } = this.state;
   console.log("node" ,nodeDataArray);
   console.log("link" ,linkDataArray);
   
@@ -509,7 +501,7 @@ export class TopogolyEquipment extends Component<Props , AppState> {
                       {
                         iconArr.map((v:any,i) => (
                           <div key={v}>
-                            <input type="radio" checked={v.id === isIconKey} onChange={(e) => this.iconChange(e,v)} />
+                            <input type="radio" checked={v.id === isIconKey} value={isIconValue} onChange={(e) => this.iconChange(e,v)} />
                             <img src={v.img} className={styles.diagram_category_icon} />
                           </div>
                         ))

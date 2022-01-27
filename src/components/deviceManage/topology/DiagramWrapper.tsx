@@ -171,7 +171,7 @@ export class DiagramWrapper extends Component<WrapperProps,AppState, {}> {
               width:60, 
             },
             new go.Binding('fill', 'color'),
-            new go.Binding('stroke', 'borderColor'),
+            new go.Binding('stroke', 'nodeBorder'),
             ),
             $(go.Picture,
               {maxSize: new go.Size(50, 50), source: EquipmentLogo},
