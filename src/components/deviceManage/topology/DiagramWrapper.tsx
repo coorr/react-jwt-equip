@@ -107,7 +107,6 @@ export class DiagramWrapper extends Component<WrapperProps,AppState, {}> {
     const diagram =
       $(go.Diagram,
         {
-          
           'undoManager.isEnabled': true,  // 모델 변경 수신을 허용하도록 설정해야 합니다. 
           'clickCreatingTool.archetypeNodeData': { text: 'new node', color: 'lightblue' },
           model: $(go.GraphLinksModel,

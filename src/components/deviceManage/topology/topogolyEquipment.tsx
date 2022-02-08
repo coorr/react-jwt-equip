@@ -108,7 +108,6 @@ export class TopogolyEquipment extends Component<Props , AppState> {
     const { diagramId, file } = this.state; 
     DiagramViewService.getTopologyNode(diagramId)
       .then(res => {   
-        const reader = new FileReader();
         this.setState({
           nodeDataArray:res.data.nodeDataArray, 
           linkDataArray: res.data.linkDataArray,
@@ -151,6 +150,8 @@ export class TopogolyEquipment extends Component<Props , AppState> {
       modifiedNodeData.forEach((v) => {
         key.push(v.id)
       })
+      console.log(modifiedNodeData);
+      
       const keyDelete = nodeDataArray.filter((x,i) => {
         return !key.includes(x.id);
         }
@@ -288,6 +289,8 @@ export class TopogolyEquipment extends Component<Props , AppState> {
     
     if(fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'PNG' ) {
       reader.onloadend  = (e) => {
+        console.log(reader.result);
+        
         this.setState({imagePreviewUrl : reader.result, isImageAddModel:false , imageData:null})
       }
       reader.readAsDataURL(file);
