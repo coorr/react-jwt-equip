@@ -66,7 +66,6 @@ export interface Props {
 }
 
 const iconArr:Array<object> = [
-  
   {id:7 ,img:'http://localhost:8080/static/marker-green.png', size:'30 30', nodeBorder: 'white', loc:'-700 80'  , category:'icon'},
   {id:6 ,img:'http://localhost:8080/static/marker-blue.png', size:'30 30', nodeBorder: 'white', loc:'-700 80' , category:'icon' },
   {id:8 ,img:'http://localhost:8080/static/marker-red.png',  size:'30 30', nodeBorder: 'white', loc:'-700 80', category:'icon' },

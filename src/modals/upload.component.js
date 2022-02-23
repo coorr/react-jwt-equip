@@ -104,7 +104,7 @@ export default class upload extends Component  {
 
     if(file === null ) {
       alert("파일을 선택해주세요")
-    } else if(fileExtension !== 'xlsx' ) {
+    } else if(fileExtension !== 'xlsx'  ) {
       alert("엑셀 파일만 업로드 가능합니다.")
     } else {
       reader.onload = (e) => {

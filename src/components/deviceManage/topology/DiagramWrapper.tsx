@@ -96,10 +96,6 @@ export class DiagramWrapper extends Component<WrapperProps,AppState, {}> {
           ))
         )
       }
-
-      
-
-
   }
 
 
@@ -226,7 +222,6 @@ export class DiagramWrapper extends Component<WrapperProps,AppState, {}> {
 
   
   public render() {
-    
     
     return (
       <ReactDiagram
